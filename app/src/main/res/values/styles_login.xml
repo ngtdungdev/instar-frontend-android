@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="layoutEditTextLogin">
+         <item name="android:background">"@drawable/border_component_login"</item>
+    </style>
+    <style name="TableEditTextLogin">
+        <item name="android:background">"@drawable/border_component_login"</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+    <style name="editTextLogin">
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">#FFFFFF</item>
+        <item name="android:ems">10</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="buttonColorLogin">
+        <item name="android:layout_width">380dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:backgroundTint">#4558FF</item>
+    </style>
+    <style name="textViewItalicLogin">
+        <item name="android:layout_width">173dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal|italic</item>
+    </style>
+</resources>

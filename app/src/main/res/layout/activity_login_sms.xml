@@ -20,14 +20,14 @@
         android:src="@drawable/ic_instagram_back_up" />
 
     <include
-        android:id="@+id/emailTitle"
+        android:id="@+id/smsTitle"
         layout="@layout/textview_login"
         android:layout_width="380dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp" />
 
     <include
-        android:id="@+id/email"
+        android:id="@+id/sms"
         style="@style/layoutEditTextLogin"
         layout="@layout/edittext_login"
         android:layout_width="380dp"
@@ -37,10 +37,19 @@
         tools:layout_editor_absoluteY="172dp" />
 
     <Button
-        android:id="@+id/btnFindAccount"
+        android:id="@+id/btnSms"
         style="@style/buttonColorLogin"
         android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />
+
+    <TextView
+        android:id="@+id/btnNewSms"
+        style="@style/textViewItalicLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="0dp" />
 </LinearLayout>

@@ -25,7 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_instagram_foreground" />
+        app:srcCompat="@drawable/ic_instagram_icon" />
 
 
     <Button
@@ -72,10 +72,14 @@
         android:id="@+id/imageView6"
         android:layout_width="140dp"
         android:layout_height="140dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="15dp"
         android:background="@drawable/image_round_backgroud"
-        app:srcCompat="@drawable/baseline_account_circle_24"
-        tools:layout_editor_absoluteX="135dp"
-        tools:layout_editor_absoluteY="160dp" />
+        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4"
+        app:srcCompat="@drawable/baseline_account_circle_24" />
 
     <TextView
         android:id="@+id/textView2"

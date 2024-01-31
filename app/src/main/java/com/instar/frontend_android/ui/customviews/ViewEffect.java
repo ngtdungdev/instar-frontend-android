@@ -27,6 +27,10 @@ public class ViewEffect {
                         imageButton.setBackgroundResource(R.drawable.ic_instagram_back_down);
                         return true;
                     }
+                    case MotionEvent.ACTION_CANCEL: {
+                        imageButton.setBackgroundResource(R.drawable.ic_instagram_back_up);
+                        return false;
+                    }
                     case MotionEvent.ACTION_UP: {
                         imageButton.setBackgroundResource(R.drawable.ic_instagram_back_up);
                         return true;
@@ -45,6 +49,10 @@ public class ViewEffect {
                         textView.setAlpha(0.7f);
                         return true;
                     }
+                    case MotionEvent.ACTION_CANCEL: {
+                        textView.setAlpha(1f);
+                        return false;
+                    }
                     case MotionEvent.ACTION_UP: {
                         textView.setAlpha(1f);
                         return true;
@@ -61,18 +69,25 @@ public class ViewEffect {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:{
-                        imageButton.setBackgroundResource(R.drawable.selector_btn_color_login_down);
-                        textView.setTextColor(Color.parseColor("#7986FF"));
+                        imageButton.setAlpha(0.7f);
+                        textView.setAlpha(0.7f);
                         applyValueAnimation(textView,14,13.8f);
                         applyScaleAnimation(imageButton,1.0f,0.97f,1.0f,0.97f);
-                        return true;
+                        return false;
                     }
-                    case MotionEvent.ACTION_UP: {
-                        imageButton.setBackgroundResource(R.drawable.selector_btn_color_login_up);
-                        textView.setTextColor(Color.parseColor("#4558FF"));
+                    case MotionEvent.ACTION_CANCEL: {
+                        imageButton.setAlpha(1f);
+                        textView.setAlpha(1f);
                         applyValueAnimation(textView,13.7f,14);
                         applyScaleAnimation(imageButton,0.97f, 1.0f, 0.97f, 1.0f);
                         return true;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        imageButton.setAlpha(1f);
+                        textView.setAlpha(1f);
+                        applyValueAnimation(textView,13.7f,14);
+                        applyScaleAnimation(imageButton,0.97f, 1.0f, 0.97f, 1.0f);
+                        return false;
                     }
                 }
                 return false;

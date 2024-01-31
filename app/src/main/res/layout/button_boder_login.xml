@@ -8,10 +8,10 @@
             android:id="@+id/imageButton"
             android:layout_width="380dp"
             android:layout_height="45dp"
-            android:background="@drawable/selector_btn_color_login_up" />
+            android:background="@drawable/selector_btn_color_login" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

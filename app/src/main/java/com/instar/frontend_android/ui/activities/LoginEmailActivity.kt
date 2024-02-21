@@ -4,18 +4,30 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginEmailBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
+import com.instar.frontend_android.types.requests.LoginRequest
+import com.instar.frontend_android.types.requests.VerifyCodeRequest
+import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
+import com.instar.frontend_android.ui.services.AuthService
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
+import com.instar.frontend_android.ui.utils.Helpers
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class LoginEmailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginEmailBinding
@@ -30,6 +42,9 @@ class LoginEmailActivity : AppCompatActivity() {
     private lateinit var labelEmail: TextView
     private lateinit var btnRemove: ImageButton
     private lateinit var btnFindAccount: Button
+    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+
+    val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,36 +79,30 @@ class LoginEmailActivity : AppCompatActivity() {
         viewEditText.EditTextRemove(layoutEmail.root, emailText, labelEmail, btnRemove)
         ViewEffect.ViewText(btnText)
         btnText.setOnClickListener {
-//            val authService = ServiceBuilder.buildService(AuthService::class.java)
-//
-//            val loginRequest = LoginRequest()
-//            loginRequest.email = "example@email.com"
-//            loginRequest.password = "password123"
-//
-//            authService.login(loginRequest).enqueue(object : Callback<ApiResponse<AuthResponse>> {
-//                override fun onResponse(
-//                    call: Call<ApiResponse<AuthResponse>>,
-//                    response: Response<ApiResponse<AuthResponse>>
-//                ) {
-//                    if (response.isSuccessful) {
-//                        val authResponse = response.body()
-//
-//                        Log.e("authResponse", authResponse!!.data.accessToken + "")
-//                        // Xử lý authResponse ở đây
-//                    } else {
-//                        // Xử lý lỗi nếu cần
-//                    }
-//                }
-//
-//                override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
-//                    Log.e("authResponse", "1123")
-//                }
-//            })
         }
 
         btnFindAccount.setOnClickListener {
-            val intent = Intent(this@LoginEmailActivity, LoginSmsActivity::class.java)
-            startActivity(intent)
+            if (!Helpers.isValidEmail(emailText.text.toString()) || emailText.text.toString().isEmpty()) {
+                return@setOnClickListener;
+            }
+
+            val verifyCodeRequest = VerifyCodeRequest().apply {
+                email = emailText.text.toString()
+            }
+
+            authService.verifyCode(verifyCodeRequest).handleResponse(
+                onSuccess = { response ->
+                    // Handle successful response
+                    val intent = Intent(this@LoginEmailActivity, ResetPasswordActivity::class.java)
+                    intent.putExtra("email", verifyCodeRequest.email)
+                    startActivity(intent)
+                },
+                onError = { error ->
+                    // Handle error
+                    Log.e("ServiceBuilder", "Error: $error")
+                }
+            )
+
         }
 
         layout.setOnClickListener {

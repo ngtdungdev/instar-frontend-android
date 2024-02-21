@@ -1,8 +1,10 @@
 package com.instar.frontend_android.ui.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -13,8 +15,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginPasswordBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
+import com.instar.frontend_android.types.requests.LoginRequest
+import com.instar.frontend_android.types.requests.ResetPasswordRequest
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
+import com.instar.frontend_android.ui.services.AuthService
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
+import com.instar.frontend_android.ui.utils.Helpers
 
 class ResetPasswordActivity : AppCompatActivity() {
     private lateinit var binding:ActivityLoginPasswordBinding
@@ -35,7 +43,15 @@ class ResetPasswordActivity : AppCompatActivity() {
     private lateinit var labelRepeatPassword: TextView
     private lateinit var btnEyesRepeatPassword: ImageButton
 
+    private lateinit var layoutSms: EdittextLoginBinding
+    private lateinit var SmsText: EditText
+    private lateinit var labelSms: TextView
+
     private lateinit var btnConfirm: Button
+
+    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+
+    val emailVerifyCode = intent.getStringExtra("email")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +75,12 @@ class ResetPasswordActivity : AppCompatActivity() {
         textNote = binding.passWordTitle.textNote
         btnText = binding.passWordTitle.btnText
 
+        layoutSms = binding.sms
+        SmsText = layoutSms.editText
+        labelSms = layoutSms.textView
+
+        btnText = binding.passWordTitle.btnText
+
         btnConfirm = binding.btnPassWord
         loadActivity()
         initView()
@@ -70,6 +92,8 @@ class ResetPasswordActivity : AppCompatActivity() {
         labelPassword.text = "Mật khẩu mới"
         repeatPasswordText.hint = "Nhập lại mật khẩu mới "
         labelRepeatPassword.text = "Nhập lại mật khẩu mới"
+        labelSms.text = "Nhập mã"
+        SmsText.hint = "Nhập mã"
         btnConfirm.text = "Xác nhận"
         passwordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         repeatPasswordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
@@ -94,7 +118,34 @@ class ResetPasswordActivity : AppCompatActivity() {
             }
         })
         ViewEffect.ViewText(btnText)
-        btnText.setOnClickListener { }
+        btnText.setOnClickListener {  }
+
+        btnConfirm.setOnClickListener {
+            if (SmsText.text.toString().isEmpty() || repeatPasswordText.text.toString().isEmpty() || passwordText.text.toString().isEmpty()) {
+                return@setOnClickListener;
+            }
+
+            if (!repeatPasswordText.text.toString().equals(passwordText.text.toString())) {
+                return@setOnClickListener;
+            }
+
+            val resetPasswordRequest = ResetPasswordRequest().apply {
+                verifyCode = SmsText.text.toString()
+                newPassword = passwordText.text.toString()
+                email = emailVerifyCode
+            }
+
+            authService.resetPassword(resetPasswordRequest).handleResponse(
+                onSuccess = { authResponse ->
+                    val intent = Intent(this@ResetPasswordActivity, LoginOtherActivity::class.java)
+                    startActivity(intent)
+                },
+                onError = { error ->
+                    // Handle error
+                    Log.e("ServiceBuilder", "Error: $error")
+                }
+            )
+        }
 
         layout.setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

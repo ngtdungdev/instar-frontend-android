@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
@@ -12,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginOtherBinding
@@ -22,6 +24,7 @@ import com.instar.frontend_android.ui.customviews.ViewEffect
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
+import com.instar.frontend_android.ui.utils.Helpers
 
 class LoginOtherActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginOtherBinding
@@ -41,6 +44,9 @@ class LoginOtherActivity : AppCompatActivity() {
     private lateinit var passwordLayout: EdittextLoginBinding
 
     private val authService = ServiceBuilder.buildService(AuthService::class.java)
+
+    // Khởi tạo SharedPreferences
+    private val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,20 +118,28 @@ class LoginOtherActivity : AppCompatActivity() {
         }
 
         btnLogin.setOnClickListener {
-            if (emailText.text.toString().isEmpty() || passwordText.text.toString().isEmpty()) {
+            if (!Helpers.isValidEmail(emailText.text.toString()) || emailText.text.toString().isEmpty() || passwordText.text.toString().isEmpty()) {
                 return@setOnClickListener;
             }
 
             val loginRequest = LoginRequest().apply {
-                email = "example@email.com"
-                password = "password123"
+                email = emailText.text.toString();
+                password = passwordText.text.toString()
             }
 
             authService.login(loginRequest).handleResponse(
                 onSuccess = { authResponse ->
-                    // Handle successful response
                     val accessToken = authResponse.data.accessToken
-                    // Do something
+
+                    with(sharedPreferences.edit()) {
+                        putString("accessToken", accessToken)
+                        apply()
+                    }
+
+                    val intent = Intent(this@LoginOtherActivity, HomeActivity::class.java)
+                    startActivity(intent)
+
+                    Toast.makeText(this@LoginOtherActivity, "Login successfull", Toast.LENGTH_LONG).show();
                 },
                 onError = { error ->
                     // Handle error
@@ -133,6 +147,11 @@ class LoginOtherActivity : AppCompatActivity() {
                 }
             )
 
+        }
+
+        btnNewPassWord.setOnClickListener {
+            val intent = Intent(this@LoginOtherActivity, LoginEmailActivity::class.java)
+            startActivity(intent)
         }
 
         effectClick()

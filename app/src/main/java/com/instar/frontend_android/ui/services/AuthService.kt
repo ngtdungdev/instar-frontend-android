@@ -20,15 +20,15 @@ interface AuthService {
     fun login(@Body loginRequest: LoginRequest): Call<ApiResponse<AuthResponse>>
 
     @POST("$AUTH_PREFIX/register")
-    fun register(@Body registerRequest: RegisterRequest): Call<AuthResponse>
+    fun register(@Body registerRequest: RegisterRequest): Call<ApiResponse<Any>>
 
     @POST("$AUTH_PREFIX/refresh-token")
-    fun refreshToken(): Call<AuthResponse>
+    fun refreshToken(): Call<ApiResponse<Any>>
 
     @POST("$AUTH_PREFIX/reset-password")
-    fun resetPassword(@Body resetPassword: ResetPasswordRequest): Call<AuthResponse>
+    fun resetPassword(@Body resetPassword: ResetPasswordRequest): Call<ApiResponse<Any>>
 
     @POST("$AUTH_PREFIX/verify-code")
-    fun verifyCode(@Body verifyCodeRequest: VerifyCodeRequest): Call<AuthResponse>
+    fun verifyCode(@Body verifyCodeRequest: VerifyCodeRequest): Call<ApiResponse<Any>>
 }
 

@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.activities
 
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -27,9 +28,27 @@ class LoadingScreenActivity : AppCompatActivity() {
         binding.spinKit2.setIndeterminateDrawable(doubleBounce2)
 
         val handler = Handler(mainLooper)
+
         handler.postDelayed({
-            val intent = Intent(this@LoadingScreenActivity, LoginActivity::class.java)
-            startActivity(intent)
+            // Khởi tạo SharedPreferences
+            val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+            // Lấy accessToken từ SharedPreferences
+            val accessToken = sharedPreferences.getString("accessToken", null)
+
+            if (accessToken == null) {
+                // Nếu có accessToken, bạn có thể sử dụng nó cho các yêu cầu API tiếp theo ở đây
+                // Ví dụ:
+                val intent = Intent(this@LoadingScreenActivity, LoginActivity::class.java)
+                startActivity(intent)
+            } else {
+                // Nếu không có accessToken, bạn có thể chuyển người dùng đến màn hình đăng nhập hoặc thực hiện các hành động khác
+                // Ví dụ:
+                val intent = Intent(this@LoadingScreenActivity, HomeActivity::class.java)
+                startActivity(intent)
+            }
+
+
             finish()
         }, 5000)
     }

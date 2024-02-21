@@ -1,5 +1,6 @@
 package com.instar.frontend_android
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +11,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_load);
         super.onCreate(savedInstanceState)
+
+
+
         val handler = Handler(mainLooper)
         handler.postDelayed({
             val intent = Intent(this@MainActivity, LoadingScreenActivity::class.java)

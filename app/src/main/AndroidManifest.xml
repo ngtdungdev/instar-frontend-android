@@ -24,7 +24,6 @@
         <activity android:name=".ui.activities.LoadingScreenActivity"/>
         <activity android:name=".ui.activities.LoginEmailActivity"/>
         <activity android:name=".ui.activities.LoginActivity"/>
-        <activity android:name=".ui.activities.LoginSmsActivity"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

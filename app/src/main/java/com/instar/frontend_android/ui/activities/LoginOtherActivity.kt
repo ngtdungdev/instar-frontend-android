@@ -45,8 +45,7 @@ class LoginOtherActivity : AppCompatActivity() {
 
     private val authService = ServiceBuilder.buildService(AuthService::class.java)
 
-    // Khởi tạo SharedPreferences
-    private val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,8 +88,8 @@ class LoginOtherActivity : AppCompatActivity() {
     private fun initView() {
         val viewEditText = ViewEditText()
 
-        viewEditText.EditTextRemove(emailLayout.root, emailText, labelEmail, btnRemove)
-        viewEditText.EditTextEyes(passwordLayout.root, passwordText, labelPassword, btnEyes)
+        viewEditText.EditTextRemove(emailLayout.Layout, emailText, labelEmail, btnRemove)
+        viewEditText.EditTextEyes(passwordLayout.Layout, passwordText, labelPassword, btnEyes)
         viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
             override fun onFocusChange(view: View) {
                 if (passwordText.text.toString().isEmpty()) setPassword()
@@ -129,6 +128,9 @@ class LoginOtherActivity : AppCompatActivity() {
 
             authService.login(loginRequest).handleResponse(
                 onSuccess = { authResponse ->
+                    // Khởi tạo SharedPreferences
+                    val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
                     val accessToken = authResponse.data.accessToken
 
                     with(sharedPreferences.edit()) {
@@ -166,14 +168,14 @@ class LoginOtherActivity : AppCompatActivity() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setEmail() {
         labelEmail.visibility = View.GONE
-        emailLayout.root.background = getDrawable(R.drawable.border_component_login_dow)
+        emailLayout.Layout.background = getDrawable(R.drawable.border_component_login_dow)
         emailText.hint = "Tên người dùng, email/số di động"
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setPassword() {
         labelPassword.visibility = View.GONE
-        passwordLayout.root.background = getDrawable(R.drawable.border_component_login_dow)
+        passwordLayout.Layout.background = getDrawable(R.drawable.border_component_login_dow)
         passwordText.hint = "Mật khẩu"
     }
 }

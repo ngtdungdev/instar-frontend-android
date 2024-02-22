@@ -46,12 +46,12 @@ class ResetPasswordActivity : AppCompatActivity() {
     private lateinit var layoutSms: EdittextLoginBinding
     private lateinit var SmsText: EditText
     private lateinit var labelSms: TextView
+    private lateinit var btnEyes: ImageButton
 
     private lateinit var btnConfirm: Button
 
     private val authService = ServiceBuilder.buildService(AuthService::class.java)
 
-    val emailVerifyCode = intent.getStringExtra("email")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +78,7 @@ class ResetPasswordActivity : AppCompatActivity() {
         layoutSms = binding.sms
         SmsText = layoutSms.editText
         labelSms = layoutSms.textView
+        btnEyes = layoutSms.btnImage
 
         btnText = binding.passWordTitle.btnText
 
@@ -97,24 +98,38 @@ class ResetPasswordActivity : AppCompatActivity() {
         btnConfirm.text = "Xác nhận"
         passwordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         repeatPasswordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        SmsText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        btnEyes.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
         btnEyesPassword.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
         btnEyesRepeatPassword.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
     }
 
     private fun initView() {
+        val emailVerifyCode = intent.getStringExtra("email")
+        val viewEditText = ViewEditText()
         val viewEditText1 = ViewEditText()
         val viewEditText2 = ViewEditText()
         viewEditText1.EditTextEyes(layoutPassword.Layout, passwordText, labelPassword, btnEyesPassword)
         viewEditText2.EditTextEyes(layoutRepeatPassword.Layout, repeatPasswordText, labelRepeatPassword, btnEyesRepeatPassword)
+        viewEditText.EditTextEyes(layoutSms.Layout, SmsText, labelSms, btnEyes)
+        ViewEffect.ViewText(btnText)
         viewEditText1.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
             override fun onFocusChange(view: View) {
                 if (repeatPasswordText.text.toString().isEmpty()) setRepeatPassword()
+                if (SmsText.text.toString().isEmpty()) setSms()
             }
 
         })
         viewEditText2.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
             override fun onFocusChange(view: View) {
                 if (passwordText.text.toString().isEmpty()) setPassword()
+                if (SmsText.text.toString().isEmpty()) setSms()
+            }
+        })
+        viewEditText.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
+            override fun onFocusChange(view: View) {
+                if (passwordText.text.toString().isEmpty()) setPassword()
+                if (repeatPasswordText.text.toString().isEmpty()) setRepeatPassword()
             }
         })
         ViewEffect.ViewText(btnText)
@@ -152,6 +167,7 @@ class ResetPasswordActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(it.windowToken, 0)
             passwordText.clearFocus()
             repeatPasswordText.clearFocus()
+            SmsText.clearFocus()
             passwordText.clearFocus()
             if (passwordText.text.toString().isEmpty()) {
                 setPassword()
@@ -159,10 +175,18 @@ class ResetPasswordActivity : AppCompatActivity() {
             if (repeatPasswordText.text.toString().isEmpty()) {
                 setRepeatPassword()
             }
+            if (SmsText.text.toString().isEmpty()) {
+                setSms()
+            }
         }
 
         imageBack.setOnClickListener { finish() }
         effectClick()
+    }
+    private fun setSms() {
+        labelSms.visibility = View.GONE
+        layoutSms.Layout.background = getDrawable(R.drawable.border_component_login_dow)
+        SmsText.hint = "Nhập mã"
     }
 
     private fun setPassword() {

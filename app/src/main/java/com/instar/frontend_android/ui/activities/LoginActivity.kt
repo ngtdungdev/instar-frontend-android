@@ -33,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
         btnLoginFacebook = binding.btnLoginFacebook
 
         loadActivity()
-        initView()
+         initView()
     }
 
     private fun loadActivity() {

@@ -76,7 +76,7 @@ class LoginEmailActivity : AppCompatActivity() {
 
     private fun initView() {
         val viewEditText = ViewEditText()
-        viewEditText.EditTextRemove(layoutEmail.root, emailText, labelEmail, btnRemove)
+        viewEditText.EditTextRemove(layoutEmail.Layout, emailText, labelEmail, btnRemove)
         ViewEffect.ViewText(btnText)
         btnText.setOnClickListener {
         }
@@ -122,7 +122,7 @@ class LoginEmailActivity : AppCompatActivity() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setEmail() {
         labelEmail.visibility = View.GONE
-        layoutEmail.root.background = getDrawable(R.drawable.border_component_login_dow)
+        layoutEmail.Layout.background = getDrawable(R.drawable.border_component_login_dow)
         emailText.hint = "Tên người dùng, email/số di động"
     }
 

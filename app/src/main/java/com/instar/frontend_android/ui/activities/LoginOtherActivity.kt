@@ -45,8 +45,6 @@ class LoginOtherActivity : AppCompatActivity() {
 
     private val authService = ServiceBuilder.buildService(AuthService::class.java)
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

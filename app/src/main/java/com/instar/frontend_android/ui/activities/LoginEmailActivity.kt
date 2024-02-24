@@ -44,7 +44,6 @@ class LoginEmailActivity : AppCompatActivity() {
     private lateinit var btnFindAccount: Button
     private val authService = ServiceBuilder.buildService(AuthService::class.java)
 
-    val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

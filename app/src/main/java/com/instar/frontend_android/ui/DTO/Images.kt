@@ -1,5 +1,4 @@
 package com.instar.frontend_android.ui.DTO
-
 class Images(var type: Int, var name: String, var imgPath: Int) {
 
     companion object {

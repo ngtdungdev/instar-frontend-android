@@ -5,5 +5,9 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Instarfrontendandroid" parent="Base.Theme.Instarfrontendandroid" />
+    <style name="Theme.Instarfrontendandroid" parent="Base.Theme.Instarfrontendandroid" >
+        <item name="colorPrimaryDark">#FFFFFF</item>
+        <item name="colorAccent">#2A8F6F</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>

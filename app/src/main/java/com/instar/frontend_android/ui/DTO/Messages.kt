@@ -1,6 +1,6 @@
 package com.instar.frontend_android.ui.DTO
 
-class Messages (val a: String, val b: String){
+class Messages (var type: Int, val a: String, val b: String){
 
     companion object {
         const val TYPE_AVATAR = 0

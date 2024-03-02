@@ -1,24 +1,24 @@
-package com.instar.frontend_android.ui.activities
+package com.instar.frontend_android.ui.fragments
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
+import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.ui.DTO.Feeds
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.adapters.NewsFeedAdapter
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.services.AuthService
-import com.instar.frontend_android.ui.services.ServiceBuilder
-import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 
-class HomeActivity : AppCompatActivity() {
+class HomeFragment : Fragment() {
     private lateinit var imageList: List<Images>
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
@@ -30,37 +30,38 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var btnMessage: ImageView
 
     private lateinit var authService: AuthService
+    private lateinit var binding: FragmentHomeBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        authService = ServiceBuilder.buildService(AuthService::class.java, this)
-
-        authService.profile().handleResponse(
-            onSuccess = { authResponse ->
-                // Khởi tạo SharedPreferences
-                Log.d("Profile", authResponse.data.toString())
-            },
-            onError = { error ->
-                // Handle error
-                val message = error.message;
-                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
-
-                if (error.status == 401) {
-                    ServiceBuilder.setRefreshToken(this, null)
-                    ServiceBuilder.setAccessToken(this, null)
-                }
-
-                val intent = Intent(this@HomeActivity, LoginOtherActivity::class.java)
-                startActivity(intent)
-            }
-        )
-
-        super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_home)
-        avatarRecyclerView = findViewById(R.id.stories)
-        feedsRecyclerView = findViewById(R.id.newsfeed)
-        btnMessage = findViewById(R.id.iconMessenger);
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+        Toast.makeText(context,"aaa",Toast.LENGTH_SHORT).show()
+//        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+//
+//        authService.profile().handleResponse(
+//            onSuccess = { authResponse ->
+//                // Khởi tạo SharedPreferences
+//                Log.d("Profile", authResponse.data.toString())
+//            },
+//            onError = { error ->
+//                // Handle error
+//                val message = error.message;
+//                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
+//
+//                if (error.status == 401) {
+//                    ServiceBuilder.setRefreshToken(this, null)
+//                    ServiceBuilder.setAccessToken(this, null)
+//                }
+//
+//                val intent = Intent(this@HomeActivity, LoginOtherActivity::class.java)
+//                startActivity(intent)
+//            }
+//        )
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        avatarRecyclerView = binding.stories
+        feedsRecyclerView = binding.newsfeed
+        btnMessage = binding.iconMessenger
         initView()
+        return binding.root
     }
 
     private fun initView() {
@@ -78,7 +79,7 @@ class HomeActivity : AppCompatActivity() {
 
         feedList = getFeeds()
         newsFeedAdapter = NewsFeedAdapter(feedList)
-        feedsRecyclerView.layoutManager = LinearLayoutManager(this)
+        feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = newsFeedAdapter
     }
 

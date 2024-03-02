@@ -44,7 +44,7 @@ class LoadingScreenActivity : AppCompatActivity() {
             } else {
                 // Nếu không có accessToken, bạn có thể chuyển người dùng đến màn hình đăng nhập hoặc thực hiện các hành động khác
                 // Ví dụ:
-                val intent = Intent(this@LoadingScreenActivity, HomeActivity::class.java)
+                val intent = Intent(this@LoadingScreenActivity, MainScreenActivity::class.java)
                 startActivity(intent)
             }
 

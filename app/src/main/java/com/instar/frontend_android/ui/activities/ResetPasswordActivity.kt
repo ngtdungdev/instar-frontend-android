@@ -50,11 +50,14 @@ class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var btnConfirm: Button
 
-    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+    private lateinit var authService: AuthService
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+
         binding = ActivityLoginPasswordBinding.inflate(layoutInflater)
 
         setContentView(binding.root)

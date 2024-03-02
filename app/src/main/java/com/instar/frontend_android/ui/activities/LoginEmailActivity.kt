@@ -42,11 +42,14 @@ class LoginEmailActivity : AppCompatActivity() {
     private lateinit var labelEmail: TextView
     private lateinit var btnRemove: ImageButton
     private lateinit var btnFindAccount: Button
-    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+    private lateinit var authService: AuthService
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+
         setContentView(binding.root)
 
         imageBack = binding.imageBack

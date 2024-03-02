@@ -1,50 +1,164 @@
 package com.instar.frontend_android.ui.services
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import com.instar.frontend_android.types.responses.ApiResponse
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
+@SuppressLint("StaticFieldLeak")
 object ServiceBuilder {
-    private const val URL = "http://10.0.2.2:8080/api/"
+    private lateinit var context: Context
+    private const val BASE_URL = "http://10.0.2.2:8080/api/"
+    private lateinit var authService: AuthService
 
-    private val okHttp = OkHttpClient.Builder()
+    // OkHttpClient setup with custom settings
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
 
-    private val builder = Retrofit.Builder()
-        .baseUrl(URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(okHttp.build())
+    // Gson setup for better JSON parsing
+    private val gson = GsonBuilder()
+        .setLenient()
+        .create()
 
-    private val retrofit = builder.build()
+    // Retrofit setup with OkHttpClient and GsonConverterFactory
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
 
-    fun <T> buildService(serviceType: Class<T>): T {
-        return retrofit.create(serviceType)
+    /**
+     * Build service for given service type.
+     */
+    fun <T> buildService(serviceType: Class<T>, context: Context): T {
+        this.context = context
+        authService = retrofit.create(AuthService::class.java)
+        val tokenInterceptor = TokenInterceptor(context)
+        val newHttpClient = okHttpClient.newBuilder()
+            .addInterceptor(tokenInterceptor)
+            .build()
+
+        val newRetrofit = retrofit.newBuilder()
+            .client(newHttpClient)
+            .build()
+
+        return newRetrofit.create(serviceType)
     }
+
+    /**
+     * Extension function to handle Retrofit Call responses.
+     */
+    data class ApiError(val message: String, val status: Any, val data: Any?)
 
     fun <T> Call<ApiResponse<T>>.handleResponse(
         onSuccess: (response: ApiResponse<T>) -> Unit,
-        onError: (error: String) -> Unit
+        onError: (error: ApiError) -> Unit,
     ) {
         this.enqueue(object : Callback<ApiResponse<T>> {
             override fun onResponse(call: Call<ApiResponse<T>>, response: Response<ApiResponse<T>>) {
                 if (response.isSuccessful) {
                     val body = response.body()
-                    body?.let {
-                        onSuccess(it)
-                    } ?: run {
-                        onError("Empty response body")
+                    if (body != null) {
+                        onSuccess(body)
+                    } else {
+                        onError(ApiError("Response body is null", response.code(), null))
                     }
                 } else {
-                    onError("Unsuccessful response: ${response.code()}")
+                    if (response.code() == 401) {
+                        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+                        val refreshToken = sharedPreferences.getString("refreshToken", null)
+                        setAccessToken(context, refreshToken)
+
+                        authService.refreshToken().enqueue(object : Callback<ApiResponse<Any>> {
+                            override fun onResponse(call: Call<ApiResponse<Any>>, response: Response<ApiResponse<Any>>) {
+                                if (response.isSuccessful) {
+                                    val dataObject = response.body()?.data as JsonObject
+                                    if (dataObject.has("access_token")) {
+                                        val accessToken = dataObject.get("access_token").asString
+                                        setAccessToken(context, accessToken)
+                                        call.clone().enqueue(this)
+                                        return
+                                    }
+                                } else {
+                                    setRefreshToken(context, null)
+                                    setAccessToken(context, null)
+                                    onError(ApiError("Unsuccessful response", response.code(), null))
+                                }
+                            }
+
+                            override fun onFailure(call: Call<ApiResponse<Any>>, t: Throwable) {
+                                // Xử lý lỗi khi gọi refreshToken()
+                            }
+                        })
+                    } else {
+                        onError(ApiError("Unsuccessful response", response.code(), null))
+                    }
                 }
             }
 
             override fun onFailure(call: Call<ApiResponse<T>>, t: Throwable) {
-                onError("Error: ${t.message}")
+                onError(ApiError("Failed to execute request", -1, t.message))
             }
         })
     }
+
+
+    /**
+     * Interceptor to add access token to requests if available.
+     */
+
+    public fun setAccessToken(context: Context, accessToken: String?) {
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("accessToken", accessToken)
+            apply()
+        }
+    }
+
+    public fun setRefreshToken(context: Context, token: String?) {
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("refreshToken", token)
+            apply()
+        }
+    }
+
+    private class TokenInterceptor(private val context: Context) : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+            val originalRequest = chain.request()
+            val accessToken = getAccessToken(context) // Retrieve access token here
+            val modifiedRequest = if (accessToken != null && !accessToken.equals("")) {
+                Log.d("123", "Vô rồi vô rồi :<< " + accessToken)
+                originalRequest.newBuilder()
+                    .header("Authorization", "Bearer $accessToken")
+                    .build()
+            } else {
+                originalRequest
+            }
+
+            return chain.proceed(modifiedRequest)
+        }
+
+        // Function to retrieve access token from SharedPreferences
+        private fun getAccessToken(context: Context): String? {
+            val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+            return sharedPreferences.getString("accessToken", null)
+        }
+
+
+
+    }
 }
+

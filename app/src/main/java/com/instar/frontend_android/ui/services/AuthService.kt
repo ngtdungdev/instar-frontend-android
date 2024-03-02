@@ -25,6 +25,9 @@ interface AuthService {
     @POST("$AUTH_PREFIX/refresh-token")
     fun refreshToken(): Call<ApiResponse<Any>>
 
+    @GET("$AUTH_PREFIX/profile")
+    fun profile(): Call<ApiResponse<Any>>
+
     @POST("$AUTH_PREFIX/reset-password")
     fun resetPassword(@Body resetPassword: ResetPasswordRequest): Call<ApiResponse<Any>>
 

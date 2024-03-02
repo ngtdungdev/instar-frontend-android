@@ -43,11 +43,13 @@ class LoginOtherActivity : AppCompatActivity() {
     private lateinit var emailLayout: EdittextLoginBinding
     private lateinit var passwordLayout: EdittextLoginBinding
 
-    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+    private lateinit var authService: AuthService;
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
         binding = ActivityLoginOtherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -130,9 +132,15 @@ class LoginOtherActivity : AppCompatActivity() {
                     val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
                     val accessToken = authResponse.data.accessToken
+                    val refreshToken = authResponse.data.refreshToken
 
                     with(sharedPreferences.edit()) {
                         putString("accessToken", accessToken)
+                        apply()
+                    }
+
+                    with(sharedPreferences.edit()) {
+                        putString("refreshToken", refreshToken)
                         apply()
                     }
 
@@ -144,6 +152,7 @@ class LoginOtherActivity : AppCompatActivity() {
                 onError = { error ->
                     // Handle error
                     Log.e("ServiceBuilder", "Error: $error")
+                    Toast.makeText(this@LoginOtherActivity, "Login failure: Email hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
                 }
             )
 

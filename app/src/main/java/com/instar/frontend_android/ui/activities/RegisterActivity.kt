@@ -56,10 +56,15 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var layout: View
 
     private lateinit var imageBack: ImageButton
-    private val authService = ServiceBuilder.buildService(AuthService::class.java)
+
+    private lateinit var authService: AuthService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

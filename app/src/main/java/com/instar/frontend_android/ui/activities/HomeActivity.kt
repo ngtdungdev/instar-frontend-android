@@ -1,8 +1,11 @@
 package com.instar.frontend_android.ui.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,6 +14,9 @@ import com.instar.frontend_android.ui.DTO.Feeds
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.adapters.NewsFeedAdapter
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
+import com.instar.frontend_android.ui.services.AuthService
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var imageList: List<Images>
@@ -23,12 +29,32 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var btnMessage: ImageView
 
+    private lateinit var authService: AuthService
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+
+        authService.profile().handleResponse(
+            onSuccess = { authResponse ->
+                // Khởi tạo SharedPreferences
+                Log.d("Profile", authResponse.data.toString())
+            },
+            onError = { error ->
+                // Handle error
+                val message = error.message;
+                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
+
+                if (error.status == 401) {
+                    ServiceBuilder.setRefreshToken(this, null)
+                    ServiceBuilder.setAccessToken(this, null)
+                }
+
+                val intent = Intent(this@HomeActivity, LoginOtherActivity::class.java)
+                startActivity(intent)
+            }
+        )
+
         super.onCreate(savedInstanceState)
-
-        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-
-        val accessToken = sharedPreferences.getString("accessToken", "")
 
         setContentView(R.layout.activity_home)
         avatarRecyclerView = findViewById(R.id.stories)

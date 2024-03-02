@@ -9,17 +9,16 @@ import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Feeds
 import com.instar.frontend_android.ui.DTO.Friends
 
-class MessageFriendAdapter(private val data: List<Friends>) : RecyclerView.Adapter<MessageFriendAdapter.MyViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+class MessageFriendAdapter(private val data: List<Friends>) : RecyclerView.Adapter<MessageFriendAdapter.MessageFriendViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageFriendViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_item, parent, false)
-        return MyViewHolder(view)
+        return MessageFriendViewHolder(view)
     }
+    class MessageFriendViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    }
+    override fun onBindViewHolder(holder: MessageFriendViewHolder, position: Int) {
         val item = data[position]
-    }
-
-    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     }
     override fun getItemCount(): Int = data.size
 }

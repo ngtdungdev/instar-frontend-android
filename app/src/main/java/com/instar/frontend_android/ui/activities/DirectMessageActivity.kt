@@ -7,17 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
-import com.instar.frontend_android.ui.DTO.Feeds
-import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Messages
 import com.instar.frontend_android.ui.adapters.DirectMessageAdapter
-import com.instar.frontend_android.ui.adapters.MessageFriendAdapter
-import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
+
+
 //mai nộp bài
 class DirectMessageActivity : AppCompatActivity(){
     private lateinit var biding: ActivityDirectMessageBinding
@@ -33,6 +31,7 @@ class DirectMessageActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         biding = ActivityDirectMessageBinding.inflate(layoutInflater)
         setContentView(biding.root)
+        messageRecyclerView = biding.recyclerView
         message = biding.message
         btnAdd = biding.btnAdd
         iconAvatar = biding.iconAvatar
@@ -43,6 +42,10 @@ class DirectMessageActivity : AppCompatActivity(){
     private fun initView() {
         messageList = getMessages()
         messageAdapter = DirectMessageAdapter(messageList)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.reverseLayout = true
+        layoutManager.stackFromEnd = true
+        messageRecyclerView.layoutManager = layoutManager
         messageRecyclerView.adapter = messageAdapter
 
         message.addTextChangedListener(object : TextWatcher {
@@ -70,10 +73,12 @@ class DirectMessageActivity : AppCompatActivity(){
 
     private fun getMessages(): List<Messages> {
         val messages = ArrayList<Messages>()
-        val message1 = Messages("Bạn ăn cơm không","conmeo")
-        val message2 = Messages("Bạn ăn cơm chưa", "conmeo")
+        val message1 = Messages(Messages.TYPE_AVATAR ,"Bạn ăn cơm không","conmeo")
+        val message2 = Messages(Messages.TYPE_RECEIVED_MESSAGE,"Bạn ăn cơm chưa", "conmeo")
+        val message3 = Messages(Messages.TYPE_SENT_MESSAGE,"Bạn ăn cơm chưa", "conmeo")
         messages.add(message1)
         messages.add(message2)
+        messages.add(message3)
         return messages;
     }
 

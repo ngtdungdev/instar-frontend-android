@@ -3,7 +3,6 @@ package com.instar.frontend_android.ui.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Messages
@@ -23,21 +22,23 @@ class DirectMessageAdapter(private val data: List<Messages>) : RecyclerView.Adap
             else -> throw IllegalArgumentException("Error")
         }
     }
-
+    override fun getItemViewType(position: Int): Int {
+        return data[position].type
+    }
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        // Logic to bind data to holder
+
     }
 
     class Avatar(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton)
+//        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton) vd
     }
 
     class ReceivedMessage(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton)
+//        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton)
     }
 
     class SentMessage(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton)
+//        var imageButton: ImageButton = itemView.findViewById(R.id.imageButton) vd
     }
 
     override fun getItemCount(): Int = data.size

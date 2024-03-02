@@ -9,20 +9,18 @@ import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Feeds
 
 
-class NewsFeedAdapter(private val data: List<Feeds>) : RecyclerView.Adapter<NewsFeedAdapter.MyViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+class NewsFeedAdapter(private val data: List<Feeds>) : RecyclerView.Adapter<NewsFeedAdapter.NewsFeedAViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsFeedAViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_newsfeed, parent, false)
-        return MyViewHolder(view)
+        return NewsFeedAViewHolder(view)
     }
-
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    class NewsFeedAViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.textView3)
+    }
+    override fun onBindViewHolder(holder: NewsFeedAViewHolder, position: Int) {
         val item = data[position]
         holder.textView.text = "conmeo"
     }
 
-    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.textView3)
-
-    }
     override fun getItemCount(): Int = data.size
 }

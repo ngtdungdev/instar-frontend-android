@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,8 +22,14 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var feedsRecyclerView: RecyclerView
 
     private lateinit var btnMessage: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+        val accessToken = sharedPreferences.getString("accessToken", "")
+
         setContentView(R.layout.activity_home)
         avatarRecyclerView = findViewById(R.id.stories)
         feedsRecyclerView = findViewById(R.id.newsfeed)

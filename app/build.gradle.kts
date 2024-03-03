@@ -63,4 +63,8 @@ dependencies {
     // Spinkit
     implementation("com.github.ybq:Android-SpinKit:1.4.0")
     implementation("androidx.gridlayout:gridlayout:1.0.0")
+
+    //image
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+
 }

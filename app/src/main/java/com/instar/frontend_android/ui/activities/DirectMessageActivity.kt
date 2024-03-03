@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
 import com.instar.frontend_android.ui.DTO.Messages
 import com.instar.frontend_android.ui.adapters.DirectMessageAdapter
@@ -90,6 +91,10 @@ class DirectMessageActivity : AppCompatActivity(){
         messageList.add(newMessage)
         messageAdapter.notifyItemInserted(messageList.size - 1)
         messageRecyclerView.scrollToPosition(messageList.size - 1)
+    }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
     fun loadMoreData() {
 

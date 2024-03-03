@@ -49,8 +49,14 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         authService = ServiceBuilder.buildService(AuthService::class.java, requireContext())
+        avatarRecyclerView = binding.stories
+        feedsRecyclerView = binding.newsfeed
+        btnMessage = binding.iconMessenger
 
+        initView()
         authService.profile().handleResponse(
             onSuccess = { response ->
                 user = response.data
@@ -60,11 +66,10 @@ class HomeFragment : Fragment() {
                 val image0 = Images(
                     Images.TYPE_PERSONAL_AVATAR,
                     "Tin của bạn",
-                    R.mipmap.ic_instagram_icon_skullcap
+                    avatarUrl
                 )
                 imageList.add(0, image0)
-
-                newsFollowAdapter = NewsFollowAdapter(imageList)
+                newsFollowAdapter = NewsFollowAdapter(context,imageList)
                 avatarRecyclerView.adapter = newsFollowAdapter
                 // Khởi tạo SharedPreferences
             },
@@ -81,13 +86,6 @@ class HomeFragment : Fragment() {
             }
         )
 
-        super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        avatarRecyclerView = binding.stories
-        feedsRecyclerView = binding.newsfeed
-        btnMessage = binding.iconMessenger
-
-        initView()
         return binding.root
     }
 
@@ -109,9 +107,9 @@ class HomeFragment : Fragment() {
 
     private fun getImages(): ArrayList<Images> {
         val imageList = ArrayList<Images>()
-        val image1 = Images(Images.TYPE_FRIEND_AVATAR, "Duy ko rep", R.mipmap.no1)
-        val image2 = Images(Images.TYPE_FRIEND_AVATAR, "Hiếu no Hope", R.mipmap.no2)
-        val image3 = Images(Images.TYPE_FRIEND_AVATAR, "Hưng đi làm", R.mipmap.no3)
+        val image1 = Images(Images.TYPE_FRIEND_AVATAR, "Duy ko rep", null)
+        val image2 = Images(Images.TYPE_FRIEND_AVATAR, "Hiếu no Hope", null)
+        val image3 = Images(Images.TYPE_FRIEND_AVATAR, "Hưng đi làm", null)
         imageList.add(image1)
         imageList.add(image2)
         imageList.add(image3)

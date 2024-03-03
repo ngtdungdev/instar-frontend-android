@@ -72,7 +72,6 @@ class HomeFragment : Fragment() {
         )
 
         super.onCreateView(inflater, container, savedInstanceState)
-
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         avatarRecyclerView = binding.stories
         feedsRecyclerView = binding.newsfeed

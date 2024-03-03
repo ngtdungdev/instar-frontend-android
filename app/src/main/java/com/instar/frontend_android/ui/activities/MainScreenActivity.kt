@@ -1,10 +1,8 @@
 package com.instar.frontend_android.ui.activities
-//vuốt sang
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
-import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 
@@ -17,7 +15,7 @@ class MainScreenActivity : AppCompatActivity() {
         setContentView(biding.root)
         viewPager = biding.viewPager
         viewPager.adapter = ScreenSlidePagerAdapter(this)
-        viewPager.setCurrentItem(1, true)
+        viewPager.setCurrentItem(1, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels)
@@ -29,4 +27,5 @@ class MainScreenActivity : AppCompatActivity() {
             }
         })
     }
+
 }

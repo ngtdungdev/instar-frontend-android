@@ -31,7 +31,7 @@ class MessengerFragment : Fragment() {
             override fun onItemClick(position: Int?) {
                 val intent = Intent(context, DirectMessageActivity::class.java)
                 context?.startActivity(intent)
-                activity?.overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_right)
+                activity?.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
         })
         messageFriendsRecyclerView.layoutManager = LinearLayoutManager(context)

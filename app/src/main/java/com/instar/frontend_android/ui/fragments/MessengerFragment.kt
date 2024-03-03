@@ -1,15 +1,17 @@
 package com.instar.frontend_android.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentMessengerBinding
 import com.instar.frontend_android.ui.DTO.Friends
+import com.instar.frontend_android.ui.activities.DirectMessageActivity
 import com.instar.frontend_android.ui.adapters.MessageFriendAdapter
 
 class MessengerFragment : Fragment() {
@@ -25,6 +27,13 @@ class MessengerFragment : Fragment() {
 
         messageFriendList = getFriend()
         newsMessageFriendAdapter = MessageFriendAdapter(messageFriendList)
+        newsMessageFriendAdapter.setOnItemClickListener(object : MessageFriendAdapter.OnItemClickListener{
+            override fun onItemClick(position: Int?) {
+                val intent = Intent(context, DirectMessageActivity::class.java)
+                context?.startActivity(intent)
+                activity?.overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_right)
+            }
+        })
         messageFriendsRecyclerView.layoutManager = LinearLayoutManager(context)
         messageFriendsRecyclerView.adapter = newsMessageFriendAdapter
         return binding.root

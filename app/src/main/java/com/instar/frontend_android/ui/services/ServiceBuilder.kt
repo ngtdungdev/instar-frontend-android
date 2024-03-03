@@ -2,10 +2,17 @@ package com.instar.frontend_android.ui.services
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
+import com.instar.frontend_android.R
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.ui.DTO.Images
+import com.instar.frontend_android.ui.activities.LoginOtherActivity
+import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -68,6 +75,7 @@ object ServiceBuilder {
     ) {
         this.enqueue(object : Callback<ApiResponse<T>> {
             override fun onResponse(call: Call<ApiResponse<T>>, response: Response<ApiResponse<T>>) {
+                val aCall = call.clone()
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
@@ -76,32 +84,52 @@ object ServiceBuilder {
                         onError(ApiError("Response body is null", response.code(), null))
                     }
                 } else {
-                    if (response.code() == 401) {
+                    if (response.code() == 401 || response.code() == 403) {
                         val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
                         val refreshToken = sharedPreferences.getString("refreshToken", null)
-                        setAccessToken(context, refreshToken)
+                        if (refreshToken != null) {
+                            authService.refreshToken("Bearer $refreshToken").enqueue(object : Callback<ApiResponse<Any>> {
+                                override fun onResponse(call: Call<ApiResponse<Any>>, response: Response<ApiResponse<Any>>) {
+                                    if (response.isSuccessful) {
+                                        val data = response.body()?.data
+                                        val jsonObject = Gson().toJsonTree(data).asJsonObject
+                                        if (data != null) {
+                                            if (jsonObject.has("access_token")) {
+                                                val accessToken = jsonObject.get("access_token").asString
+                                                setAccessToken(context, accessToken)
 
-                        authService.refreshToken().enqueue(object : Callback<ApiResponse<Any>> {
-                            override fun onResponse(call: Call<ApiResponse<Any>>, response: Response<ApiResponse<Any>>) {
-                                if (response.isSuccessful) {
-                                    val dataObject = response.body()?.data as JsonObject
-                                    if (dataObject.has("access_token")) {
-                                        val accessToken = dataObject.get("access_token").asString
-                                        setAccessToken(context, accessToken)
-                                        call.clone().enqueue(this)
-                                        return
+                                                return aCall.enqueue(object : Callback<ApiResponse<T>> {
+                                                    override fun onResponse(call: Call<ApiResponse<T>>, response: Response<ApiResponse<T>>) {
+                                                        if (response.isSuccessful) {
+                                                            val body = response.body()
+                                                            if (body != null) {
+                                                                onSuccess(body)
+                                                            } else {
+                                                                onError(ApiError("Response body is null", response.code(), null))
+                                                            }
+                                                        } else {
+                                                            onError(ApiError("Unsuccessful response", response.code(), null))
+                                                        }
+                                                    }
+
+                                                    override fun onFailure(call: Call<ApiResponse<T>>, t: Throwable) {
+                                                        onError(ApiError("Failed to execute request", -1, t.message))
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    } else {
+                                        setRefreshToken(context, null)
+                                        setAccessToken(context, null)
+                                        onError(ApiError("Unsuccessful response", response.code(), null))
                                     }
-                                } else {
-                                    setRefreshToken(context, null)
-                                    setAccessToken(context, null)
-                                    onError(ApiError("Unsuccessful response", response.code(), null))
                                 }
-                            }
 
-                            override fun onFailure(call: Call<ApiResponse<Any>>, t: Throwable) {
-                                // Xử lý lỗi khi gọi refreshToken()
-                            }
-                        })
+                                override fun onFailure(call: Call<ApiResponse<Any>>, t: Throwable) {
+                                }
+                            })
+                        }
+                        else onError(ApiError("Unsuccessful response", response.code(), null))
                     } else {
                         onError(ApiError("Unsuccessful response", response.code(), null))
                     }
@@ -139,8 +167,7 @@ object ServiceBuilder {
         override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
             val originalRequest = chain.request()
             val accessToken = getAccessToken(context) // Retrieve access token here
-            val modifiedRequest = if (accessToken != null && !accessToken.equals("")) {
-                Log.d("123", "Vô rồi vô rồi :<< " + accessToken)
+            val modifiedRequest = if (accessToken != null && accessToken != "" && originalRequest.header("Authorization") != "") {
                 originalRequest.newBuilder()
                     .header("Authorization", "Bearer $accessToken")
                     .build()

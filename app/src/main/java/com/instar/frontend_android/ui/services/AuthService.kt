@@ -6,9 +6,11 @@ import com.instar.frontend_android.types.requests.ResetPasswordRequest
 import com.instar.frontend_android.types.requests.VerifyCodeRequest
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.AuthResponse
+import com.instar.frontend_android.types.responses.UserResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthService {
@@ -23,10 +25,10 @@ interface AuthService {
     fun register(@Body registerRequest: RegisterRequest): Call<ApiResponse<Any>>
 
     @POST("$AUTH_PREFIX/refresh-token")
-    fun refreshToken(): Call<ApiResponse<Any>>
+    fun refreshToken(@Header("Authorization") refreshToken: String): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/profile")
-    fun profile(): Call<ApiResponse<Any>>
+    fun profile(): Call<ApiResponse<UserResponse>>
 
     @POST("$AUTH_PREFIX/reset-password")
     fun resetPassword(@Body resetPassword: ResetPasswordRequest): Call<ApiResponse<Any>>

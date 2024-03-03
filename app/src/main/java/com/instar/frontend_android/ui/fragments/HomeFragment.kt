@@ -38,6 +38,16 @@ class HomeFragment : Fragment() {
     private lateinit var authService: AuthService
     private lateinit var user: UserResponse
 
+    interface OnItemClickListener {
+        fun onItemClick(position: Int?)
+    }
+
+    private var listener: OnItemClickListener? = null
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.listener = listener
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         authService = ServiceBuilder.buildService(AuthService::class.java, requireContext())
 
@@ -83,7 +93,9 @@ class HomeFragment : Fragment() {
 
     private fun initView() {
         btnMessage.setOnClickListener {
-
+            if (listener != null) {
+                listener!!.onItemClick(2)
+            }
         }
         loadRecyclerView()
     }

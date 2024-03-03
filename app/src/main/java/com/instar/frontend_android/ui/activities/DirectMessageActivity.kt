@@ -86,7 +86,7 @@ class DirectMessageActivity : AppCompatActivity(){
             override fun afterTextChanged(s: Editable?) {}
         })
     }
-    fun addNewMessage(newMessage: Messages) {
+    private fun addNewMessage(newMessage: Messages) {
         messageList.add(newMessage)
         messageAdapter.notifyItemInserted(messageList.size - 1)
         messageRecyclerView.scrollToPosition(messageList.size - 1)

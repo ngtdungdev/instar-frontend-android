@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnLoginFacebook.setOnClickListener {
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+            val intent = Intent(this@LoginActivity, MainScreenActivity::class.java)
             startActivity(intent)
         }
         effectClick()

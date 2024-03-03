@@ -1,23 +1,29 @@
-package com.instar.frontend_android.ui.activities
+package com.instar.frontend_android.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
+import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Feeds
 import com.instar.frontend_android.ui.DTO.Images
+import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.adapters.NewsFeedAdapter
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 
-class HomeActivity : AppCompatActivity() {
+
+class HomeFragment : Fragment() {
     private lateinit var imageList: ArrayList<Images>
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
@@ -27,12 +33,13 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var feedsRecyclerView: RecyclerView
 
     private lateinit var btnMessage: ImageView
+    private lateinit var binding: FragmentHomeBinding
 
     private lateinit var authService: AuthService
     private lateinit var user: UserResponse
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        authService = ServiceBuilder.buildService(AuthService::class.java, requireContext())
 
         authService.profile().handleResponse(
             onSuccess = { response ->
@@ -40,7 +47,11 @@ class HomeActivity : AppCompatActivity() {
                 val avatarUrl = response.data.profilePicture?.url
                 imageList = getImages()
 
-                val image0 = Images(Images.TYPE_PERSONAL_AVATAR, "Tin của bạn", R.mipmap.ic_instagram_icon_skullcap)
+                val image0 = Images(
+                    Images.TYPE_PERSONAL_AVATAR,
+                    "Tin của bạn",
+                    R.mipmap.ic_instagram_icon_skullcap
+                )
                 imageList.add(0, image0)
 
                 newsFollowAdapter = NewsFollowAdapter(imageList)
@@ -52,21 +63,23 @@ class HomeActivity : AppCompatActivity() {
                 val message = error.message;
                 Log.e("ServiceBuilder", "Error: $message - ${error.status}")
 
-                ServiceBuilder.setRefreshToken(this, null)
-                ServiceBuilder.setAccessToken(this, null)
+                ServiceBuilder.setRefreshToken(requireContext(), null)
+                ServiceBuilder.setAccessToken(requireContext(), null)
 
-                val intent = Intent(this@HomeActivity, LoginOtherActivity::class.java)
+                val intent = Intent(context, LoginOtherActivity::class.java)
                 startActivity(intent)
             }
         )
 
-        super.onCreate(savedInstanceState)
+        super.onCreateView(inflater, container, savedInstanceState)
 
-        setContentView(R.layout.activity_home)
-        avatarRecyclerView = findViewById(R.id.stories)
-        feedsRecyclerView = findViewById(R.id.newsfeed)
-        btnMessage = findViewById(R.id.iconMessenger);
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        avatarRecyclerView = binding.stories
+        feedsRecyclerView = binding.newsfeed
+        btnMessage = binding.iconMessenger
+
         initView()
+        return binding.root
     }
 
     private fun initView() {
@@ -79,7 +92,7 @@ class HomeActivity : AppCompatActivity() {
     private fun loadRecyclerView() {
         feedList = getFeeds()
         newsFeedAdapter = NewsFeedAdapter(feedList)
-        feedsRecyclerView.layoutManager = LinearLayoutManager(this)
+        feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = newsFeedAdapter
     }
 

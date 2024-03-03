@@ -35,7 +35,8 @@
             <ImageButton
                 android:id="@+id/imageButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:background="@mipmap/no3" />
         </androidx.cardview.widget.CardView>
 
     </FrameLayout>

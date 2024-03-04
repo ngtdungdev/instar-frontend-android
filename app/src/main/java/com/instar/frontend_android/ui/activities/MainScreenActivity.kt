@@ -40,13 +40,28 @@ class MainScreenActivity : AppCompatActivity(), HomeFragment.OnItemClickListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-            val uri = Uri.fromParts("package", packageName, null)
-            intent.data = uri
-            startActivityResult.launch(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                initView()
+            } else {
+                requestPermission()
+            }
         } else {
             initView()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun requestPermission() {
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            intent.addCategory("android.intent.category.DEFAULT")
+            intent.data = Uri.parse(String.format("package:%s", applicationContext.packageName))
+            startActivityResult.launch(intent)
+        } catch (e: Exception) {
+            val intent = Intent()
+            intent.action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+            startActivityResult.launch(intent)
         }
     }
 

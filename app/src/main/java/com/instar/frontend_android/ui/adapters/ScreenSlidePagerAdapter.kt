@@ -4,9 +4,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.instar.frontend_android.ui.activities.MainScreenActivity
-import com.instar.frontend_android.ui.fragments.CameraFragment
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MessengerFragment
+import com.instar.frontend_android.ui.fragments.PostFragment
 
 class ScreenSlidePagerAdapter(adapter: FragmentActivity) : FragmentStateAdapter(adapter) {
 
@@ -20,7 +20,7 @@ class ScreenSlidePagerAdapter(adapter: FragmentActivity) : FragmentStateAdapter(
     override fun getItemCount(): Int = TAB_COUNT
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> CameraFragment()
+            0 -> PostFragment()
             1 -> HomeFragment().apply {
                 onItemClickListener?.let { setOnItemClickListener(it) }
             }

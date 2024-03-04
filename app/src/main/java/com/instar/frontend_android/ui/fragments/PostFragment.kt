@@ -36,7 +36,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentPostBinding.inflate(inflater, container, false)
-
+        imagesRecyclerView = binding.imageRecyclerView
         return binding.root
     }
 

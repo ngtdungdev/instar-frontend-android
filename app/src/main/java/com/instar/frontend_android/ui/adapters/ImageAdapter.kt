@@ -20,6 +20,7 @@ class ImageAdapter(private val context: Context, private val data: List<ImageInt
         val item = data[position]
         Glide.with(context)
             .load(item.filePath)
+            .centerCrop()
             .into(holder.image)
     }
 

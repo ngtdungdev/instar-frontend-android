@@ -1,10 +1,8 @@
 package com.instar.frontend_android.ui.fragments
 
-import android.Manifest
+import android.R
 import android.content.ContentUris
-import android.content.pm.PackageManager
 import android.database.Cursor
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -19,7 +17,9 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageInternalMemory
+import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAdapter
+
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding
@@ -73,8 +73,11 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private fun loadRecyclerView() {
         imagesAdapter = ImageAdapter(requireContext(), imagesList)
         imagesRecyclerView.adapter = imagesAdapter
-        val layoutManager = GridLayoutManager(context, 3)
+        val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
+        val scale = resources.displayMetrics.density
+        val spacingInPixels = (1 * scale + 0.5f).toInt()
+        imagesRecyclerView.addItemDecoration(GridSpacingItemDecoration(4, spacingInPixels, true))
         layoutManager.spanSizeLookup = object : SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return 1

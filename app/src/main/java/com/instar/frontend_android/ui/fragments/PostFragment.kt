@@ -3,11 +3,16 @@ package com.instar.frontend_android.ui.fragments
 import android.R
 import android.content.ContentUris
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -15,10 +20,12 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
+import com.canhub.cropper.CropImageView
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAdapter
+import java.io.File
 
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
@@ -26,6 +33,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var imagesList: ArrayList<ImageInternalMemory>
     private lateinit var imagesAdapter: ImageAdapter
     private lateinit var imagesRecyclerView: RecyclerView
+    private lateinit var cropImageView: CropImageView
     companion object {
         const val LOADER_ID = 101
     }
@@ -37,6 +45,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentPostBinding.inflate(inflater, container, false)
         imagesRecyclerView = binding.imageRecyclerView
+        cropImageView = binding.cropImageView
         return binding.root
     }
 
@@ -45,11 +54,9 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         if (currentPosition < 0) {
             imagesList = ArrayList<ImageInternalMemory>()
             if (loader.id == LOADER_ID && data != null) {
-//                imagesList.setVisibility(View.GONE)
                 val columnIndexId = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val columnIndexData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                val columnIndexDateTaken =
-                    data.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                val columnIndexDateTaken = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
                 while (data.moveToNext()) {
                     val id = data.getLong(columnIndexId)
                     val imagePath = data.getString(columnIndexData)
@@ -68,6 +75,10 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 loadRecyclerView()
             }
         }
+        cropImageView.setFixedAspectRatio(true)
+        cropImageView.setAspectRatio(1, 1)
+//        cropImageView.scaleType = CropImageView.ScaleType.CENTER_CROP
+        cropImageView.setImageUriAsync(Uri.parse(imagesList[0].uri))
     }
 
     private fun loadRecyclerView() {

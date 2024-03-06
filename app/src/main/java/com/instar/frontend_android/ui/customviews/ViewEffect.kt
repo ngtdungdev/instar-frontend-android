@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.customviews
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -10,6 +11,7 @@ import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import com.instar.frontend_android.R
 
 class ViewEffect {
@@ -50,6 +52,27 @@ class ViewEffect {
                     MotionEvent.ACTION_UP -> {
                         textView.alpha = 1f
                         true
+                    }
+                    else -> false
+                }
+            }
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        fun ViewMessage(view: View) {
+            view.setOnTouchListener { v, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        view.setBackgroundColor(Color.parseColor("#FFDDDDDD"))
+                        false
+                    }
+                    MotionEvent.ACTION_CANCEL -> {
+                        view.setBackgroundColor(Color.TRANSPARENT)
+                        false
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        view.setBackgroundColor(Color.TRANSPARENT)
+                        false
                     }
                     else -> false
                 }

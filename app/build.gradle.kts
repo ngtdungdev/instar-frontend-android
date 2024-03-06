@@ -67,5 +67,5 @@ dependencies {
 
     //image
     implementation("com.github.bumptech.glide:glide:4.12.0")
-
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
 }

@@ -20,7 +20,7 @@ interface PostService {
 
     @Multipart
     @POST(AUTH_PREFIX)
-    fun createPost(@Body post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
+    fun createPost(@Part post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
 
     @GET(AUTH_PREFIX)
     fun getAllPosts(): Call<ApiResponse<Any>>
@@ -36,7 +36,7 @@ interface PostService {
 
     @Multipart
     @PUT("$AUTH_PREFIX/{postId}")
-    fun updatePost(@Path("postId") postId: String, @Body post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
+    fun updatePost(@Path("postId") postId: String, @Part post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
 
     @DELETE("$AUTH_PREFIX/{userId}/{postId}")
     fun deletePost(@Path("userId") userId: String, @Path("postId") postId: String): Call<ApiResponse<Any>>

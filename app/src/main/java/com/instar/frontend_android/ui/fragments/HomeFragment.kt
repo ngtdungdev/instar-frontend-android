@@ -57,34 +57,34 @@ class HomeFragment : Fragment() {
         btnMessage = binding.iconMessenger
 
         initView()
-//        authService.profile().handleResponse(
-//            onSuccess = { response ->
-//                user = response.data
-//                val avatarUrl = response.data.profilePicture?.url
-//                imageList = getImages()
-//
-//                val image0 = Images(
-//                    Images.TYPE_PERSONAL_AVATAR,
-//                    "Tin của bạn",
-//                    avatarUrl
-//                )
-//                imageList.add(0, image0)
-//                newsFollowAdapter = NewsFollowAdapter(context,imageList)
-//                avatarRecyclerView.adapter = newsFollowAdapter
-//                // Khởi tạo SharedPreferences
-//            },
-//            onError = { error ->
-//                // Handle error
-//                val message = error.message;
-//                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
-//
-//                ServiceBuilder.setRefreshToken(requireContext(), null)
-//                ServiceBuilder.setAccessToken(requireContext(), null)
-//
-//                val intent = Intent(context, LoginOtherActivity::class.java)
-//                startActivity(intent)
-//            }
-//        )
+        authService.profile().handleResponse(
+            onSuccess = { response ->
+                user = response.data
+                val avatarUrl = response.data.profilePicture?.url
+                imageList = getImages()
+
+                val image0 = Images(
+                    Images.TYPE_PERSONAL_AVATAR,
+                    "Tin của bạn",
+                    avatarUrl
+                )
+                imageList.add(0, image0)
+                newsFollowAdapter = NewsFollowAdapter(context,imageList)
+                avatarRecyclerView.adapter = newsFollowAdapter
+                // Khởi tạo SharedPreferences
+            },
+            onError = { error ->
+                // Handle error
+                val message = error.message;
+                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
+
+                ServiceBuilder.setRefreshToken(requireContext(), null)
+                ServiceBuilder.setAccessToken(requireContext(), null)
+
+                val intent = Intent(context, LoginOtherActivity::class.java)
+                startActivity(intent)
+            }
+        )
 
         return binding.root
     }

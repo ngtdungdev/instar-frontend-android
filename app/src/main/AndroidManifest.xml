@@ -23,18 +23,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instarfrontendandroid"
         tools:targetApi="31">
-
-<!--        <activity-->
-<!--            android:name=".ui.activities.MainScreenActivity"-->
-<!--            android:exported="false" />-->
         <activity
-            android:name=".ui.activities.MainScreenActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activities.MainScreenActivity">
+<!--            android:exported="true"-->
+<!--            >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity android:name=".ui.activities.LoginOtherActivity" android:exported="false" />
         <activity android:name=".ui.activities.LoadingScreenActivity" android:exported="false" />

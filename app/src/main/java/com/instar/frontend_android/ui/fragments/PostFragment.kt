@@ -1,18 +1,13 @@
 package com.instar.frontend_android.ui.fragments
 
-import android.R
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -25,8 +20,6 @@ import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAdapter
-import java.io.File
-
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding

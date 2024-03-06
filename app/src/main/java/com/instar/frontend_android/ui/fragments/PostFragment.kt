@@ -1,18 +1,15 @@
 package com.instar.frontend_android.ui.fragments
 
-import android.R
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Pair
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -21,68 +18,119 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import com.canhub.cropper.CropImageView
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
-import com.instar.frontend_android.ui.DTO.ImageInternalMemory
+import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
-import com.instar.frontend_android.ui.adapters.ImageAdapter
-import java.io.File
+import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding
-    private lateinit var imagesList: ArrayList<ImageInternalMemory>
-    private lateinit var imagesAdapter: ImageAdapter
+    private lateinit var imagesAndVideosList: ArrayList<ImageAndVideoInternalMemory>
+    private lateinit var imagesAdapter: ImageAndVideoAdapter
     private lateinit var imagesRecyclerView: RecyclerView
-    private lateinit var cropImageView: CropImageView
+
+    override fun onResume() {
+        super.onResume()
+        if (imagesAndVideosList.size > 0) {
+            loadRecyclerView()
+        }
+    }
+
     companion object {
         const val LOADER_ID = 101
-    }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+        const val VIDEO_LOADER_ID = 102
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentPostBinding.inflate(inflater, container, false)
+        LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+        LoaderManager.getInstance(this).initLoader(VIDEO_LOADER_ID, null, this)
         imagesRecyclerView = binding.imageRecyclerView
-        cropImageView = binding.cropImageView
+        imagesAndVideosList = ArrayList()
         return binding.root
     }
 
-    override fun onLoadFinished(loader: Loader<Cursor?>, data: Cursor?) {
-        val currentPosition = data!!.position
-        if (currentPosition < 0) {
-            imagesList = ArrayList<ImageInternalMemory>()
-            if (loader.id == LOADER_ID && data != null) {
-                val columnIndexId = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val columnIndexData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                val columnIndexDateTaken = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
-                while (data.moveToNext()) {
-                    val id = data.getLong(columnIndexId)
-                    val imagePath = data.getString(columnIndexData)
-                    val dateTaken = data.getLong(columnIndexDateTaken)
-                    val imageUri =
-                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                    imagesList.add(
-                        ImageInternalMemory(
-                            id.toString(),
-                            imageUri.toString(),
-                            imagePath,
-                            dateTaken.toString()
-                        )
-                    )
-                }
-                loadRecyclerView()
+    private fun showFragment(fragmentTag: String) {
+        val fragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        var fragment = fragmentManager.findFragmentByTag(fragmentTag)
+        if (fragment == null) {
+            fragment = when(fragmentTag) {
+                "ImagePostFragment" -> ImagePostFragment()
+                "VideoPostFragment" -> VideoPostFragment()
+                else -> throw IllegalArgumentException("Error: $fragmentTag")
+            }
+            fragmentTransaction.add(R.id.fragmentContainerView, fragment, fragmentTag)
+        }
+        if (fragment != null) {
+            when(fragment) {
+                is ImagePostFragment -> fragment.updateData(imagesAndVideosList[0])
+                is VideoPostFragment -> fragment.updateData(imagesAndVideosList[0])
             }
         }
-        cropImageView.setFixedAspectRatio(true)
-        cropImageView.setAspectRatio(1, 1)
-//        cropImageView.scaleType = CropImageView.ScaleType.CENTER_CROP
-        cropImageView.setImageUriAsync(Uri.parse(imagesList[0].uri))
+        fragmentTransaction.show(fragment).commit()
     }
 
+
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.DATE_TAKEN,
+            MediaStore.Files.FileColumns.MEDIA_TYPE,
+            MediaStore.Video.Media.DURATION
+        )
+        val selection = "(${MediaStore.Files.FileColumns.MEDIA_TYPE}=? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE}=?)"
+        val selectionArgs = arrayOf(
+            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
+            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
+        )
+        val sortOrder = "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
+        return CursorLoader(requireContext(), MediaStore.Files.getContentUri("external"), projection, selection, selectionArgs, sortOrder)
+    }
+    override fun onLoadFinished(loader: Loader<Cursor?>, data: Cursor?) {
+        if (loader.id == LOADER_ID && data != null) {
+            val idColumn = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+            val dataColumn = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+            val dateTakenColumn = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
+            val mediaTypeColumn = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
+            val durationColumn = data.getColumnIndex(MediaStore.Video.Media.DURATION)
+
+            while (data.moveToNext()) {
+                val id = data.getLong(idColumn)
+                val path = data.getString(dataColumn)
+                val dateTaken = data.getLong(dateTakenColumn)
+                val mediaType = data.getInt(mediaTypeColumn)
+                val duration = if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO && durationColumn != -1) {
+                    data.getLong(durationColumn)
+                } else ""
+                val contentUri: Uri = when (mediaType) {
+                    MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    else -> continue
+                }
+                val uri = ContentUris.withAppendedId(contentUri, id)
+                imagesAndVideosList.add(
+                    ImageAndVideoInternalMemory(id.toString(), uri.toString(), path, dateTaken.toString(), duration.toString(), mediaType)
+                )
+            }
+            loadRecyclerView()
+        }
+    }
+
+
+    override fun onLoaderReset(loader: Loader<Cursor>) {
+        TODO("Not yet implemented")
+    }
+
+
     private fun loadRecyclerView() {
-        imagesAdapter = ImageAdapter(requireContext(), imagesList)
+        if(imagesAndVideosList[0].type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+            showFragment("VideoPostFragment")
+        } else showFragment("ImagePostFragment")
+        imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList)
         imagesRecyclerView.adapter = imagesAdapter
         val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
@@ -96,15 +144,6 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         }
     }
 
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_TAKEN)
-        val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
-        return CursorLoader(requireContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder)
-    }
 
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        TODO("Not yet implemented")
-    }
 
 }

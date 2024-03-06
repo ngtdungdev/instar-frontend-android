@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#EFEFEF">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="110dp"
+        android:layout_width="match_parent"
         android:layout_height="110dp" />
 
     <RadioButton
@@ -14,4 +15,16 @@
         android:layout_height="30dp"
         android:layout_gravity="right|top"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:text="TextView"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:visibility="visible" />
 </FrameLayout>

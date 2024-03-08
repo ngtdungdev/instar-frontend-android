@@ -20,9 +20,11 @@ import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 import com.instar.frontend_android.ui.adapters.SlowScroller
 import com.instar.frontend_android.ui.fragments.HomeFragment
+import com.instar.frontend_android.ui.fragments.PostFragment
+import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import java.lang.Math.abs
 
-class MainScreenActivity : AppCompatActivity(), HomeFragment.OnItemClickListener {
+class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
     private lateinit var biding : ActivityMainScreenBinding
     private lateinit var viewPager : ViewPager2
     private var savePosition: Int? = null
@@ -50,7 +52,10 @@ class MainScreenActivity : AppCompatActivity(), HomeFragment.OnItemClickListener
             initView()
         }
     }
-
+    private var listener: OnFragmentClickListener? = null
+    private fun fragmentClick(position: Int) {
+        listener?.onItemClick(position, "HomeFragment")
+    }
     @RequiresApi(Build.VERSION_CODES.R)
     private fun requestPermission() {
         try {
@@ -77,7 +82,7 @@ class MainScreenActivity : AppCompatActivity(), HomeFragment.OnItemClickListener
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * 2)
 
-        //        viewPager.setPageTransformer { page, position ->
+    //        viewPager.setPageTransformer { page, position ->
 //            page.translationX = page.width * -position
 //            page.alpha = 1 - kotlin.math.abs(position)
 //        }
@@ -115,12 +120,9 @@ class MainScreenActivity : AppCompatActivity(), HomeFragment.OnItemClickListener
             }
         }
     }
-    override fun onItemClick(position: Int?) {
-        if (position != null) {
-            savePosition = position
-            viewPager.setCurrentItem(position, true)
-        }
-    }
 
+    override fun onItemClick(position: Int, fragmentTag: String) {
+        viewPager.setCurrentItem(position, true)
+    }
 
 }

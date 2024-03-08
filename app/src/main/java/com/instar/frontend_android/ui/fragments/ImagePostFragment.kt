@@ -41,7 +41,7 @@ class ImagePostFragment : Fragment() {
         if (hidden) {
 
         } else {
-            cropImageView.setImageUriAsync(Uri.parse(newData.uri))
+
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,7 +50,9 @@ class ImagePostFragment : Fragment() {
         cropImageView = binding.cropImageView
         cropImageView.setImageUriAsync(Uri.parse(newData.uri))
         cropImageView.setFixedAspectRatio(true)
-        val intent = Intent()
+        cropImageView.setOnCropImageCompleteListener { _, result ->
+            cropRect = result.cropRect
+        }
         cropImageView.setAspectRatio(1, 1)
         return binding.root
     }

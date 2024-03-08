@@ -46,6 +46,7 @@ class ImageAndVideoAdapter(
             holder.time.visibility = View.VISIBLE
             holder.time.text = formatDuration(item.duration.toLong())
         } else  holder.time.visibility = View.GONE
+        holder.imageChecked.alpha = 1F
         Glide.with(context)
             .load(item.filePath)
             .centerCrop()
@@ -66,20 +67,19 @@ class ImageAndVideoAdapter(
                     if(listener != null) {
                         listener!!.onItemClick(position)
                     }
-                    holder.layout.alpha = 0.7F
+                    holder.imageChecked.alpha = 0.7F
                 }
                 else {
                     listSelectorItem.removeAt(listSelectorItem.indexOf(position))
                     holder.layout.isSelected = false
                     holder.number.visibility = View.GONE
                     holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
-                    holder.layout.alpha = 1F
+                    holder.imageChecked.alpha = 1F
                     savePosition = listSelectorItem[listSelectorItem.size - 1]
                     if(listener != null) {
                         listener!!.onDeleteClick(position,savePosition)
                     }
                     notifyDataSetChanged()
-                    return
                 }
             }
             else if(listSelectorItem.size < 10) {
@@ -92,15 +92,15 @@ class ImageAndVideoAdapter(
                 if (!holder.layout.isSelected) {
                     holder.layout.isSelected = true
                     holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
-                    holder.layout.alpha = 0.7F
+                    holder.imageChecked.alpha = 0.7F
                 } else {
                     holder.layout.isSelected = false
                     holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
-                    holder.layout.alpha = 1F
+                    holder.imageChecked.alpha = 1F
                 }
+                saveLayout = holder.layout
+                savePosition = position
             }
-            saveLayout = holder.layout
-            savePosition = position
         } else {
             if(listener != null) {
                 listener!!.onItemClick(position)
@@ -110,7 +110,7 @@ class ImageAndVideoAdapter(
                 saveLayout!!.isSelected = false
             }
             holder.layout.isSelected = true
-            holder.layout.alpha = 0.7F
+            holder.imageChecked.alpha = 0.7F
             saveLayout = holder.layout
         }
     }
@@ -137,15 +137,15 @@ class ImageAndVideoAdapter(
                 holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
                 holder.number.text = listSelectorItem.size.toString()
                 saveLayout = holder.layout
-                holder.layout.alpha = 0.7F
+                holder.imageChecked.alpha = 0.7F
             } else if (listSelectorItem.contains(position) ) {
                 holder.number.visibility = View.VISIBLE
                 holder.layout.isSelected = true
-                holder.layout.alpha = 1F
+                holder.imageChecked.alpha = 1F
                 holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
                 holder.number.text = (listSelectorItem.indexOf(position) + 1).toString()
             }  else {
-                holder.layout.alpha = 1F
+                holder.imageChecked.alpha = 1F
                 holder.number.visibility = View.GONE
                 holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
             }
@@ -153,9 +153,9 @@ class ImageAndVideoAdapter(
         }
         else {
             if (position != savePosition) {
-                holder.layout.alpha = 1F
+                holder.imageChecked.alpha = 1F
             } else {
-                holder.layout.alpha = 0.7F
+                holder.imageChecked.alpha = 0.7F
                 saveLayout = holder.layout
             }
             holder.checked.visibility = View.GONE

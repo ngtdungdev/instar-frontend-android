@@ -183,6 +183,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             fragmentTransaction.commit()
             val item = imagesAndVideosList[savePosition]
             showFragmentItem(item, savePosition.toString())
+            return
         }
         val tag = position.toString()
         showFragmentItem(item, tag)
@@ -192,8 +193,8 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         val fragmentTransaction = fragmentManager.beginTransaction()
         var fragment = fragmentManager.findFragmentByTag(fragmentTag)
         when (fragment) {
-            is ImagePostFragment -> fragment.apply { updateData(item) }
-            is VideoPostFragment -> fragment.apply { updateData(item) }
+            is ImagePostFragment -> fragmentTransaction.show(fragment)
+            is VideoPostFragment -> fragmentTransaction.show(fragment)
             else -> {
                 fragment = if (item.type == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
                     ImagePostFragment().apply {updateData(item)}

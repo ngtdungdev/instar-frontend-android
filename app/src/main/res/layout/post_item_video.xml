@@ -10,7 +10,7 @@
         android:background="#EFEFEF" />
 
     <RadioButton
-        android:id="@+id/radioButton2"
+        android:id="@+id/checked"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="right|top"

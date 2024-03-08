@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#EFEFEF">
@@ -9,11 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="110dp" />
 
-    <RadioButton
-        android:id="@+id/radioButton2"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+    <include
+        android:id="@+id/checked"
+        layout="@layout/custom_checkbox"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_gravity="right|top"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
         android:visibility="gone" />
 
     <TextView

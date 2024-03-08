@@ -81,8 +81,8 @@ class HomeFragment : Fragment() {
                 ServiceBuilder.setRefreshToken(requireContext(), null)
                 ServiceBuilder.setAccessToken(requireContext(), null)
 
-                val intent = Intent(context, LoginOtherActivity::class.java)
-                startActivity(intent)
+//                val intent = Intent(context, LoginOtherActivity::class.java)
+//                startActivity(intent)
             }
         )
 

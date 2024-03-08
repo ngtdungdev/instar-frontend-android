@@ -1,16 +1,16 @@
 package com.instar.frontend_android.ui.fragments
 
 import android.content.ContentUris
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -18,13 +18,12 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
-import com.canhub.cropper.CropImageView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
-import java.text.FieldPosition
+import com.instar.frontend_android.ui.services.OnFragmentClickListener
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding
@@ -32,12 +31,21 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var imagesAdapter: ImageAndVideoAdapter
     private lateinit var imagesRecyclerView: RecyclerView
     private lateinit var btnListPost: ImageView
+    private lateinit var imageBack: ImageButton
     private var isListPost: Boolean = false
     private var savePosition: Int = 0
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentClickListener) {
+            listener = context
+        }
+    }
     override fun onResume() {
         super.onResume()
         if (imagesAndVideosList.size > 0) {
+            isListPost = false
+            savePosition = 0
             loadRecyclerView()
         }
     }
@@ -53,11 +61,16 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         LoaderManager.getInstance(this).initLoader(VIDEO_LOADER_ID, null, this)
         imagesRecyclerView = binding.imageRecyclerView
         btnListPost = binding.btnList
+        imageBack = binding.imageBack
         imagesAndVideosList = ArrayList()
         initView()
         return binding.root
     }
 
+    private var listener: OnFragmentClickListener? = null
+    private fun fragmentClick(position: Int) {
+        listener?.onItemClick(position, "PostFragment")
+    }
     private fun initView() {
         val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
@@ -68,6 +81,9 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             override fun getSpanSize(position: Int): Int {
                 return 1
             }
+        }
+        imageBack.setOnClickListener {
+           fragmentClick(1)
         }
         btnListPost.setOnClickListener {
             isListPost = !isListPost

@@ -23,7 +23,7 @@ class ImageAndVideoAdapter(
         val view = LayoutInflater.from(parent.context).inflate(R.layout.post_item_image, parent, false)
         return ImageViewHolder(view)
     }
-    private var saveLayout: View? = null
+    private var saveImage: ImageView? = null
 
     interface OnItemClickListener {
         fun onItemClick(position: Int?)
@@ -46,7 +46,7 @@ class ImageAndVideoAdapter(
             holder.time.visibility = View.VISIBLE
             holder.time.text = formatDuration(item.duration.toLong())
         } else  holder.time.visibility = View.GONE
-        holder.imageChecked.alpha = 1F
+        holder.image.alpha = 1F
         Glide.with(context)
             .load(item.filePath)
             .centerCrop()
@@ -59,22 +59,22 @@ class ImageAndVideoAdapter(
 
     private fun loadBtnChecked(holder: ImageViewHolder, position: Int) {
         if(isListPost) {
-            if(saveLayout != null) {
-                saveLayout!!.alpha = 1F
+            if(saveImage != null) {
+                saveImage!!.alpha = 1F
             }
             if(listSelectorItem.contains(position) && holder.layout.isSelected) {
                 if(savePosition != position) {
                     if(listener != null) {
                         listener!!.onItemClick(position)
                     }
-                    holder.imageChecked.alpha = 0.7F
+                    holder.image.alpha = 0.7F
                 }
                 else {
                     listSelectorItem.removeAt(listSelectorItem.indexOf(position))
                     holder.layout.isSelected = false
                     holder.number.visibility = View.GONE
                     holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
-                    holder.imageChecked.alpha = 1F
+                    holder.image.alpha = 1F
                     savePosition = listSelectorItem[listSelectorItem.size - 1]
                     if(listener != null) {
                         listener!!.onDeleteClick(position,savePosition)
@@ -92,26 +92,26 @@ class ImageAndVideoAdapter(
                 if (!holder.layout.isSelected) {
                     holder.layout.isSelected = true
                     holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
-                    holder.imageChecked.alpha = 0.7F
+                    holder.image.alpha = 0.7F
                 } else {
                     holder.layout.isSelected = false
                     holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
-                    holder.imageChecked.alpha = 1F
+                    holder.image.alpha = 1F
                 }
-                saveLayout = holder.layout
+                saveImage = holder.image
                 savePosition = position
             }
         } else {
             if(listener != null) {
                 listener!!.onItemClick(position)
             }
-            if (saveLayout != null) {
-                saveLayout!!.alpha = 1F
-                saveLayout!!.isSelected = false
+            if (saveImage != null) {
+                saveImage!!.alpha = 1F
+                saveImage!!.isSelected = false
             }
             holder.layout.isSelected = true
-            holder.imageChecked.alpha = 0.7F
-            saveLayout = holder.layout
+            holder.image.alpha = 0.7F
+            saveImage = holder.image
         }
     }
     private fun formatDuration(durationMillis: Long): String {
@@ -136,16 +136,16 @@ class ImageAndVideoAdapter(
                 holder.layout.isSelected = true
                 holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
                 holder.number.text = listSelectorItem.size.toString()
-                saveLayout = holder.layout
-                holder.imageChecked.alpha = 0.7F
+                saveImage = holder.image
+                holder.image.alpha = 0.7F
             } else if (listSelectorItem.contains(position) ) {
                 holder.number.visibility = View.VISIBLE
                 holder.layout.isSelected = true
-                holder.imageChecked.alpha = 1F
+                holder.image.alpha = 1F
                 holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
                 holder.number.text = (listSelectorItem.indexOf(position) + 1).toString()
             }  else {
-                holder.imageChecked.alpha = 1F
+                holder.image.alpha = 1F
                 holder.number.visibility = View.GONE
                 holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
             }
@@ -153,10 +153,10 @@ class ImageAndVideoAdapter(
         }
         else {
             if (position != savePosition) {
-                holder.imageChecked.alpha = 1F
+                holder.image.alpha = 1F
             } else {
-                holder.imageChecked.alpha = 0.7F
-                saveLayout = holder.layout
+                holder.image.alpha = 0.7F
+                saveImage = holder.image
             }
             holder.checked.visibility = View.GONE
         }

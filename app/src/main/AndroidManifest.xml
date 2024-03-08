@@ -46,6 +46,8 @@
         <activity android:name=".ui.activities.LoginEmailActivity" android:exported="false" />
         <activity android:name=".ui.activities.LoginActivity" android:exported="false" />
         <activity android:name=".ui.activities.DirectMessageActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostFilterEditingActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostPreUpLoadingActivity" android:exported="false" />
 
 
         <provider

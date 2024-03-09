@@ -11,23 +11,17 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginEmailBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
-import com.instar.frontend_android.types.requests.LoginRequest
 import com.instar.frontend_android.types.requests.VerifyCodeRequest
-import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.utils.Helpers
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class LoginEmailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginEmailBinding

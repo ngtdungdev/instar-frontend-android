@@ -153,38 +153,41 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         return ""
     }
     private fun loadRecyclerView() {
-        if(isListPost) {
-            showListFragment(savePosition, savePosition, false)
-        } else {
-            val item = imagesAndVideosList[savePosition]
-            val fragmentTag = returnFragmentTag(item.type.toString())
-            showFragment(item, fragmentTag)
-        }
-        imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList, isListPost, savePosition)
-        imagesRecyclerView.adapter = imagesAdapter
-        imagesAdapter.setOnItemClickListener(object: ImageAndVideoAdapter.OnItemClickListener {
-            override fun onItemClick(position: Int?) {
-                if (position != null) {
-                    if(isListPost) {
-                        showListFragment(position, position, false)
-                    } else {
-                        var item = imagesAndVideosList[position]
-                        val fragmentTag = returnFragmentTag(item.type.toString())
-                        showFragment(item, fragmentTag)
+        // Check if imagesAndVideosList is not empty before accessing its elements
+        if (imagesAndVideosList.isNotEmpty()) {
+            if (isListPost) {
+                showListFragment(savePosition, savePosition, false)
+            } else {
+                val item = imagesAndVideosList[savePosition]
+                val fragmentTag = returnFragmentTag(item.type.toString())
+                showFragment(item, fragmentTag)
+            }
+            imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList, isListPost, savePosition)
+            imagesRecyclerView.adapter = imagesAdapter
+            imagesAdapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
+                override fun onItemClick(position: Int?) {
+                    if (position != null) {
+                        if (isListPost) {
+                            showListFragment(position, position, false)
+                        } else {
+                            var item = imagesAndVideosList[position]
+                            val fragmentTag = returnFragmentTag(item.type.toString())
+                            showFragment(item, fragmentTag)
+                        }
+
+                        savePosition = position
                     }
-                    savePosition = position
                 }
-            }
-            override fun onDeleteClick(position: Int?, save: Int) {
-                if (position != null) {
-                    showListFragment(position, save, true)
-                    savePosition = save
+
+                override fun onDeleteClick(position: Int?, save: Int) {
+                    if (position != null) {
+                        showListFragment(position, save, true)
+                        savePosition = save
+                    }
                 }
-            }
-        })
+            })
+        }
     }
-
-
 
     private fun showListFragment(position: Int, savePosition: Int, isDelete: Boolean) {
         var item = imagesAndVideosList[position]

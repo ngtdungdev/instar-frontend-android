@@ -5,11 +5,9 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -17,13 +15,11 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
-import com.canhub.cropper.CropImageView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
-import com.instar.frontend_android.ui.adapters.ImageAdapter
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding
     private lateinit var imagesAndVideosList: ArrayList<ImageAndVideoInternalMemory>

@@ -1,11 +1,13 @@
 package com.instar.frontend_android.ui.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +21,7 @@ import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.adapters.NewsFeedAdapter
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.services.AuthService
+import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 
@@ -37,17 +40,18 @@ class HomeFragment : Fragment() {
 
     private lateinit var authService: AuthService
     private lateinit var user: UserResponse
+    private lateinit var btnPostUp: ImageButton
 
-    interface OnItemClickListener {
-        fun onItemClick(position: Int?)
+    private var listener: OnFragmentClickListener? = null
+    private fun fragmentClick(position: Int) {
+        listener?.onItemClick(position, "HomeFragment")
     }
-
-    private var listener: OnItemClickListener? = null
-
-    fun setOnItemClickListener(listener: OnItemClickListener) {
-        this.listener = listener
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentClickListener) {
+            listener = context
+        }
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -55,6 +59,7 @@ class HomeFragment : Fragment() {
         avatarRecyclerView = binding.stories
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
+        btnPostUp = binding.btnPostUp
 
         initView()
         authService.profile().handleResponse(
@@ -81,8 +86,8 @@ class HomeFragment : Fragment() {
                 ServiceBuilder.setRefreshToken(requireContext(), null)
                 ServiceBuilder.setAccessToken(requireContext(), null)
 
-                val intent = Intent(context, LoginOtherActivity::class.java)
-                startActivity(intent)
+//                val intent = Intent(context, LoginOtherActivity::class.java)
+//                startActivity(intent)
             }
         )
 
@@ -92,7 +97,12 @@ class HomeFragment : Fragment() {
     private fun initView() {
         btnMessage.setOnClickListener {
             if (listener != null) {
-                listener!!.onItemClick(2)
+                fragmentClick(2)
+            }
+        }
+        btnPostUp.setOnClickListener {
+            if (listener != null) {
+                fragmentClick(0)
             }
         }
         loadRecyclerView()

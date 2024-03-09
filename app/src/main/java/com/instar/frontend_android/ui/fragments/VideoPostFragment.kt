@@ -26,11 +26,23 @@ class VideoPostFragment : Fragment() {
 
     fun updateData(newData: ImageAndVideoInternalMemory) {
         this.newData = newData
-        if (::imageView.isInitialized) {
-            imageView.visibility = View.VISIBLE
+        if(this::videoView.isInitialized) {
+            imageView.visibility = View.GONE
+            videoView.setVideoURI(Uri.parse(newData.uri))
+            videoView.start()
         }
     }
-
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden) {
+            videoView.pause()
+            imageView.visibility = View.VISIBLE
+        } else {
+//            imageView.visibility = View.GONE
+//            videoView.setVideoURI(Uri.parse(newData.uri))
+//            videoView.start()
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)

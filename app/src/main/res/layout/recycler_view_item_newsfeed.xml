@@ -74,38 +74,21 @@
         android:paddingTop="10dp"
         android:paddingRight="10dp">
 
-        <RadioGroup
-            android:layout_width="100dp"
-            android:layout_height="20dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="120dp"
-            android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/carouselDot"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/carousel"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:layout_toStartOf="@+id/saved"
+            android:layout_toEndOf="@+id/share"
+            android:gravity="center"
+            android:orientation="horizontal"
+            tools:ignore="NotSibling">
 
-            <RadioButton
-                android:id="@+id/radioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-        </RadioGroup>
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/heart"
@@ -134,7 +117,7 @@
             android:background="@drawable/icon_paperplane" />
 
         <ImageButton
-            android:id="@+id/imageButton6"
+            android:id="@+id/saved"
             android:layout_width="35dp"
             android:layout_height="29dp"
             android:layout_alignParentTop="true"
@@ -155,7 +138,7 @@
 
         <TextView
             android:id="@+id/content"
-            android:layout_width="125dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/likeTotal"
             android:layout_marginTop="5dp"
@@ -184,7 +167,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/createdAt"
-            android:layout_marginStart="2dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="1dp"
             android:layout_toEndOf="@+id/createdAt"
             android:text="Xem thêm" />

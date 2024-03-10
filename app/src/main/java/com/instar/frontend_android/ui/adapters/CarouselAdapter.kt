@@ -25,9 +25,13 @@ class CarouselAdapter(private val images: List<String>) : RecyclerView.Adapter<C
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(imageUrl: String) {
-            // Load image into ImageView
+            // Load image into ImageView with default image if loading fails
             // Example using Glide:
-            Glide.with(itemView.context).load(imageUrl).into(itemView.findViewById(R.id.imageView))
+            Glide.with(itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.default_image) // Default image resource
+                .error(R.drawable.default_image) // Error image resource (optional)
+                .into(itemView.findViewById(R.id.imageView))
         }
     }
 }

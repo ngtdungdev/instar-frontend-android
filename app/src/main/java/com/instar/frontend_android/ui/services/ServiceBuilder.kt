@@ -197,9 +197,5 @@ object ServiceBuilder {
             val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
             return sharedPreferences.getString("accessToken", null)
         }
-
-
-
     }
 }
-

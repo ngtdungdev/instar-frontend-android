@@ -27,7 +27,6 @@ import java.lang.Math.abs
 class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
     private lateinit var biding : ActivityMainScreenBinding
     private lateinit var viewPager : ViewPager2
-    private var savePosition: Int? = null
     companion object {
         const val PERMISSION_CODE = 1001
     }
@@ -53,9 +52,6 @@ class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
         }
     }
     private var listener: OnFragmentClickListener? = null
-    private fun fragmentClick(position: Int) {
-        listener?.onItemClick(position, "HomeFragment")
-    }
     @RequiresApi(Build.VERSION_CODES.R)
     private fun requestPermission() {
         try {

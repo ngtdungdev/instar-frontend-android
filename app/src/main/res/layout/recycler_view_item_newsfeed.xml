@@ -57,15 +57,34 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/relativeLayout2"
+        android:id="@+id/carouselParent"
         android:layout_width="match_parent"
-        android:layout_height="310dp">
+        android:layout_height="310dp"
+        android:visibility="gone"
+        >
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/carousel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/imageCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1/x"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:background="@drawable/volume_button_background"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" />
     </RelativeLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

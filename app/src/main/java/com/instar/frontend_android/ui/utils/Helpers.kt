@@ -1,5 +1,7 @@
 package com.instar.frontend_android.ui.utils
 
+import android.util.Log
+import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import org.json.JSONObject
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -42,6 +44,20 @@ object Helpers {
                     .withLocale(java.util.Locale("vi")) // Set Vietnamese locale for month name
                 dateTime.format(formatter)
             }
+        }
+    }
+
+    @JvmStatic
+    fun getMediaType(url: String): CarouselAdapter.MediaType {
+        val imageExtensions = listOf("jpg", "jpeg", "png", "gif", "webp", "avif") // Danh sách các phần mở rộng hình ảnh
+        val videoExtensions = listOf("mp4", "avi", "mov", "mkv") // Danh sách các phần mở rộng video
+
+        val extension = url.substringAfterLast(".") // Lấy phần mở rộng của URL
+
+        return when {
+            imageExtensions.contains(extension) -> CarouselAdapter.MediaType.IMAGE
+            videoExtensions.contains(extension) -> CarouselAdapter.MediaType.VIDEO
+            else -> throw IllegalArgumentException("Unsupported media type for URL: $url")
         }
     }
 }

@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -9,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.instar.frontend_android"
-        minSdk = 26
+        minSdk = 30
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -50,6 +52,9 @@ dependencies {
 
     //view
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+    kapt("androidx.lifecycle:lifecycle-compiler:2.3.1")
 
 
     // retrofit

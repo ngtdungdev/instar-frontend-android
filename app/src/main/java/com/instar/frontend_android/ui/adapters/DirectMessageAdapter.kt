@@ -70,7 +70,6 @@ class DirectMessageAdapter(private val data: List<Messages>) : RecyclerView.Adap
 
     class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageAvatar: View = itemView.findViewById(R.id.imageAvatar)
-
     }
 
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -144,7 +144,7 @@ class LoginOtherActivity : AppCompatActivity() {
                         apply()
                     }
 
-                    val intent = Intent(this@LoginOtherActivity, HomeActivity::class.java)
+                    val intent = Intent(this@LoginOtherActivity, MainScreenActivity::class.java)
                     startActivity(intent)
 
                     Toast.makeText(this@LoginOtherActivity, "Login successfull", Toast.LENGTH_LONG).show();

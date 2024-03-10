@@ -2,8 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -16,12 +23,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instarfrontendandroid"
         tools:targetApi="31">
-<!--        <activity-->
-<!--            android:name=".ui.activities.ProfileActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity android:name=".ui.activities.DirectMessageActivity" />-->
+
         <activity
             android:name=".ui.activities.ProfileActivity"
+            android:exported="false" >
+<!--                    <intent-filter>-->
+<!--                        <action android:name="android.intent.action.MAIN" />-->
+
+<!--                        <category android:name="android.intent.category.LAUNCHER" />-->
+<!--                    </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".MainActivity"/>
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+        <activity
+            android:name=".ui.activities.MainScreenActivity"
+
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,16 +52,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activities.LoginOtherActivity" />
-        <activity android:name=".ui.activities.LoadingScreenActivity" />
-        <activity android:name=".ui.activities.LoginEmailActivity" />
-        <activity android:name=".ui.activities.LoginActivity" />
+        <activity android:name=".ui.activities.LoginOtherActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoadingScreenActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoginEmailActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoginActivity" android:exported="false" />
+        <activity android:name=".ui.activities.DirectMessageActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostFilterEditingActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostPreUpLoadingActivity" android:exported="false" />
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".ui.activities.HomeActivity" />
     </application>
 
 </manifest>

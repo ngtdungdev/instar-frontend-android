@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.instar.frontend_android.R;
 import com.instar.frontend_android.ui.DTO.Images;
 
@@ -17,7 +20,9 @@ import java.util.List;
 
 public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Images> images;
-    public NewsFollowAdapter(List<Images> images) {
+    private Context context;
+    public NewsFollowAdapter(Context context, List<Images> images) {
+        this.context = context;
         this.images = images;
     }
 
@@ -46,11 +51,19 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void bindPersonalAvatar(PersonalAvatar data, Images item) {
-        data.imageButton.setBackgroundResource(item.getImgPath());
+        if(item.getUrl() != null) {
+            Glide.with(context)
+                    .load(item.getUrl())
+                    .into(data.imageButton);
+        } else data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
     }
 
     public void bindFriendAvatar(FriendAvatar data, Images item) {
-        data.imageButton.setBackgroundResource(item.getImgPath());
+        if(item.getUrl() != null) {
+            Glide.with(context)
+                    .load(item.getUrl())
+                    .into(data.imageButton);
+        } else data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
         data.nameAvatar.setText(item.getName());
     }
 

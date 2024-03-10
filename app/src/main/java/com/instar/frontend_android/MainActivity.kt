@@ -5,8 +5,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import com.instar.frontend_android.ui.activities.HomeActivity
 import com.instar.frontend_android.ui.activities.LoadingScreenActivity
+import com.instar.frontend_android.ui.activities.MainScreenActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed({
             if (accessToken != null) {
                 if (accessToken.isNotEmpty()) {
-                    val intent = Intent(this@MainActivity, HomeActivity::class.java)
+                    val intent = Intent(this@MainActivity, MainScreenActivity::class.java)
                     startActivity(intent)
 
                     finish()

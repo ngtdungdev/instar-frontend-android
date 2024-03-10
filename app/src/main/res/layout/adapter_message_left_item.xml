@@ -6,7 +6,7 @@
     android:layout_marginTop="2dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+        android:id="@+id/imageAvatar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -14,7 +14,7 @@
         app:cardCornerRadius="50dp">
 
         <ImageView
-            android:id="@+id/imageAvatar"
+            android:id="@+id/imageView"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@mipmap/ic_instagram" />
@@ -23,8 +23,10 @@
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="5dp"
-        android:layout_toEndOf="@id/cardView"
+        android:layout_marginBottom="5dp"
+        android:layout_toEndOf="@id/imageAvatar"
         app:cardCornerRadius="50dp">
 
         <TextView
@@ -33,7 +35,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:background="#efefef"
-            android:padding="10dp"
+            android:paddingStart="10dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="8dp"
             android:text="TextView"
             android:textColor="#272727"
             android:textSize="16sp" />

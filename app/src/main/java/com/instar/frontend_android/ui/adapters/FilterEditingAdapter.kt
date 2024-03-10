@@ -1,7 +1,9 @@
 package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -12,9 +14,12 @@ import android.widget.TextView
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import java.io.File
 import java.io.FileInputStream
 import java.io.ObjectInputStream
 
@@ -36,11 +41,24 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
                 holder.videoView.start()
             }
         }else {
-            val bitmap = BitmapFactory.decodeStream(context.openFileInput(item.filePath))
-            Glide.with(context)
-                .load(bitmap)
-                .centerCrop()
-                .into(holder.image)
+            try {
+                holder.layout.visibility = View.GONE
+                Glide.with(context)
+                    .asBitmap()
+                    .load(item.filePath)
+                    .centerCrop()
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                            holder.image.setImageBitmap(resource)
+                        }
+
+                        override fun onLoadCleared(placeholder: Drawable?) {
+
+                        }
+                    })
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {

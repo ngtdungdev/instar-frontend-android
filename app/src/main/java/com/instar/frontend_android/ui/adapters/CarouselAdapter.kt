@@ -1,21 +1,26 @@
 package com.instar.frontend_android.ui.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioManager
 import android.net.Uri
 import android.util.Log
+import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.ImageView
 import android.widget.VideoView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 
-class CarouselAdapter(private val mediaList: List<Pair<String, MediaType>>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CarouselAdapter(
+    private val mediaList: List<Pair<String, MediaType>>,
+    private val gestureDetector: GestureDetector? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var recyclerView: RecyclerView? = null
     private var centerPosition: Int = 0
@@ -79,16 +84,29 @@ class CarouselAdapter(private val mediaList: List<Pair<String, MediaType>>) : Re
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageView: ImageView = itemView.findViewById(R.id.imageView)
+
+        init {
+            gestureDetector?.let { gd ->
+                imageView.setOnTouchListener { _, event ->
+                    gd.onTouchEvent(event)
+                    true
+                }
+            }
+        }
+
         fun bind(imageUrl: String) {
             Glide.with(itemView.context)
                 .load(imageUrl)
                 .placeholder(R.drawable.default_image)
                 .error(R.drawable.default_image)
-                .into(itemView.findViewById(R.id.imageView))
+                .into(imageView)
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     inner class VideoViewHolder(itemView: View, private val context: Context) : RecyclerView.ViewHolder(itemView) {
         private val volumeButton: ImageButton = itemView.findViewById(R.id.volumeButton)
         private val videoView: VideoView = itemView.findViewById(R.id.videoView)
@@ -97,6 +115,13 @@ class CarouselAdapter(private val mediaList: List<Pair<String, MediaType>>) : Re
         private var audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         init {
+            gestureDetector?.let { gd ->
+                videoView.setOnTouchListener { _, event ->
+                    gd.onTouchEvent(event)
+                    true
+                }
+            }
+
             videoView.setOnClickListener {
                 if (isVideoPlaying) {
                     pauseVideo()

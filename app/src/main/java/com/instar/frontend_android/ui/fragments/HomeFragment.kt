@@ -80,6 +80,7 @@ class HomeFragment : Fragment() {
                     "Tin của bạn",
                     avatarUrl
                 )
+
                 imageList.add(0, image0)
                 newsFollowAdapter = NewsFollowAdapter(context,imageList)
                 avatarRecyclerView.adapter = newsFollowAdapter
@@ -119,7 +120,7 @@ class HomeFragment : Fragment() {
 
     private suspend fun loadRecyclerView() {
         feedList = getPosts()
-        postAdapter = PostAdapter(feedList, lifecycleScope)
+        postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }

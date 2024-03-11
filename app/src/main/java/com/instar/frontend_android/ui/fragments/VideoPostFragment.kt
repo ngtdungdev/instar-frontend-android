@@ -38,9 +38,7 @@ class VideoPostFragment : Fragment() {
             videoView.pause()
             imageView.visibility = View.VISIBLE
         } else {
-//            imageView.visibility = View.GONE
-//            videoView.setVideoURI(Uri.parse(newData.uri))
-//            videoView.start()
+            videoView.start()
         }
     }
 

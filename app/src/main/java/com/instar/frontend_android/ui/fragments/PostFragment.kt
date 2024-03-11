@@ -108,17 +108,17 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
             if(isListPost) {
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
-                for (item in listSelectorItem) {
-                    var fragment = fragmentManager.findFragmentByTag(item.toString())
+                for (i in 0 until listSelectorItem.size) {
+                    var fragment = fragmentManager.findFragmentByTag(i.toString())
                     when (fragment) {
                         is ImagePostFragment -> {
                             val bitmap: Bitmap = fragment.getBitMapImage()!!
                             val rect: Rect = fragment.getCropRect()!!
-                            val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, item)
-                            filterEditing.add(ImageAndVideo(imagesAndVideosList[item].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
+                            val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, i.toString())
+                            filterEditing.add(ImageAndVideo(imagesAndVideosList[listSelectorItem[i]].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
                         }
                         is VideoPostFragment -> {
-                            filterEditing.add(ImageAndVideo(imagesAndVideosList[item].uri, "" , 0, 0, 0, 0, imagesAndVideosList[item].duration,1))
+                            filterEditing.add(ImageAndVideo(imagesAndVideosList[listSelectorItem[i]].uri, "" , 0, 0, 0, 0, imagesAndVideosList[listSelectorItem[i]].duration,1))
                         }
                     }
                 }
@@ -132,7 +132,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                     is ImagePostFragment -> {
                         val bitmap: Bitmap = fragment.getBitMapImage()!!
                         val rect: Rect = fragment.getCropRect()!!
-                        val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, savePosition)
+                        val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, "11")
                         filterEditing.add(ImageAndVideo(imagesAndVideosList[savePosition].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
                     }
                     is VideoPostFragment -> {

@@ -1,6 +1,5 @@
 package com.instar.frontend_android.ui.utils
 
-import android.util.Log
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import org.json.JSONObject
 import java.time.Duration

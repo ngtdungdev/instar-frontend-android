@@ -4,9 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.media.MediaPlayer.OnPreparedListener
 import android.net.Uri
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +18,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import java.io.File
-
 
 class FilterEditingAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>) : RecyclerView.Adapter<FilterEditingAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -63,7 +60,6 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
             }
         }else {
             try {
-                holder.layout.visibility = View.GONE
                 Glide.with(context)
                     .asBitmap()
                     .load(item.filePath)
@@ -85,6 +81,7 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
             }
         }
     }
+
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val image: ImageView = view.findViewById(R.id.image)
         val layout: View = view.findViewById(R.id.video)

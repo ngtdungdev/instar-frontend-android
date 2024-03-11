@@ -54,7 +54,6 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
                 holder.videoView.layoutParams = layoutParams
             }
 
-            holder.videoView.start()
             holder.videoView.setOnCompletionListener {
                 holder.videoView.start()
             }

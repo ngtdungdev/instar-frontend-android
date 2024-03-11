@@ -1,8 +1,12 @@
 package com.instar.frontend_android.ui.fragments
 
+import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -11,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -21,9 +26,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.activities.PostFilterEditingActivity
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
+import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
+import com.instar.frontend_android.ui.viewmodels.SaveImageToFile
+import java.io.Serializable
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: FragmentPostBinding
@@ -32,8 +41,10 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var imagesRecyclerView: RecyclerView
     private lateinit var btnListPost: ImageView
     private lateinit var imageBack: ImageButton
+    private lateinit var btnContinue: TextView
     private var isListPost: Boolean = false
     private var savePosition: Int = 0
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -62,6 +73,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         imagesRecyclerView = binding.imageRecyclerView
         btnListPost = binding.btnList
         imageBack = binding.imageBack
+        btnContinue = binding.btnContinue
         imagesAndVideosList = ArrayList()
         initView()
         return binding.root
@@ -71,6 +83,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private fun fragmentClick(position: Int) {
         listener?.onItemClick(position, "PostFragment")
     }
+    private lateinit var viewModel: FilterEditingViewModel
     private fun initView() {
         val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
@@ -88,6 +101,49 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         btnListPost.setOnClickListener {
             isListPost = !isListPost
             loadRecyclerView()
+        }
+        btnContinue.setOnClickListener {
+            val fragmentManager = requireActivity().supportFragmentManager
+            val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
+            if(isListPost) {
+                val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
+                for (item in listSelectorItem) {
+                    var fragment = fragmentManager.findFragmentByTag(item.toString())
+                    when (fragment) {
+                        is ImagePostFragment -> {
+                            val bitmap: Bitmap = fragment.getBitMapImage()!!
+                            val rect: Rect = fragment.getCropRect()!!
+                            val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, item)
+                            filterEditing.add(ImageAndVideo(imagesAndVideosList[item].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
+                        }
+                        is VideoPostFragment -> {
+                            filterEditing.add(ImageAndVideo(imagesAndVideosList[item].uri, "" , 0, 0, 0, 0, imagesAndVideosList[item].duration,1))
+                        }
+                    }
+                }
+
+            }
+            else {
+                val item = imagesAndVideosList[savePosition]
+                val fragmentTag = returnFragmentTag(item.type.toString())
+                var fragment = fragmentManager.findFragmentByTag(fragmentTag)
+                when (fragment) {
+                    is ImagePostFragment -> {
+                        val bitmap: Bitmap = fragment.getBitMapImage()!!
+                        val rect: Rect = fragment.getCropRect()!!
+                        val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, savePosition)
+                        filterEditing.add(ImageAndVideo(imagesAndVideosList[savePosition].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
+                    }
+                    is VideoPostFragment -> {
+                        filterEditing.add(ImageAndVideo(imagesAndVideosList[savePosition].uri, "" , 0, 0, 0, 0, imagesAndVideosList[savePosition].duration,1))
+                    }
+                }
+            }
+            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                putExtra("Data", filterEditing as Serializable)
+            }
+            startActivity(intent)
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 

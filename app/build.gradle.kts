@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -52,6 +54,9 @@ dependencies {
 
     //view
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+    kapt("androidx.lifecycle:lifecycle-compiler:2.3.1")
 
     // retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

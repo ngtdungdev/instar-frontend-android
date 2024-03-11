@@ -17,10 +17,10 @@ import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 
-class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener {
-    private lateinit var binding: ActivityMainScreenBinding
-    private lateinit var viewPager: ViewPager2
 
+class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
+    private lateinit var binding : ActivityMainScreenBinding
+    private lateinit var viewPager : ViewPager2
     companion object {
         const val PERMISSION_CODE = 1001
     }
@@ -47,7 +47,7 @@ class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener {
             initView()
         }
     }
-
+    private var listener: OnFragmentClickListener? = null
     @RequiresApi(Build.VERSION_CODES.R)
     private fun requestPermission() {
         try {

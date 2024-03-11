@@ -8,10 +8,62 @@
     tools:layout_editor_absoluteX="-9dp"
     tools:layout_editor_absoluteY="0dp">
 
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="23dp"
+        app:alignmentMode="alignMargins"
+        app:columnCount="5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:useDefaultMargins="true">
+
+        <ImageButton
+            android:id="@+id/btnHome"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/icon_home_black"
+            app:layout_constraintHorizontal_chainStyle="spread" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@+id/btnHome"
+            android:background="@drawable/icon_magnifyingglass" />
+
+        <ImageButton
+            android:id="@+id/btnPostUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@+id/btnSearch"
+            android:background="@drawable/icon_plus" />
+
+        <ImageButton
+            android:id="@+id/btnReel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@+id/btnPostUp"
+            android:background="@drawable/icon_reels" />
+
+        <ImageButton
+            android:id="@+id/btnPersonal"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="54dp"
+            android:layout_marginEnd="17dp"
+            android:layout_toEndOf="@+id/btnReel"
+            android:background="@drawable/backgroud_radius_gradient_orangepink" />
+    </androidx.gridlayout.widget.GridLayout>
+
     <ImageButton
         android:id="@+id/btnEditProfile"
         android:layout_width="160dp"
-        android:layout_height="48dp"
+        android:layout_height="36dp"
         android:layout_marginStart="30dp"
         android:layout_marginTop="250dp"
         android:layout_marginEnd="20dp"
@@ -25,7 +77,7 @@
     <ImageButton
         android:id="@+id/btnShareProfile"
         android:layout_width="160dp"
-        android:layout_height="48dp"
+        android:layout_height="36dp"
         android:layout_marginTop="250dp"
         android:layout_marginEnd="30dp"
         android:background="@drawable/selector_btn_profile"
@@ -34,7 +86,7 @@
         tools:ignore="MissingConstraints" />
 
     <ImageButton
-        android:id="@+id/btnPostUp"
+        android:id="@+id/btnPostUp1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="310dp"
@@ -56,6 +108,27 @@
         android:contentDescription="This button opens menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="325dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewStory"
+            android:layout_width="409dp"
+            android:layout_height="90dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPost"
+            android:layout_width="409dp"
+            android:layout_height="220dp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvTenNguoiDung"
@@ -215,9 +288,4 @@
 
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="409dp"
-        android:layout_height="200dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="310dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

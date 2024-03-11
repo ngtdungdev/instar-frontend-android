@@ -3,6 +3,9 @@ package com.instar.frontend_android.ui.activities
 import android.graphics.Rect
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import android.os.Bundle
+import android.util.Log
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -22,11 +25,13 @@ class PostFilterEditingActivity : AppCompatActivity() {
     private lateinit var filterEditingAdapter: FilterEditingAdapter
     private var imageAndVideo: MutableList<ImageAndVideo>? = null
     private lateinit var viewModel: FilterEditingViewModel
+    private lateinit var imageBack: ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostFilterEditingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        imageAndVideo = intent.getSerializableExtra("Data") as? MutableList<ImageAndVideo>
+        val bundle = intent.extras
+        imageAndVideo = bundle?.getSerializable("Data") as? MutableList<ImageAndVideo>
         viewModel = ViewModelProvider(this)[FilterEditingViewModel::class.java]
         filterRecyclerView = binding.recyclerView
         initView()
@@ -34,6 +39,12 @@ class PostFilterEditingActivity : AppCompatActivity() {
 
     private fun initView() {
         loadRecyclerView()
+
+        imageBack = binding.imageBack
+
+        imageBack.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun loadRecyclerView() {

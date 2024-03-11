@@ -1,8 +1,11 @@
 package com.instar.frontend_android.ui.utils
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -59,5 +62,17 @@ object Helpers {
             videoExtensions.contains(extension) -> CarouselAdapter.MediaType.VIDEO
             else -> throw IllegalArgumentException("Unsupported media type for URL: $url")
         }
+    }
+
+    @JvmStatic
+    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    @JvmStatic
+    fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? {
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 }

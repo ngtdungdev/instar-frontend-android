@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
@@ -33,6 +32,8 @@ import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.bumptech.glide.Glide
+import com.instar.frontend_android.ui.fragments.ShareFragment
 
 class PostAdapter(private val data: List<Post>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
@@ -133,86 +134,89 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
             lifecycleScope.launch {
                 try {
                     val response = getUserData(post.userId)
-                    author.text = response.data.user?.username ?: "Anonymous"
-                    val avatarBinding = RecyclerViewItemAvatarBinding.bind(avatar)
+                    withContext(Dispatchers.Main) {
+                        author.text = response.data.user?.username ?: "Anonymous"
+                        // Load avatar image using Glide
+                        Glide.with(context)
+                            .load(response.data.user?.profilePicture?.url)
+                            .placeholder(R.drawable.default_image) // Placeholder image
+                            .error(R.drawable.default_image) // Image to display if load fails
+                            .into(avatarBinding.url)
 
-                    Glide.with(context)
-                        .load(response.data.user?.profilePicture?.url)
-                        .into(avatarBinding.url)
+                        val urls: List<String> = post.fileUploads.mapNotNull { it.url }
 
-                    val urls: List<String> = post.fileUploads.mapNotNull { it.url }
-
-                    if (urls.isEmpty() || post.fileUploads.isEmpty()) {
-                        carousel.visibility = View.GONE
-                        carouselParent.visibility = View.GONE
-                        carouselParent.layoutParams.height = 0
-                        carouselDot.visibility = View.GONE
-                        carouselParent.requestLayout()
-                    } else {
-                        if (urls.size > 1) {
-                            carouselDot.visibility = View.VISIBLE
-
-                            carouselDot.removeAllViews()
-
-                            val dotsImage = Array(urls.size) {ImageView(context)}
-
-                            dotsImage.forEach {
-                                it.setImageResource(R.drawable.non_active_dot)
-                                carouselDot.addView(it, params)
-                            }
-
-                            imageCounter.text = "1/${dotsImage.size}"
-                            dotsImage[0].setImageResource(R.drawable.active_dot)
-
-                            pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
-                                override fun onPageSelected(position: Int) {
-                                    dotsImage.mapIndexed { index, imageView ->
-                                        if (position == index) {
-                                            imageView.setImageResource(R.drawable.active_dot)
-                                        } else {
-                                            imageView.setImageResource(R.drawable.non_active_dot)
-                                        }
-                                    }
-                                    imageCounter.text = "${position + 1}/${dotsImage.size}"
-                                    super.onPageSelected(position)
-                                }
-                            }
-
-                            carousel.registerOnPageChangeCallback(pageChangeListener)
-                        } else {
+                        if (urls.isEmpty() || post.fileUploads.isEmpty()) {
+                            carousel.visibility = View.GONE
+                            carouselParent.visibility = View.GONE
+                            carouselParent.layoutParams.height = 0
                             carouselDot.visibility = View.GONE
-                            imageCounter.visibility = View.GONE
-                        }
+                            carouselParent.requestLayout()
+                        } else {
+                            if (urls.size > 1) {
+                                carouselDot.visibility = View.VISIBLE
 
-                        val mediaList = urls.map { url ->
-                            url to Helpers.getMediaType(url)
-                        }
+                                carouselDot.removeAllViews()
 
-                        carouselParent.visibility = View.VISIBLE
-                        carousel.visibility = View.VISIBLE
+                                val dotsImage = Array(urls.size) {ImageView(context)}
 
-                        val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-                            override fun onDoubleTap(e: MotionEvent): Boolean {
-                                if (id != null && !isLiked) {
-                                    postService.likePost(id!!, post.id).handleResponse(
-                                        onSuccess = { response ->
-                                            likes.add(id)
-                                            isLiked = true
-                                            heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
-                                            likeTotal.text = likes.size.toString() + " lượt thích"
-                                        },
-                                        onError = { error ->
-                                            // Handle error
-                                            val message = error.message
-                                            Log.e("ServiceBuilder", "Error: $message - ${error.status}")
-                                        }
-                                    )
+                                dotsImage.forEach {
+                                    it.setImageResource(R.drawable.non_active_dot)
+                                    carouselDot.addView(it, params)
                                 }
-                                return true
+
+                                imageCounter.text = "1/${dotsImage.size}"
+                                dotsImage[0].setImageResource(R.drawable.active_dot)
+
+                                pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
+                                    override fun onPageSelected(position: Int) {
+                                        dotsImage.mapIndexed { index, imageView ->
+                                            if (position == index) {
+                                                imageView.setImageResource(R.drawable.active_dot)
+                                            } else {
+                                                imageView.setImageResource(R.drawable.non_active_dot)
+                                            }
+                                        }
+                                        imageCounter.text = "${position + 1}/${dotsImage.size}"
+                                        super.onPageSelected(position)
+                                    }
+                                }
+
+                                carousel.registerOnPageChangeCallback(pageChangeListener)
+                            } else {
+                                carouselDot.visibility = View.GONE
+                                imageCounter.visibility = View.GONE
                             }
-                        })
-                        val carouselAdapter = CarouselAdapter(mediaList, gestureDetector)
-                        carousel.adapter = carouselAdapter
+
+                            val mediaList = urls.map { url ->
+                                url to Helpers.getMediaType(url)
+                            }
+
+                            carouselParent.visibility = View.VISIBLE
+                            carousel.visibility = View.VISIBLE
+
+                            val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+                                override fun onDoubleTap(e: MotionEvent): Boolean {
+                                    if (id != null && !isLiked) {
+                                        postService.likePost(id!!, post.id).handleResponse(
+                                            onSuccess = { response ->
+                                                likes.add(id)
+                                                isLiked = true
+                                                heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                                                likeTotal.text = likes.size.toString() + " lượt thích"
+                                            },
+                                            onError = { error ->
+                                                // Handle error
+                                                val message = error.message
+                                                Log.e("ServiceBuilder", "Error: $message - ${error.status}")
+                                            }
+                                        )
+                                    }
+                                    return true
+                                }
+                            })
+                            val carouselAdapter = CarouselAdapter(mediaList, gestureDetector)
+                            carousel.adapter = carouselAdapter
+                        }
                     }
                 } catch (e: Exception) {
                     // Handle exceptions
@@ -263,16 +267,13 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
             // Set OnClickListener for comment ImageButton
             comment.setOnClickListener {
                 val fragment = CommentFragment()
-                val transaction = fragmentManager.beginTransaction()
-                transaction.setCustomAnimations(R.anim.slide_in_from_bottom, 0, 0, R.anim.slide_out_to_bottom)
-                transaction.add(R.id.mainScreen, fragment)
-                transaction.addToBackStack(null) // Add to back stack if needed
-                transaction.commit()
+                fragment.show(fragmentManager, "CommentFragment - " + post.id)
             }
 
             // Set OnClickListener for share ImageButton
             share.setOnClickListener {
-                // Handle share button click event
+                val fragment = ShareFragment()
+                fragment.show(fragmentManager, "ShareFragment - " + post.id)
             }
 
             saved.setOnClickListener {

@@ -8,12 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.instar.frontend_android.R
 
-class CommentFragment : DialogFragment() {
+class ShareFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_comment, container, false)
+        return inflater.inflate(R.layout.fragment_share, container, false)
     }
 }

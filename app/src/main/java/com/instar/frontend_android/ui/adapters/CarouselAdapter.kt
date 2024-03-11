@@ -15,6 +15,7 @@ import android.widget.VideoView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.instar.frontend_android.R
 
 class CarouselAdapter(
@@ -100,8 +101,8 @@ class CarouselAdapter(
         fun bind(imageUrl: String) {
             Glide.with(itemView.context)
                 .load(imageUrl)
-                .placeholder(R.drawable.default_image)
-                .error(R.drawable.default_image)
+                .placeholder(R.drawable.default_image) // Placeholder image
+                .error(R.drawable.default_image) // Image to display if load fails
                 .into(imageView)
         }
     }

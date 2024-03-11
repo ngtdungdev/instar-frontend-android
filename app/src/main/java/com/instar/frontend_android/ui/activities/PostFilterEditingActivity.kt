@@ -35,7 +35,6 @@ class PostFilterEditingActivity : AppCompatActivity() {
 
     private fun loadRecyclerView() {
         filterEditingAdapter = FilterEditingAdapter(this, imageAndVideo!!)
-        filterRecyclerView.layoutManager = LinearLayoutManager(this)
         filterRecyclerView.adapter = filterEditingAdapter
     }
 

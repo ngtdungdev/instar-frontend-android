@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.services
 
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.UserResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -27,7 +28,7 @@ interface UserService {
     fun getUsers(): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/{userId}")
-    fun getUser(@Path("userId") userId: String): Call<ApiResponse<Any>>
+    fun getUser(@Path("userId") userId: String): Call<ApiResponse<UserResponse>>
 
     @GET("$AUTH_PREFIX/email/{email}")
     fun getByEmail(@Path("email") email: String): Call<ApiResponse<Any>>

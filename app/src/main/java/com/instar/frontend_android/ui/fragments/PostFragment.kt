@@ -108,7 +108,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             if(isListPost) {
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
                 for (i in 0 until listSelectorItem.size) {
-                    var fragment = fragmentManager.findFragmentByTag(i.toString())
+                    var fragment = fragmentManager.findFragmentByTag(listSelectorItem[i].toString())
                     when (fragment) {
                         is ImagePostFragment -> {
                             val bitmap: Bitmap = fragment.getBitMapImage()!!

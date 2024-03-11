@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -10,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.instar.frontend_android"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -27,6 +29,8 @@ android {
             )
         }
     }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -50,12 +54,15 @@ dependencies {
 
     //view
     implementation("androidx.viewpager2:viewpager2:1.0.0")
-
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
+    kapt("androidx.lifecycle:lifecycle-compiler:2.3.1")
 
     // retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.google.code.gson:gson:2.8.8")
 
     // coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
@@ -68,4 +75,5 @@ dependencies {
     //image
     implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation("com.vanniktech:android-image-cropper:4.5.0")
+
 }

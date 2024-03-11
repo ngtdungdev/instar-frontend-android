@@ -15,6 +15,7 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:usesCleartextTraffic="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_instagram_icon"
         android:label="Instar"
@@ -22,7 +23,7 @@
         android:roundIcon="@drawable/ic_instagram_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Instarfrontendandroid"
-        tools:targetApi="31">
+        tools:targetApi="30">
         <activity
             android:name=".ui.activities.ProfileActivity"
             android:exported="true" >

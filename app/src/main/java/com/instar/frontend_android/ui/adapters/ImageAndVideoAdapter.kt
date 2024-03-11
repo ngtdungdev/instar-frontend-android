@@ -30,6 +30,9 @@ class ImageAndVideoAdapter(
         fun onDeleteClick(position: Int?, savePosition: Int)
     }
 
+    fun getListSelectorItem(): MutableList<Int> {
+        return listSelectorItem
+    }
     private var listener: OnItemClickListener? = null
     private var listSelectorItem: MutableList<Int> = mutableListOf()
 

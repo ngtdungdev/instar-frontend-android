@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.fragments
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +21,14 @@ class ImagePostFragment : Fragment() {
     fun updateData(newData: ImageAndVideoInternalMemory) {
         this.newData = newData
         updateImageView(newData.uri)
+    }
+
+    fun getCropRect(): Rect? {
+        return cropImageView.cropRect
+    }
+
+    fun getBitMapImage(): Bitmap? {
+        return cropImageView.getCroppedImage()
     }
 
     private fun updateImageView(imageUri: String) {
@@ -50,9 +59,6 @@ class ImagePostFragment : Fragment() {
         cropImageView = binding.cropImageView
         cropImageView.setImageUriAsync(Uri.parse(newData.uri))
         cropImageView.setFixedAspectRatio(true)
-        cropImageView.setOnCropImageCompleteListener { _, result ->
-            cropRect = result.cropRect
-        }
         cropImageView.setAspectRatio(1, 1)
         return binding.root
     }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/fragment_home"
     android:orientation="vertical">
 
 
@@ -73,112 +73,55 @@
 
     </LinearLayout>
 
-    <!--    <RelativeLayout-->
-    <!--        android:id="@+id/relativeLayout"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="45dp"-->
-    <!--        android:gravity="bottom"-->
-    <!--        android:paddingLeft="20dp"-->
-    <!--        android:paddingTop="10dp"-->
-    <!--        android:paddingRight="20dp"-->
-    <!--        android:paddingBottom="5dp"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="1.0"-->
-    <!--        app:layout_constraintStart_toStartOf="parent">-->
-
-    <!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/btnHome"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:background="@drawable/icon_home_black"&ndash;&gt;-->
-    <!--&lt;!&ndash;            app:layout_constraintHorizontal_chainStyle="spread"/>&ndash;&gt;-->
-
-    <!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/btnSearch"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_marginStart="50dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_toEndOf="@+id/btnHome"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:background="@drawable/icon_magnifyingglass" />&ndash;&gt;-->
-
-    <!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/btnPostUp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_marginStart="50dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_toEndOf="@+id/btnSearch"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:background="@drawable/icon_plus" />&ndash;&gt;-->
-
-    <!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/btnReel"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_marginStart="50dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_toEndOf="@+id/btnPostUp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:background="@drawable/icon_reels" />&ndash;&gt;-->
-
-    <!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:id="@+id/btnPersonal"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_width="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_height="30dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_alignParentEnd="true"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_marginStart="54dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_marginEnd="17dp"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:layout_toEndOf="@+id/btnReel"&ndash;&gt;-->
-    <!--&lt;!&ndash;            android:background="@drawable/backgroud_radius_gradient_orangepink" />&ndash;&gt;-->
-    <!--    </RelativeLayout>-->
-
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/gridLayout"
+    <LinearLayout
+        android:id="@+id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="23dp"
-        app:alignmentMode="alignMargins"
-        app:columnCount="5"
-        app:useDefaultMargins="true">
+        android:padding="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="23dp">
 
         <ImageButton
             android:id="@+id/btnHome"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/icon_home_black"
-            app:layout_constraintHorizontal_chainStyle="spread" />
+            android:layout_gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/btnSearch"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="50dp"
-            android:layout_toEndOf="@+id/btnHome"
-            android:background="@drawable/icon_magnifyingglass" />
+            android:background="@drawable/icon_magnifyingglass"
+            android:layout_gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/btnPostUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:layout_toEndOf="@+id/btnSearch"
-            android:background="@drawable/icon_plus" />
+            android:background="@drawable/icon_plus"
+            android:layout_gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/btnReel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:layout_toEndOf="@+id/btnPostUp"
-            android:background="@drawable/icon_reels" />
+            android:background="@drawable/icon_reels"
+            android:layout_gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/btnPersonal"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
             android:layout_marginStart="54dp"
             android:layout_marginEnd="17dp"
-            android:layout_toEndOf="@+id/btnReel"
-            android:background="@drawable/backgroud_radius_gradient_orangepink" />
-    </androidx.gridlayout.widget.GridLayout>
+            android:background="@drawable/backgroud_radius_gradient_orangepink"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
 
 </LinearLayout>

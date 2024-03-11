@@ -14,12 +14,9 @@ import android.widget.TableLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityLoginOtherBinding
 import com.instar.frontend_android.databinding.ActivityRegisterBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
-import com.instar.frontend_android.databinding.TextviewLoginBinding
 import com.instar.frontend_android.types.requests.RegisterRequest
-import com.instar.frontend_android.types.requests.VerifyCodeRequest
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
 import com.instar.frontend_android.ui.services.AuthService

@@ -1,8 +1,11 @@
 package com.instar.frontend_android.ui.activities
 
+import android.content.Intent
 import android.graphics.Rect
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +25,8 @@ class PostFilterEditingActivity : AppCompatActivity() {
     private lateinit var filterEditingAdapter: FilterEditingAdapter
     private var imageAndVideo: MutableList<ImageAndVideo>? = null
     private lateinit var viewModel: FilterEditingViewModel
+    private lateinit var imageBack: ImageView
+    private lateinit var btnContinue: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostFilterEditingBinding.inflate(layoutInflater)
@@ -29,10 +34,19 @@ class PostFilterEditingActivity : AppCompatActivity() {
         imageAndVideo = intent.getSerializableExtra("Data") as? MutableList<ImageAndVideo>
         viewModel = ViewModelProvider(this)[FilterEditingViewModel::class.java]
         filterRecyclerView = binding.recyclerView
+        imageBack = binding.imageBack
+        btnContinue = binding.btnContinue
         initView()
     }
 
     private fun initView() {
+        imageBack.setOnClickListener {
+            finish()
+        }
+        btnContinue.setOnClickListener {
+            val intent = Intent(this@PostFilterEditingActivity, PostPreUpLoadingActivity::class.java)
+            startActivity(intent)
+        }
         loadRecyclerView()
     }
 
@@ -65,15 +79,4 @@ class PostFilterEditingActivity : AppCompatActivity() {
         val viewHolderPosition = viewHolder.adapterPosition
         return snapPosition == viewHolderPosition
     }
-
-    fun isVideoViewVisibleEnough(videoView: VideoView): Boolean {
-        val rect = Rect()
-        val isVisible = videoView.getGlobalVisibleRect(rect)
-        if (!isVisible) return false
-        val displayedArea = rect.width() * rect.height()
-        val totalArea = videoView.width * videoView.height
-        val visiblePercentage = displayedArea * 100 / totalArea
-        return visiblePercentage >= 50
-    }
-
 }

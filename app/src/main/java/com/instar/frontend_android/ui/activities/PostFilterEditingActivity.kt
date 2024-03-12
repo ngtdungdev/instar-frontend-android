@@ -34,8 +34,7 @@ class PostFilterEditingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPostFilterEditingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val bundle = intent.extras
-        imageAndVideo = bundle?.getSerializable("Data") as? MutableList<ImageAndVideo>
+        imageAndVideo = intent.getSerializableExtra("Data") as? MutableList<ImageAndVideo>
         viewModel = ViewModelProvider(this)[FilterEditingViewModel::class.java]
         filterRecyclerView = binding.recyclerView
         imageBack = binding.imageBack

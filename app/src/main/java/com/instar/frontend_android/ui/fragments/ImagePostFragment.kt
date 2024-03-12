@@ -13,12 +13,15 @@ import androidx.fragment.app.Fragment
 import com.canhub.cropper.CropImageView
 import com.instar.frontend_android.databinding.FragmentPostImageBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 import java.io.IOException
+
 
 class ImagePostFragment : Fragment() {
     private lateinit var binding: FragmentPostImageBinding
     private lateinit var cropImageView: CropImageView
     private lateinit var newData: ImageAndVideoInternalMemory
+    private lateinit var croppedImageUri: Uri
 
     fun updateData(newData: ImageAndVideoInternalMemory) {
         this.newData = newData
@@ -31,7 +34,6 @@ class ImagePostFragment : Fragment() {
         val cropRect = cropImageView.cropRect
         val imageUri = newData.uri
         val imageView = cropImageView
-
         val imageBitmap = getBitmapFromUri(contentResolver, Uri.parse(imageUri))
         if (imageBitmap != null && cropRect != null) {
             val imageViewWidth = imageView.width
@@ -51,19 +53,17 @@ class ImagePostFragment : Fragment() {
 
     private fun getBitmapFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
         return try {
-            // Use ContentResolver to open an InputStream from Uri
             val inputStream = contentResolver.openInputStream(uri)
-            // Read the image from InputStream
             BitmapFactory.decodeStream(inputStream)
         } catch (e: IOException) {
-            // Handle error when unable to read the image from Uri
             e.printStackTrace()
             null
         }
     }
 
-    fun getBitMapImage(): Bitmap? {
-        return cropImageView.croppedImage
+    fun getBitMapImage(text: String): String? {
+        val bitmap: Bitmap = cropImageView.getCroppedImage()!!
+        return  SaveAndReturnImageToFile.bitmapToBase64(bitmap, text, requireContext())
     }
 
     private fun updateImageView(imageUri: String) {
@@ -77,9 +77,7 @@ class ImagePostFragment : Fragment() {
     ): View? {
         binding = FragmentPostImageBinding.inflate(inflater, container, false)
         cropImageView = binding.cropImageView
-        if (this::newData.isInitialized) {
-            updateImageView(newData.uri)
-        }
+        updateImageView(newData.uri)
         return binding.root
     }
 }

@@ -2,15 +2,16 @@ package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Point
 import android.graphics.drawable.Drawable
+import android.media.MediaPlayer.OnPreparedListener
 import android.net.Uri
-import android.provider.MediaStore
+import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -18,10 +19,9 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
-import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.utils.Helpers
 import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
+
 
 class FilterEditingAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>) : RecyclerView.Adapter<FilterEditingAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,26 +36,39 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
         if(item.type != ImageAndVideo.TYPE_IMAGE) {
             holder.imagePlay.visibility = View.GONE
             holder.videoView.setVideoURI(Uri.parse(item.uri))
-            holder.videoView.start()
+            holder.videoView.setOnPreparedListener { mediaPlayer ->
+                val videoWidth = mediaPlayer.videoWidth
+                val videoHeight = mediaPlayer.videoHeight
+                val videoProportion = videoWidth.toFloat() / videoHeight.toFloat()
+                val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = windowManager.defaultDisplay
+                val size = Point()
+                display.getSize(size)
+                val screenWidth = size.x
+                val screenHeight = size.y
+                val screenProportion = screenWidth.toFloat() / screenHeight.toFloat()
+                val layoutParams = holder.videoView.layoutParams
+                if (videoProportion > screenProportion) {
+                    layoutParams.width = screenWidth
+                    layoutParams.height = (screenWidth.toFloat() / videoProportion).toInt()
+                } else {
+                    layoutParams.width = (videoProportion * screenHeight.toFloat()).toInt()
+                    layoutParams.height = screenHeight
+                }
+                holder.videoView.layoutParams = layoutParams
+            }
+
             holder.videoView.setOnCompletionListener {
                 holder.videoView.start()
             }
         }else {
             try {
                 holder.layout.visibility = View.GONE
+                val bitmap = item.bitmap?.let { Helpers.byteArrayToBitmap(it) }
                 Glide.with(context)
                     .asBitmap()
-                    .load(item.filePath)
-                    .centerCrop()
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            holder.image.setImageBitmap(resource)
-                        }
-
-                        override fun onLoadCleared(placeholder: Drawable?) {
-
-                        }
-                    })
+                    .load(bitmap)
+                    .into(holder.image)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

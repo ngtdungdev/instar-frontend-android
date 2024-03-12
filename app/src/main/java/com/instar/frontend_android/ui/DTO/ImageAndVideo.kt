@@ -7,12 +7,8 @@ import android.os.Parcelable
 import java.io.Serializable
 
 class ImageAndVideo(
+    val bitmap: ByteArray?,
     val uri: String,
-    val filePath: String,
-    val rectLeft: Int,
-    val rectTop: Int,
-    val rectRight: Int,
-    val rectBottom: Int,
     val duration: String,
     val type: Int): Serializable {
     companion object {

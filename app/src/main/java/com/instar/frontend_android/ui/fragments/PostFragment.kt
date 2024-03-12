@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -31,6 +31,7 @@ import com.instar.frontend_android.ui.activities.PostFilterEditingActivity
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
+import com.instar.frontend_android.ui.utils.Helpers
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
 import com.instar.frontend_android.ui.viewmodels.SaveImageToFile
 import java.io.Serializable
@@ -86,6 +87,9 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     }
     private lateinit var viewModel: FilterEditingViewModel
     private fun initView() {
+        // Initialize imagesAdapter before using it
+        imagesAdapter = ImageAndVideoAdapter(requireContext(), ArrayList(), isListPost, savePosition)
+
         val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
         val scale = resources.displayMetrics.density
@@ -96,59 +100,89 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 return 1
             }
         }
+
         imageBack.setOnClickListener {
-           fragmentClick(1)
+            fragmentClick(1)
         }
+
         btnListPost.setOnClickListener {
             isListPost = !isListPost
             loadRecyclerView()
         }
+
         btnContinue.setOnClickListener {
             val fragmentManager = requireActivity().supportFragmentManager
             val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
-            if(isListPost) {
+
+            if (isListPost) {
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
                 for (i in 0 until listSelectorItem.size) {
-                    var fragment = fragmentManager.findFragmentByTag(listSelectorItem[i].toString())
+                    val fragment = fragmentManager.findFragmentByTag(listSelectorItem[i].toString())
                     when (fragment) {
                         is ImagePostFragment -> {
-                            val bitmap: Bitmap = fragment.getBitMapImage()!!
-                            val rect: Rect = fragment.getCropRect()!!
-                            val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, i.toString())
-                            filterEditing.add(ImageAndVideo(imagesAndVideosList[listSelectorItem[i]].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
+                            val bitmap: Bitmap? = fragment.getBitMapImage()
+                            if (bitmap != null) {
+                                val rect: Rect? = fragment.getCropRect(requireContext().contentResolver)
+                                if (rect != null) {
+                                    val left = rect.left.coerceAtLeast(0)
+                                    val top = rect.top.coerceAtLeast(0)
+                                    val right = rect.right.coerceAtMost(bitmap.width)
+                                    val bottom = rect.bottom.coerceAtMost(bitmap.height)
+
+                                    if (left < right && top < bottom) {
+                                        val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
+                                        val byteArray = Helpers.bitmapToByteArray(croppedBitmap)
+                                        filterEditing.add(ImageAndVideo(byteArray, imagesAndVideosList[savePosition].uri, "", 0))
+                                    }
+                                }
+                            }
                         }
                         is VideoPostFragment -> {
-                            filterEditing.add(ImageAndVideo(imagesAndVideosList[listSelectorItem[i]].uri, "" , 0, 0, 0, 0, imagesAndVideosList[listSelectorItem[i]].duration,1))
+                            filterEditing.add(ImageAndVideo(null, imagesAndVideosList[savePosition].uri, "", 1))
                         }
                     }
                 }
-
-            }
-            else {
+            } else {
                 val item = imagesAndVideosList[savePosition]
                 val fragmentTag = returnFragmentTag(item.type.toString())
-                var fragment = fragmentManager.findFragmentByTag(fragmentTag)
+                val fragment = fragmentManager.findFragmentByTag(fragmentTag)
                 when (fragment) {
                     is ImagePostFragment -> {
-                        val bitmap: Bitmap = fragment.getBitMapImage()!!
-                        val rect: Rect = fragment.getCropRect()!!
-                        val filePath = SaveImageToFile.saveImage(requireContext(), bitmap, "11")
-                        filterEditing.add(ImageAndVideo(imagesAndVideosList[savePosition].uri, filePath.toString(), rect.left, rect.top, rect.right, rect.bottom, "",0))
+                        val bitmap: Bitmap? = fragment.getBitMapImage()
+                        if (bitmap != null) {
+                            val rect: Rect? = fragment.getCropRect(requireContext().contentResolver)
+                            if (rect != null) {
+                                val left = rect.left.coerceAtLeast(0)
+                                val top = rect.top.coerceAtLeast(0)
+                                val right = rect.right.coerceAtMost(bitmap.width)
+                                val bottom = rect.bottom.coerceAtMost(bitmap.height)
+
+                                if (left < right && top < bottom) {
+                                    val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
+                                    val byteArray = Helpers.bitmapToByteArray(croppedBitmap)
+                                    filterEditing.add(ImageAndVideo(byteArray, item.uri, "", 0))
+                                }
+                            }
+                        }
                     }
                     is VideoPostFragment -> {
-                        filterEditing.add(ImageAndVideo(imagesAndVideosList[savePosition].uri, "" , 0, 0, 0, 0, imagesAndVideosList[savePosition].duration,1))
+                        filterEditing.add(ImageAndVideo(null, item.uri, "", 1))
                     }
                 }
             }
-            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                putExtra("Data", filterEditing as Serializable)
+
+            val bundle = Bundle().apply {
+                putSerializable("Data", filterEditing as Serializable)
             }
+
+            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                putExtras(bundle)
+            }
+
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
-
-
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
         val projection = arrayOf(
@@ -212,38 +246,41 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         return ""
     }
     private fun loadRecyclerView() {
-        if(isListPost) {
-            showListFragment(savePosition, savePosition, false)
-        } else {
-            val item = imagesAndVideosList[savePosition]
-            val fragmentTag = returnFragmentTag(item.type.toString())
-            showFragment(item, fragmentTag)
-        }
-        imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList, isListPost, savePosition)
-        imagesRecyclerView.adapter = imagesAdapter
-        imagesAdapter.setOnItemClickListener(object: ImageAndVideoAdapter.OnItemClickListener {
-            override fun onItemClick(position: Int?) {
-                if (position != null) {
-                    if(isListPost) {
-                        showListFragment(position, position, false)
-                    } else {
-                        var item = imagesAndVideosList[position]
-                        val fragmentTag = returnFragmentTag(item.type.toString())
-                        showFragment(item, fragmentTag)
+        // Check if imagesAndVideosList is not empty before accessing its elements
+        if (imagesAndVideosList.isNotEmpty()) {
+            if (isListPost) {
+                showListFragment(savePosition, savePosition, false)
+            } else {
+                val item = imagesAndVideosList[savePosition]
+                val fragmentTag = returnFragmentTag(item.type.toString())
+                showFragment(item, fragmentTag)
+            }
+            imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList, isListPost, savePosition)
+            imagesRecyclerView.adapter = imagesAdapter
+            imagesAdapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
+                override fun onItemClick(position: Int?) {
+                    if (position != null) {
+                        if (isListPost) {
+                            showListFragment(position, position, false)
+                        } else {
+                            var item = imagesAndVideosList[position]
+                            val fragmentTag = returnFragmentTag(item.type.toString())
+                            showFragment(item, fragmentTag)
+                        }
+
+                        savePosition = position
                     }
-                    savePosition = position
                 }
-            }
-            override fun onDeleteClick(position: Int?, save: Int) {
-                if (position != null) {
-                    showListFragment(position, save, true)
-                    savePosition = save
+
+                override fun onDeleteClick(position: Int?, save: Int) {
+                    if (position != null) {
+                        showListFragment(position, save, true)
+                        savePosition = save
+                    }
                 }
-            }
-        })
+            })
+        }
     }
-
-
 
     private fun showListFragment(position: Int, savePosition: Int, isDelete: Boolean) {
         var item = imagesAndVideosList[position]

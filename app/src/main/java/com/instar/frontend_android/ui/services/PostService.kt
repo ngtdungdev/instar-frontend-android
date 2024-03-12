@@ -1,7 +1,9 @@
 package com.instar.frontend_android.ui.services
 
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Comment
+import com.instar.frontend_android.ui.DTO.Post
 import okhttp3.MultipartBody
 import retrofit2.http.DELETE
 import retrofit2.http.Path
@@ -26,7 +28,7 @@ interface PostService {
     fun getAllPosts(): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/get-timeline-posts/{userId}")
-    fun getTimelinePosts(@Path("userId") userId: String): Call<ApiResponse<Any>>
+    fun getTimelinePosts(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
 
     @GET("$AUTH_PREFIX/get-timeline-posts-for-you/{userId}")
     fun getTimelinePostsForYou(@Path("userId") userId: String): Call<ApiResponse<Any>>

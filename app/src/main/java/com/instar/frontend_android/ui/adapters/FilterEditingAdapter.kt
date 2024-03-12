@@ -19,6 +19,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
+import com.instar.frontend_android.ui.utils.Helpers
 import java.io.File
 
 
@@ -63,22 +64,11 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
         }else {
             try {
                 holder.layout.visibility = View.GONE
+                val bitmap = item.bitmap?.let { Helpers.byteArrayToBitmap(it) }
                 Glide.with(context)
                     .asBitmap()
-                    .load(item.filePath)
-                    .centerCrop()
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            holder.image.setImageBitmap(resource)
-                            val file = File(item.filePath)
-                            if (file.exists()) {
-                                val deleted = file.delete()
-                            }
-                        }
-                        override fun onLoadCleared(placeholder: Drawable?) {
-
-                        }
-                    })
+                    .load(bitmap)
+                    .into(holder.image)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

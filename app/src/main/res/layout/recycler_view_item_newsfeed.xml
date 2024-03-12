@@ -16,7 +16,7 @@
         android:paddingBottom="10dp">
 
         <include
-            android:id="@+id/smsTitle"
+            android:id="@+id/avatar"
             layout="@layout/recycler_view_item_avatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,23 +25,23 @@
             android:layout_marginTop="0dp" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/subName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="5dp"
             android:layout_marginBottom="5dp"
-            android:layout_toEndOf="@+id/smsTitle"
+            android:layout_toEndOf="@+id/avatar"
             android:text="TextView" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
-            android:layout_toEndOf="@+id/smsTitle"
+            android:layout_toEndOf="@+id/avatar"
             android:text="brokenheartsoul_143"
             android:textStyle="bold" />
 
@@ -57,22 +57,34 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/relativeLayout2"
+        android:id="@+id/carouselParent"
         android:layout_width="match_parent"
-        android:layout_height="310dp">
+        android:layout_height="310dp"
+        android:visibility="gone"
+        >
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/carousel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/imageCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1/x"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:background="@drawable/volume_button_background"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="-3dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="3dp"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp" />
     </RelativeLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -81,67 +93,50 @@
         android:paddingTop="10dp"
         android:paddingRight="10dp">
 
-        <RadioGroup
-            android:layout_width="100dp"
-            android:layout_height="20dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="120dp"
-            android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/carouselDot"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/carousel"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:layout_toStartOf="@+id/saved"
+            android:layout_toEndOf="@+id/share"
+            android:gravity="center"
+            android:orientation="horizontal"
+            tools:ignore="NotSibling">
 
-            <RadioButton
-                android:id="@+id/radioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <RadioButton
-                android:id="@+id/radioButton6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-        </RadioGroup>
+        </LinearLayout>
 
         <ImageButton
-            android:id="@+id/imageButton3"
+            android:id="@+id/heart"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:background="@drawable/ic_instagram_icon_heart" />
 
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/comment"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentTop="true"
             android:layout_marginStart="10dp"
             android:layout_marginTop="0dp"
-            android:layout_toEndOf="@+id/imageButton3"
+            android:layout_toEndOf="@+id/heart"
             android:background="@drawable/icon_message" />
 
         <ImageButton
-            android:id="@+id/imageButton5"
+            android:id="@+id/share"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_alignParentTop="true"
             android:layout_marginStart="10dp"
             android:layout_marginTop="0dp"
-            android:layout_toEndOf="@+id/imageButton4"
+            android:layout_toEndOf="@+id/comment"
             android:background="@drawable/icon_paperplane" />
 
         <ImageButton
-            android:id="@+id/imageButton6"
+            android:id="@+id/saved"
             android:layout_width="35dp"
             android:layout_height="29dp"
             android:layout_alignParentTop="true"
@@ -149,10 +144,10 @@
             android:background="@drawable/icon_bookmark_white" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/likeTotal"
             android:layout_width="125dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/imageButton3"
+            android:layout_below="@+id/heart"
             android:layout_alignParentStart="true"
             android:layout_marginStart="0dp"
             android:layout_marginTop="8dp"
@@ -161,39 +156,39 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textView7"
-            android:layout_width="125dp"
+            android:id="@+id/content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView5"
+            android:layout_below="@+id/likeTotal"
             android:layout_marginTop="5dp"
             android:text="Hãy ghi gì đó ở đây" />
 
         <TextView
-            android:id="@+id/textView8"
+            android:id="@+id/commentTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView7"
+            android:layout_below="@+id/content"
             android:layout_marginTop="5dp"
             android:alpha="0.8"
             android:text="Xem tất cả 52 bình luận" />
 
         <TextView
-            android:id="@+id/textView9"
+            android:id="@+id/createdAt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView8"
+            android:layout_below="@+id/commentTotal"
             android:layout_marginTop="6dp"
             android:alpha="0.8"
             android:text="13 thang 2" />
 
         <TextView
-            android:id="@+id/textView10"
+            android:id="@+id/viewMore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/textView7"
-            android:layout_marginStart="2dp"
+            android:layout_alignTop="@+id/createdAt"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="1dp"
-            android:layout_toEndOf="@+id/textView7"
+            android:layout_toEndOf="@+id/createdAt"
             android:text="Xem thêm" />
     </RelativeLayout>
 </LinearLayout>

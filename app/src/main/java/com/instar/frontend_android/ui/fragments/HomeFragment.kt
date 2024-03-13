@@ -45,6 +45,7 @@ class HomeFragment : Fragment() {
     private lateinit var postService: PostService
     private lateinit var user: UserResponse
     private lateinit var btnPostUp: ImageButton
+    private lateinit var iconHeart: ImageView
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
@@ -67,7 +68,7 @@ class HomeFragment : Fragment() {
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
         btnPostUp = binding.btnPostUp
-
+        iconHeart = binding.iconHeart
         initView()
         authService.profile().handleResponse(
             onSuccess = { response ->
@@ -99,9 +100,7 @@ class HomeFragment : Fragment() {
 
                 val intent = Intent(context, LoginOtherActivity::class.java)
                 startActivity(intent)
-            }
-        )
-
+            })
         return binding.root
     }
 
@@ -115,6 +114,10 @@ class HomeFragment : Fragment() {
             if (listener != null) {
                 fragmentClick(0)
             }
+        }
+        iconHeart.setOnClickListener {
+            CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
+
         }
     }
 

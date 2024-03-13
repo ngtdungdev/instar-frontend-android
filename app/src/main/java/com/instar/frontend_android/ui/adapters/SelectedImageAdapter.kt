@@ -13,12 +13,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
+import com.instar.frontend_android.ui.DTO.Messages
 import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 
 
-class FilterEditingAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>) : RecyclerView.Adapter<FilterEditingAdapter.ViewHolder>() {
+class SelectedImageAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>, private val isEditImage: Boolean) : RecyclerView.Adapter<SelectedImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent,false)
+        val view = when (isEditImage) {
+            true -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent, false)
+            false -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_pre_up_loading, parent, false)
+        }
+        if(data.size == 1) {
+            val layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            view.layoutParams = layoutParams
+        }
         return ViewHolder(view)
     }
 

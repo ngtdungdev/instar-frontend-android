@@ -61,6 +61,12 @@
         <activity
             android:name=".ui.activities.PostPreUpLoadingActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activities.TagOtherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.SearchTagOtherActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

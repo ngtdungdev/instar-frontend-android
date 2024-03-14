@@ -6,19 +6,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/selector_background">
 
-    <ImageView
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/simple_line"
-        android:layout_gravity="center|top"
-        android:scaleType="centerCrop"/>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingTop="15dp"
         android:layout_gravity="center">
 
         <ImageView
@@ -47,18 +41,97 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
-       <androidx.cardview.widget.CardView
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content">
-           <ImageView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:src="@mipmap/ic_instagram"
-               android:background="@drawable/circle_background"/>
-       </androidx.cardview.widget.CardView>
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/imageAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circle_background"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"
+            android:src="@mipmap/no3" />
+        <TextView
+            android:id="@+id/customButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chỉnh sửa ảnh hoặc avatar"
+            android:textColor="#158FE0"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:padding="10dp" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tên"
+            android:textColor="#737373"/>
+        <EditText
+            android:id="@+id/edtName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textStart"
+            android:text="Biện Thành Hưng"/>
+        <TextView
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tên người dùng"
+            android:drawableBottom="#737373"/>
+        <EditText
+            android:id="@+id/edtUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textStart"
+            android:text="bienthanhhung"/>
+        <TextView
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tiểu sử"
+            android:drawableBottom="#737373"/>
+        <EditText
+            android:id="@+id/edtIntroduction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textStart"
+            android:text="Tiểu sử"/>
+        <TextView
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giới tính"
+            android:drawableBottom="#737373"/>
+        <RadioGroup
+            android:id="@+id/radioGroupGender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
 
+            <RadioButton
+                android:layout_gravity="center"
+                android:id="@+id/radioButtonMale"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="Nam"/>
+
+            <RadioButton
+                android:id="@+id/radioButtonFemale"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="Nữ"/>
+
+        </RadioGroup>
+
+    </LinearLayout>
 </LinearLayout>

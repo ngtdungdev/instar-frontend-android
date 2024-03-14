@@ -7,7 +7,7 @@ import com.instar.frontend_android.R
 class ProfileActivity(private val mData: List<String>) : AppCompatActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile)
+        setContentView(R.layout.bottom_sheet_layout)
     }
 
 }

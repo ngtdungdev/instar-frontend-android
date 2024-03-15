@@ -10,7 +10,6 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +17,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -33,7 +33,6 @@ import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import com.instar.frontend_android.ui.utils.Helpers
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
-import com.instar.frontend_android.ui.viewmodels.SaveImageToFile
 import java.io.Serializable
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
@@ -87,9 +86,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     }
     private lateinit var viewModel: FilterEditingViewModel
     private fun initView() {
-        // Initialize imagesAdapter before using it
         imagesAdapter = ImageAndVideoAdapter(requireContext(), ArrayList(), isListPost, savePosition)
-
         val layoutManager = GridLayoutManager(context, 4)
         imagesRecyclerView.layoutManager =  layoutManager
         val scale = resources.displayMetrics.density
@@ -113,74 +110,37 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         btnContinue.setOnClickListener {
             val fragmentManager = requireActivity().supportFragmentManager
             val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
-
             if (isListPost) {
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
-                for (i in 0 until listSelectorItem.size) {
-                    val fragment = fragmentManager.findFragmentByTag(listSelectorItem[i].toString())
-                    when (fragment) {
-                        is ImagePostFragment -> {
-                            val bitmap: Bitmap? = fragment.getBitMapImage()
-                            if (bitmap != null) {
-                                val rect: Rect? = fragment.getCropRect(requireContext().contentResolver)
-                                if (rect != null) {
-                                    val left = rect.left.coerceAtLeast(0)
-                                    val top = rect.top.coerceAtLeast(0)
-                                    val right = rect.right.coerceAtMost(bitmap.width)
-                                    val bottom = rect.bottom.coerceAtMost(bitmap.height)
-
-                                    if (left < right && top < bottom) {
-                                        val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
-                                        val byteArray = Helpers.bitmapToByteArray(croppedBitmap)
-                                        filterEditing.add(ImageAndVideo(byteArray, imagesAndVideosList[savePosition].uri, "", 0))
-                                    }
-                                }
-                            }
-                        }
-                        is VideoPostFragment -> {
-                            filterEditing.add(ImageAndVideo(null, imagesAndVideosList[savePosition].uri, "", 1))
-                        }
-                    }
-                }
-            } else {
-                val item = imagesAndVideosList[savePosition]
-                val fragmentTag = returnFragmentTag(item.type.toString())
-                val fragment = fragmentManager.findFragmentByTag(fragmentTag)
-                when (fragment) {
-                    is ImagePostFragment -> {
-                        val bitmap: Bitmap? = fragment.getBitMapImage()
-                        if (bitmap != null) {
-                            val rect: Rect? = fragment.getCropRect(requireContext().contentResolver)
-                            if (rect != null) {
-                                val left = rect.left.coerceAtLeast(0)
-                                val top = rect.top.coerceAtLeast(0)
-                                val right = rect.right.coerceAtMost(bitmap.width)
-                                val bottom = rect.bottom.coerceAtMost(bitmap.height)
-
-                                if (left < right && top < bottom) {
-                                    val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
-                                    val byteArray = Helpers.bitmapToByteArray(croppedBitmap)
-                                    filterEditing.add(ImageAndVideo(byteArray, item.uri, "", 0))
-                                }
-                            }
-                        }
-                    }
-                    is VideoPostFragment -> {
-                        filterEditing.add(ImageAndVideo(null, item.uri, "", 1))
-                    }
-                }
-            }
-
-            val bundle = Bundle().apply {
-                putSerializable("Data", filterEditing as Serializable)
-            }
-
+                for (position in listSelectorItem) addFilterEditing(filterEditing, fragmentManager,true, position,listSelectorItem.indexOf(position))
+            } else addFilterEditing(filterEditing, fragmentManager,false, savePosition, 0)
             val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                putExtras(bundle)
+                putExtra("Data", filterEditing as Serializable)
             }
-
             startActivity(intent)
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+    }
+
+    private fun addFilterEditing(filterEditing: MutableList<ImageAndVideo>, fragmentManager: FragmentManager, isList: Boolean, position: Int, positionList: Int) {
+        val item = imagesAndVideosList[position]
+        val fragmentTag = when(isList) {
+            true -> position.toString()
+            false -> returnFragmentTag(item.type.toString())
+        }
+        when (val fragment = fragmentManager.findFragmentByTag(fragmentTag)) {
+            is ImagePostFragment -> {
+                val bitmap = when(isListPost) {
+                    true -> fragment.getBitMapImage(positionList.toString())
+                    false -> fragment.getBitMapImage(fragmentTag)
+                }
+                val rect = fragment.getCropRect(requireContext().contentResolver)!!
+                val rectString = "${rect.left},${rect.top},${rect.right},${rect.bottom}"
+                filterEditing.add(ImageAndVideo(bitmap.toString(), item.uri, rectString,"", 0))
+            }
+            is VideoPostFragment -> {
+                filterEditing.add(ImageAndVideo("", item.uri, "", item.duration, 1))
+            }
         }
     }
 
@@ -267,7 +227,6 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                             val fragmentTag = returnFragmentTag(item.type.toString())
                             showFragment(item, fragmentTag)
                         }
-
                         savePosition = position
                     }
                 }

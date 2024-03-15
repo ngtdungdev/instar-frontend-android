@@ -1,31 +1,26 @@
 package com.instar.frontend_android.ui.activities
 
 import android.content.Intent
-import android.graphics.Rect
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import android.os.Bundle
 import android.widget.TextView
-import android.util.Log
-import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.ActivityPostFilterEditingBinding
-import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
-import com.instar.frontend_android.ui.adapters.FilterEditingAdapter
+import com.instar.frontend_android.ui.adapters.HorizontalSpaceItemDecoration
+import com.instar.frontend_android.ui.adapters.SelectedImageAdapter
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
-import java.io.FileInputStream
-import java.io.ObjectInputStream
+import java.io.Serializable
 
 class PostFilterEditingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostFilterEditingBinding
     private lateinit var filterRecyclerView: RecyclerView
-    private lateinit var filterEditingAdapter: FilterEditingAdapter
-    private var imageAndVideo: MutableList<ImageAndVideo>? = null
+    private lateinit var filterEditingAdapter: SelectedImageAdapter
+    private var imageAndVideo: MutableList<ImageAndVideo> = mutableListOf()
     private lateinit var viewModel: FilterEditingViewModel
     private lateinit var imageBack: ImageView
     private lateinit var btnContinue: TextView
@@ -34,8 +29,7 @@ class PostFilterEditingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPostFilterEditingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val bundle = intent.extras
-        imageAndVideo = bundle?.getSerializable("Data") as? MutableList<ImageAndVideo>
+        imageAndVideo = (intent.getSerializableExtra("Data") as? MutableList<ImageAndVideo>)!!
         viewModel = ViewModelProvider(this)[FilterEditingViewModel::class.java]
         filterRecyclerView = binding.recyclerView
         imageBack = binding.imageBack
@@ -48,20 +42,16 @@ class PostFilterEditingActivity : AppCompatActivity() {
             finish()
         }
         btnContinue.setOnClickListener {
-            val intent = Intent(this@PostFilterEditingActivity, PostPreUpLoadingActivity::class.java)
+            val intent = Intent(this@PostFilterEditingActivity, PostPreUpLoadingActivity::class.java).apply {
+                putExtra("Data", imageAndVideo as Serializable)
+            }
             startActivity(intent)
         }
         loadRecyclerView()
-
-        imageBack = binding.imageBack
-
-        imageBack.setOnClickListener {
-            onBackPressed()
-        }
     }
 
     private fun loadRecyclerView() {
-        filterEditingAdapter = FilterEditingAdapter(this, imageAndVideo!!)
+        filterEditingAdapter = SelectedImageAdapter(this, imageAndVideo, true)
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(filterRecyclerView)
         filterRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -71,7 +61,7 @@ class PostFilterEditingActivity : AppCompatActivity() {
                 snapView?.let {
                     val snapPosition = recyclerView.getChildAdapterPosition(it)
                     val viewHolder = recyclerView.findViewHolderForAdapterPosition(snapPosition)
-                    if (viewHolder is FilterEditingAdapter.ViewHolder && imageAndVideo!![snapPosition].type != ImageAndVideo.TYPE_IMAGE) {
+                    if (viewHolder is SelectedImageAdapter.ViewHolder && imageAndVideo[snapPosition].type != ImageAndVideo.TYPE_IMAGE) {
                         if (isVideoViewVisibleEnough(recyclerView, viewHolder, snapHelper)) {
                             viewHolder.videoView.start()
                         } else {
@@ -81,6 +71,13 @@ class PostFilterEditingActivity : AppCompatActivity() {
                 }
             }
         })
+        if(imageAndVideo.size > 1) {
+            val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            filterRecyclerView.layoutManager = layoutManager
+            val scale = resources.displayMetrics.density
+            val spacingInPixels = (10 * scale + 0.5f).toInt()
+            filterRecyclerView.addItemDecoration(HorizontalSpaceItemDecoration(spacingInPixels))
+        }
         filterRecyclerView.adapter = filterEditingAdapter
     }
     fun isVideoViewVisibleEnough(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, snapHelper: PagerSnapHelper): Boolean {

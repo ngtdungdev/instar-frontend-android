@@ -1,12 +1,8 @@
 package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Point
-import android.graphics.drawable.Drawable
-import android.media.MediaPlayer.OnPreparedListener
 import android.net.Uri
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,17 +11,22 @@ import android.widget.ImageView
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
-import com.instar.frontend_android.ui.utils.Helpers
-import java.io.File
+import com.instar.frontend_android.ui.DTO.Messages
+import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 
 
-class FilterEditingAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>) : RecyclerView.Adapter<FilterEditingAdapter.ViewHolder>() {
+class SelectedImageAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>, private val isEditImage: Boolean) : RecyclerView.Adapter<SelectedImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent,false)
+        val view = when (isEditImage) {
+            true -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent, false)
+            false -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_pre_up_loading, parent, false)
+        }
+        if(data.size == 1) {
+            val layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            view.layoutParams = layoutParams
+        }
         return ViewHolder(view)
     }
 
@@ -64,10 +65,9 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
         }else {
             try {
                 holder.layout.visibility = View.GONE
-                val bitmap = item.bitmap?.let { Helpers.byteArrayToBitmap(it) }
                 Glide.with(context)
-                    .asBitmap()
-                    .load(bitmap)
+                    .load(SaveAndReturnImageToFile.stringToBitmap(item.filePath, context))
+                    .centerCrop()
                     .into(holder.image)
             } catch (e: Exception) {
                 e.printStackTrace()

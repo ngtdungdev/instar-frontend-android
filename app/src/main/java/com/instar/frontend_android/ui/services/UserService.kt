@@ -38,7 +38,7 @@ interface UserService {
     fun getSavedPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/following")
-    fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<Any>>
+    fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<UserResponse>>
 
 }
 

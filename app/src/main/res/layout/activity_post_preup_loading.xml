@@ -65,7 +65,7 @@
                 android:minHeight="80dp">
 
                 <EditText
-                    android:id="@+id/editTextText"
+                    android:id="@+id/content"
                     style="MuL"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -168,7 +168,7 @@
         android:background="#e6e6e6" />
 
     <FrameLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/btnCreate"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/border_post_share">

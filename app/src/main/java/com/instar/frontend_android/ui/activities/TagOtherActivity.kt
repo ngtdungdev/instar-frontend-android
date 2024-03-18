@@ -32,14 +32,13 @@ class TagOtherActivity: AppCompatActivity() {
             val intent = Intent(this@TagOtherActivity, SearchTagOtherActivity::class.java)
             startActivity(intent)
         }
+//        userList = getUser()
+//        userAdapter = PostTagAdapter(this ,userList)
+//        userRecyclerView.adapter = userAdapter
 
         btnBack.setOnClickListener {
             finish()
         }
-
-        userList = getUser()
-        userAdapter = PostTagAdapter(this ,userList)
-        userRecyclerView.adapter = userAdapter
     }
 
     private fun getUser(): MutableList<User> {

@@ -50,27 +50,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity-->
-<!--            android:name=".ui.activities.LoginOtherActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.LoadingScreenActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.LoginEmailActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.LoginActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.DirectMessageActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.PostFilterEditingActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".ui.activities.PostPreUpLoadingActivity"-->
-<!--            android:exported="false" />-->
         <activity
             android:name=".ui.activities.TagOtherActivity"
             android:exported="false" />

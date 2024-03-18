@@ -49,7 +49,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView14"
+                android:id="@+id/Titile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Biện Thành Hưng"

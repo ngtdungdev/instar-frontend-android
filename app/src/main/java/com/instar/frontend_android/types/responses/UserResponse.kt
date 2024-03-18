@@ -6,4 +6,7 @@ import com.instar.frontend_android.ui.DTO.User
 class UserResponse {
     @SerializedName("user")
     var user: User? = null
+
+    @SerializedName("followingUsers")
+    var followingUsers: List<User>? = null
 }

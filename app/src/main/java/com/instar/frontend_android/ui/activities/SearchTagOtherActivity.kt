@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.content.Context
-import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
-import android.widget.EditText
 import android.widget.Toast
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -26,7 +27,6 @@ import com.instar.frontend_android.ui.adapters.PostTagAdapter
 import com.instar.frontend_android.ui.customviews.ViewEditText
 
 class SearchTagOtherActivity: AppCompatActivity() {
-    private lateinit var message: EditText
     private lateinit var btnRemove: ImageButton
     private lateinit var binding: ActivitySearchTagOtherBinding
     private lateinit var userService: UserService
@@ -41,37 +41,64 @@ class SearchTagOtherActivity: AppCompatActivity() {
         binding = ActivitySearchTagOtherBinding.inflate(layoutInflater)
         userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
         query = binding.message;
+        userRecyclerView = binding.searchTagRV
         setContentView(binding.root)
-        message = binding.message
         btnRemove = binding.iconDelete
         initView();
     }
 
-    private fun initView() {
-        val viewEditText = ViewEditText()
-        viewEditText.EditTextTag(message,  btnRemove)
-        viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
-            override fun onFocusChange(view: View) {
-                if (message.text.toString().isEmpty()) setMessage()
+    fun setQuery() {
+        query.hint = "Tìm kiếm người dùng"
+    }
+
+
+    fun getUser(): MutableList<User> {
+        val list: MutableList<User> = mutableListOf()
+        return list
+    }
+
+    fun initView() {
+        val debounceHandler = Handler(Looper.getMainLooper())
+        var debounceRunnable: Runnable? = null
+
+        query.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                debounceRunnable?.let {
+                    debounceHandler.removeCallbacks(it)
+                }
+                debounceRunnable = Runnable {
+                    // Your logic to execute after debounce duration
+                    if (s.toString().isEmpty()) {
+                        setQuery()
+                    } else {
+                        search();
+                    }
+                }
+                debounceHandler.postDelayed(debounceRunnable!!, 500)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not used
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Not used
             }
         })
-        message.setOnClickListener {
-        val sharedPreferences = applicationContext.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
-        val accessToken = sharedPreferences.getString("accessToken", null)
-
-        if (accessToken != null) {
-            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-            userId = decodedTokenJson.getString("id")
+        query.setOnClickListener {
         }
 
-        initView()
+
+
+
     }
 
     fun search() {
         lifecycleScope.launch {
             val response = try {
-                val response = userService.searchFollowingUser(query.text.toString()).awaitResponse()
+                val response =
+                    userService.searchFollowingUser(query.text.toString()).awaitResponse()
                 response
             } catch (error: Throwable) {
                 // Handle error
@@ -79,9 +106,14 @@ class SearchTagOtherActivity: AppCompatActivity() {
                 null // Return null to indicate that an error occurred
             }
 
-            if (response != null && response.status == "200") {
-                Toast.makeText(applicationContext, "Post created", Toast.LENGTH_LONG).show()
-                finish()
+            if (response != null && response.data.followingUsers != null) {
+                Log.d("users", response.data.followingUsers.toString())
+                userList = response.data.followingUsers as MutableList<User>;
+                userList.forEach { user ->
+                    Log.d("User", user.username)
+                }
+
+                updateUserList();
             } else {
                 // Handle the case where the response is null
                 Log.e("Error", "Failed to get timeline posts")
@@ -89,22 +121,8 @@ class SearchTagOtherActivity: AppCompatActivity() {
         }
     }
 
-    fun initView() {
-        query.setOnClickListener {
-        }
-//        userList = getUser()
-//        userAdapter = PostTagAdapter(this ,userList)
-//        userRecyclerView.adapter = userAdapter
-    }
-
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private fun setMessage() {
-        message.hint = "Tìm kiếm người dùng"
-    }
-
-
-    private fun getUser(): MutableList<User> {
-        val list: MutableList<User> = mutableListOf()
-        return list
+    fun updateUserList() {
+        userAdapter = PostTagAdapter(this, userList)
+        userRecyclerView.adapter = userAdapter
     }
 }

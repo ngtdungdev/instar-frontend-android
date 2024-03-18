@@ -1,12 +1,9 @@
 package com.instar.frontend_android.ui.utils
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import okhttp3.MultipartBody
 import org.json.JSONObject
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Duration
 import java.time.ZonedDateTime

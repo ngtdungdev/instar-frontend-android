@@ -30,6 +30,34 @@ class ViewEditText {
         listenerEyes = listener
     }
 
+    fun setEditTextUser(editText: EditText, button: ImageButton, number: Int) {
+        editText.setOnFocusChangeListener { v, hasFocus ->
+            editText.hint = ""
+            if (editText.text.toString().isNotEmpty()) button.visibility = View.VISIBLE
+            listenerRemove?.onFocusChange(v)
+        }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (editText.text.toString().isEmpty()) {
+                    button.visibility = View.GONE
+                } else button.visibility = View.VISIBLE
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    fun EditTextTag(editText: EditText, button: ImageButton) {
+        setEditTextUser( editText, button, 1)
+        button.setOnClickListener {
+            editText.setText("")
+            button.visibility = View.GONE
+        }
+    }
+
+
     fun setEditText(layout: View, editText: EditText, label: TextView, button: ImageButton, number: Int) {
         editText.setOnFocusChangeListener { v, hasFocus ->
             label.visibility = View.VISIBLE

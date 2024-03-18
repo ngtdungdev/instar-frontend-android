@@ -23,7 +23,6 @@ class VideoPostFragment : Fragment() {
     private lateinit var imageView: ImageView
     private lateinit var layout: View
 
-
     fun updateData(newData: ImageAndVideoInternalMemory) {
         this.newData = newData
         if(this::videoView.isInitialized) {
@@ -38,6 +37,8 @@ class VideoPostFragment : Fragment() {
             videoView.pause()
             imageView.visibility = View.VISIBLE
         } else {
+            imageView.visibility = View.GONE
+            videoView.setVideoURI(Uri.parse(newData.uri))
             videoView.start()
         }
     }

@@ -71,6 +71,7 @@ class ImageAndVideoAdapter(
                         listener!!.onItemClick(position)
                     }
                     holder.image.alpha = 0.7F
+                    savePosition = position
                 }
                 else {
                     listSelectorItem.removeAt(listSelectorItem.indexOf(position))
@@ -86,21 +87,15 @@ class ImageAndVideoAdapter(
                 }
             }
             else if(listSelectorItem.size < 10) {
+                listSelectorItem.add(position)
                 if(listener != null) {
                     listener!!.onItemClick(position)
                 }
-                listSelectorItem.add(position)
                 holder.number.visibility = View.VISIBLE
                 holder.number.text = listSelectorItem.size.toString()
-                if (!holder.layout.isSelected) {
-                    holder.layout.isSelected = true
-                    holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
-                    holder.image.alpha = 0.7F
-                } else {
-                    holder.layout.isSelected = false
-                    holder.imageChecked.setBackgroundResource(R.drawable.background_unchecked)
-                    holder.image.alpha = 1F
-                }
+                holder.layout.isSelected = true
+                holder.imageChecked.setBackgroundResource(R.drawable.background_checked)
+                holder.image.alpha = 0.7F
                 saveImage = holder.image
                 savePosition = position
             }

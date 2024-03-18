@@ -17,7 +17,7 @@
             android:id="@+id/imageBorder"
             android:layout_width="90dp"
             android:layout_height="90dp"
-            android:src="@drawable/backgroud_radius_gradient_orangepink" />
+            android:src="@drawable/backgroud_radius_simple_black" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="73dp"
@@ -26,14 +26,14 @@
             app:cardCornerRadius="50dp">
 
             <ImageView
-                android:id="@+id/imageView8"
+                android:id="@+id/imageStory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:elevation="2dp"
                 android:src="@drawable/backgroud_radius_grey" />
 
             <ImageButton
-                android:id="@+id/imageButton"
+                android:id="@+id/imageBtnStory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@mipmap/ic_instagram" />
@@ -42,7 +42,7 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/nameAvatar"
+        android:id="@+id/nameStory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

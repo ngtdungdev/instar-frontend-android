@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface UserService {
     companion object {
@@ -35,5 +36,9 @@ interface UserService {
 
     @GET("$AUTH_PREFIX/saved-posts/{userId}")
     fun getSavedPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
+
+    @GET("$AUTH_PREFIX/following")
+    fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<Any>>
+
 }
 

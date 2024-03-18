@@ -1,11 +1,17 @@
 package com.instar.frontend_android.ui.utils
 
+import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
+import okhttp3.MultipartBody
 import org.json.JSONObject
+import java.io.File
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+
 
 object Helpers {
     @JvmStatic
@@ -59,4 +65,19 @@ object Helpers {
             else -> throw IllegalArgumentException("Unsupported media type for URL: $url")
         }
     }
+
+    @JvmStatic
+    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>): List<MultipartBody.Part> {
+        val parts = mutableListOf<MultipartBody.Part>()
+
+        for (imageAndVideo in imageAndVideoList) {
+            val file = File(imageAndVideo.filePath)
+            val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("file", file.name, requestFile)
+            parts.add(part)
+        }
+
+        return parts
+    }
+
 }

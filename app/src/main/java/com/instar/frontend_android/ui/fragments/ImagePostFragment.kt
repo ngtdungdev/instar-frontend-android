@@ -1,7 +1,8 @@
 package com.instar.frontend_android.ui.fragments
 
-import android.content.Intent
+import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
@@ -12,54 +13,71 @@ import androidx.fragment.app.Fragment
 import com.canhub.cropper.CropImageView
 import com.instar.frontend_android.databinding.FragmentPostImageBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
+import java.io.IOException
+
 
 class ImagePostFragment : Fragment() {
     private lateinit var binding: FragmentPostImageBinding
     private lateinit var cropImageView: CropImageView
     private lateinit var newData: ImageAndVideoInternalMemory
-    private var cropRect: Rect? = null
+    private lateinit var croppedImageUri: Uri
+
     fun updateData(newData: ImageAndVideoInternalMemory) {
         this.newData = newData
-        updateImageView(newData.uri)
+        if (this::cropImageView.isInitialized) {
+            updateImageView(newData.uri)
+        }
     }
 
-    fun getCropRect(): Rect? {
-        return cropImageView.cropRect
+    fun getCropRect(contentResolver: ContentResolver): Rect? {
+        val cropRect = cropImageView.cropRect
+        val imageUri = newData.uri
+        val imageView = cropImageView
+        val imageBitmap = getBitmapFromUri(contentResolver, Uri.parse(imageUri))
+        if (imageBitmap != null && cropRect != null) {
+            val imageViewWidth = imageView.width
+            val imageViewHeight = imageView.height
+            val imageWidth = imageBitmap.width
+            val imageHeight = imageBitmap.height
+
+            val left = cropRect.left * imageWidth / imageViewWidth
+            val top = cropRect.top * imageHeight / imageViewHeight
+            val right = cropRect.right * imageWidth / imageViewWidth
+            val bottom = cropRect.bottom * imageHeight / imageViewHeight
+
+            return Rect(left, top, right, bottom)
+        }
+        return null
     }
 
-    fun getBitMapImage(): Bitmap? {
-        return cropImageView.getCroppedImage()
+    private fun getBitmapFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri)
+            BitmapFactory.decodeStream(inputStream)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getBitMapImage(text: String): String? {
+        val bitmap: Bitmap = cropImageView.getCroppedImage()!!
+        return  SaveAndReturnImageToFile.bitmapToBase64(bitmap, text, requireContext())
     }
 
     private fun updateImageView(imageUri: String) {
-        if(this::cropImageView.isInitialized) {
-            cropImageView.setImageUriAsync(Uri.parse(imageUri))
-            updateCropRect()
-        }
-    }
-
-    private fun updateCropRect() {
-        cropRect?.let {
-            val newRect = Rect(it.left, it.top, it.right, it.bottom)
-            cropImageView.cropRect = newRect
-        }
-    }
-
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (hidden) {
-
-        } else {
-
-        }
-    }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentPostImageBinding.inflate(inflater, container, false)
-        cropImageView = binding.cropImageView
-        cropImageView.setImageUriAsync(Uri.parse(newData.uri))
+        cropImageView.setImageUriAsync(Uri.parse(imageUri))
         cropImageView.setFixedAspectRatio(true)
         cropImageView.setAspectRatio(1, 1)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentPostImageBinding.inflate(inflater, container, false)
+        cropImageView = binding.cropImageView
+        updateImageView(newData.uri)
         return binding.root
     }
 }

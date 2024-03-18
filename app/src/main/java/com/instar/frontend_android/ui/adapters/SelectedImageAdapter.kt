@@ -1,7 +1,6 @@
 package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -13,15 +12,21 @@ import android.widget.ImageView
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
-import java.io.File
+import com.instar.frontend_android.ui.DTO.Messages
+import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 
-class FilterEditingAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>) : RecyclerView.Adapter<FilterEditingAdapter.ViewHolder>() {
+class SelectedImageAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>, private val isEditImage: Boolean) : RecyclerView.Adapter<SelectedImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent,false)
+        val view = when (isEditImage) {
+            true -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_filter_editing, parent, false)
+            false -> LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_post_pre_up_loading, parent, false)
+        }
+        if(data.size == 1) {
+            val layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            view.layoutParams = layoutParams
+        }
         return ViewHolder(view)
     }
 
@@ -60,21 +65,9 @@ class FilterEditingAdapter(private val context: Context, private val data: Mutab
         }else {
             try {
                 Glide.with(context)
-                    .asBitmap()
-                    .load(item.filePath)
+                    .load(SaveAndReturnImageToFile.stringToBitmap(item.filePath, context))
                     .centerCrop()
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            holder.image.setImageBitmap(resource)
-                            val file = File(item.filePath)
-                            if (file.exists()) {
-                                val deleted = file.delete()
-                            }
-                        }
-                        override fun onLoadCleared(placeholder: Drawable?) {
-
-                        }
-                    })
+                    .into(holder.image)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -3,12 +3,14 @@ package com.instar.frontend_android.ui.activities
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.ActivitySearchTagOtherBinding
-import com.instar.frontend_android.types.requests.PostRequest
+import com.instar.frontend_android.ui.DTO.User
+import com.instar.frontend_android.ui.adapters.PostTagAdapter
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -18,9 +20,12 @@ import kotlinx.coroutines.launch
 class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var binding: ActivitySearchTagOtherBinding
     private lateinit var userService: UserService
-    private lateinit var query: TextView
+    private lateinit var query: EditText
     private lateinit var userId: String
 
+    private lateinit var userList: MutableList<User>
+    private lateinit var userAdapter: PostTagAdapter
+    private lateinit var userRecyclerView: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchTagOtherBinding.inflate(layoutInflater)
@@ -62,6 +67,16 @@ class SearchTagOtherActivity: AppCompatActivity() {
     }
 
     fun initView() {
+        query.setOnClickListener {
 
+        }
+        userList = getUser()
+        userAdapter = PostTagAdapter(this ,userList)
+        userRecyclerView.adapter = userAdapter
+    }
+
+    private fun getUser(): MutableList<User> {
+        val list: MutableList<User> = mutableListOf()
+        return list
     }
 }

@@ -23,7 +23,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instarfrontendandroid"
         android:usesCleartextTraffic="true"
-        tools:targetApi="30">
+        tools:targetApi="s">
+
+        <activity android:name=".ui.activities.LoginOtherActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoadingScreenActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoginEmailActivity" android:exported="false" />
+        <activity android:name=".ui.activities.LoginActivity" android:exported="false" />
+        <activity android:name=".ui.activities.DirectMessageActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostFilterEditingActivity" android:exported="false" />
+        <activity android:name=".ui.activities.PostPreUpLoadingActivity" android:exported="false" />
+
 
         <activity android:name=".MainActivity" /> <!-- android:exported="true"> -->
         <!-- <intent-filter> -->
@@ -33,6 +42,7 @@
         <!-- </activity> -->
         <activity
             android:name=".ui.activities.MainScreenActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,33 +50,37 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.activities.LoginOtherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.LoadingScreenActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.LoginEmailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.DirectMessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.PostFilterEditingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activities.PostPreUpLoadingActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".ui.activities.LoginOtherActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.LoadingScreenActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.LoginEmailActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.LoginActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.DirectMessageActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.PostFilterEditingActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ui.activities.PostPreUpLoadingActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".ui.activities.TagOtherActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activities.SearchTagOtherActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activities.CommentBottomSheetDialogActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

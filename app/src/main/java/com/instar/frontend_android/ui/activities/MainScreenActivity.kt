@@ -18,7 +18,7 @@ import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 
 
-class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
+class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     private lateinit var binding : ActivityMainScreenBinding
     private lateinit var viewPager : ViewPager2
     companion object {

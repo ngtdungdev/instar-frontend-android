@@ -144,6 +144,8 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         }
     }
 
+
+
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
         val projection = arrayOf(
             MediaStore.Files.FileColumns._ID,
@@ -190,8 +192,8 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         }
     }
 
-
     override fun onLoaderReset(loader: Loader<Cursor>) {
+
     }
 
     private fun returnFragmentTag(tag: String): String {

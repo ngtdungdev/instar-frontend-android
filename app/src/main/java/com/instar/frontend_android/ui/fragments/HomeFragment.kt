@@ -7,20 +7,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
-import com.instar.frontend_android.ui.activities.CommentBottomSheetDialogActivity
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.adapters.PostAdapter
@@ -120,10 +118,6 @@ class HomeFragment : Fragment() {
             }
         }
         iconHeart.setOnClickListener {
-//            val dialog = BottomSheetDialog(requireContext())
-//            dialog.setContentView(R.layout.fragment_comment_bottom_sheet_dialog)
-//            dialog.show()
-//            CommentListBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
             CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
         }
     }

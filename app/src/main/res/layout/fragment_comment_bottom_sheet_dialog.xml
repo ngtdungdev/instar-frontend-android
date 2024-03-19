@@ -31,70 +31,87 @@
         android:layout_marginTop="10dp"
         android:background="#efefef" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp">
-
-        <View
-            android:id="@+id/view5"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#efefef" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:background="@android:color/transparent"
-        android:paddingStart="5dp"
-        android:paddingEnd="10dp">
-
-        <ImageView
-            android:id="@+id/imageView13"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@drawable/backgroud_radius_gradient_orangepink" />
-
-        <EditText
-            android:id="@+id/message"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp" />
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="false"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="16dp"
-            android:layout_toStartOf="@+id/iconDelete"
-            android:layout_toEndOf="@+id/imageView13"
-            android:background="@android:color/transparent"
-            android:gravity="top"
-            android:hint="Tìm kiếm người dùng"
-            android:inputType="text"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:textCursorDrawable="@drawable/cursor_drawable"
-            android:textSize="16dp" />
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/iconDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            app:srcCompat="@drawable/baseline_close_24" />
+            <View
+                android:id="@+id/view5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#efefef" />
 
-    </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:paddingStart="5dp"
+                android:paddingEnd="10dp">
+
+                <ImageView
+                    android:id="@+id/imageView13"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center_horizontal|top"
+                    android:background="@drawable/backgroud_radius_gradient_orangepink" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="15dp"
+                    android:layout_toStartOf="@+id/iconDelete"
+                    android:layout_toEndOf="@+id/imageView13">
+
+                    <EditText
+                        android:id="@+id/message"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:gravity="top"
+                        android:hint="Tìm kiếm người dùng"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:scrollHorizontally="true"
+                        android:textCursorDrawable="@drawable/cursor_drawable"
+                        android:textSize="16dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/iconDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/baseline_close_24" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

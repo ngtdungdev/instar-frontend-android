@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.types.responses.UserResponse

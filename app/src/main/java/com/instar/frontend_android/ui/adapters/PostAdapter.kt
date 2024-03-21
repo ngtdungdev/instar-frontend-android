@@ -22,7 +22,6 @@ import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
-import com.instar.frontend_android.ui.fragments.CommentFragment
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -33,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
+import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
 
 class PostAdapter(private val data: List<Post>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
@@ -135,10 +135,10 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                 try {
                     val response = getUserData(post.userId)
                     withContext(Dispatchers.Main) {
-                        author.text = response.data.user?.username ?: "Anonymous"
+                        author.text = response.data?.user?.username ?: "Anonymous"
                         // Load avatar image using Glide
                         Glide.with(context)
-                            .load(response.data.user?.profilePicture?.url)
+                            .load(response.data?.user?.profilePicture?.url)
                             .placeholder(R.drawable.default_image) // Placeholder image
                             .error(R.drawable.default_image) // Image to display if load fails
                             .into(avatarBinding.url)
@@ -266,8 +266,17 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
 
             // Set OnClickListener for comment ImageButton
             comment.setOnClickListener {
-                val fragment = CommentFragment()
-                fragment.show(fragmentManager, "CommentFragment - " + post.id)
+                val existingFragment = fragmentManager.findFragmentByTag(CommentBottomSheetDialogFragment.TAG)
+                if (existingFragment == null) {
+                    // Fragment chưa được thêm vào trước đó, hãy tạo và hiển thị nó
+                    val fragment = CommentBottomSheetDialogFragment.newInstance()
+                    fragment.setPost(post)
+                    fragment.setUserId(user)
+                    fragment.show(fragmentManager, CommentBottomSheetDialogFragment.TAG)
+                } else {
+                    // Fragment đã tồn tại, không cần thêm mới
+                    Log.d("PostAdapter", "CommentBottomSheetDialogFragment already added")
+                }
             }
 
             // Set OnClickListener for share ImageButton

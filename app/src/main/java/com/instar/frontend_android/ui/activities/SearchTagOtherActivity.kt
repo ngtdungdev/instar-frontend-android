@@ -105,7 +105,7 @@ class SearchTagOtherActivity: AppCompatActivity() {
             }
 
             runOnUiThread {
-                if (response != null && response.data.followingUsers != null) {
+                if (response != null && response.data?.followingUsers != null) {
                     userList = response.data.followingUsers as MutableList<User>
                     updateUserList()
                 } else {

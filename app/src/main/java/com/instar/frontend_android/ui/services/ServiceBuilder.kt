@@ -21,6 +21,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @SuppressLint("StaticFieldLeak")
@@ -150,12 +151,13 @@ object ServiceBuilder {
                     continuation.resumeWith(Result.success(response))
                 },
                 onError = { error ->
-                    val throwable = Throwable("Error: ${error.message} - ${error.status}")
-                    continuation.resumeWith(Result.failure(throwable))
+                    continuation.resume(ApiResponse(error = "Failed to execute request"))
                 }
             )
         }
     }
+
+
 
     /**
      * Interceptor to add access token to requests if available.

@@ -75,7 +75,7 @@ class HomeFragment : Fragment() {
         initView()
         authService.profile().handleResponse(
             onSuccess = { response ->
-                user = response.data
+                user = response.data!!
                 val avatarUrl = response.data.user?.profilePicture?.url
                 imageList = getImages()
 
@@ -170,7 +170,7 @@ class HomeFragment : Fragment() {
             }
 
             if (response != null) {
-                postsList = response.data.timelinePosts ?: ArrayList()
+                postsList = response.data?.timelinePosts ?: ArrayList()
             } else {
                 // Handle the case where the response is null
                 Log.e("Error", "Failed to get timeline posts")

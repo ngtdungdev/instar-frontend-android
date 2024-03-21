@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
+    <include layout="@layout/recycler_view_item_avatar"
         android:id="@+id/avatar"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/backgroud_radius_gradient_orangepink" />
+    />
+
 
     <LinearLayout
         android:id="@+id/linearText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_toEndOf="@+id/avatar"
+        android:layout_toEndOf="@id/avatar"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -79,22 +81,21 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/commentReplyRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/layoutText"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
+        android:paddingLeft="15dp"
+        android:layout_below="@id/linearText"
         android:layout_toEndOf="@+id/avatar"
-        android:visibility="gone">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
+        android:paddingRight="15dp"
+        tools:ignore="NotSibling"
+        android:visibility="gone"
+        />
     <RelativeLayout
         android:id="@+id/btnSeeMore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearText"
+        android:layout_below="@+id/commentReplyRecyclerView"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/avatar">
@@ -107,7 +108,7 @@
             android:background="#747474" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/totalReplyComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"

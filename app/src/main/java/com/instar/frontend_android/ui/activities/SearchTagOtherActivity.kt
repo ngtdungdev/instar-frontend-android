@@ -11,6 +11,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -24,6 +25,7 @@ import com.instar.frontend_android.enum.EnumUtils
 import com.instar.frontend_android.interfaces.InterfaceUtils
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostTagAdapter
+import com.instar.frontend_android.ui.customviews.ViewEditText
 
 class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var btnRemove: ImageButton

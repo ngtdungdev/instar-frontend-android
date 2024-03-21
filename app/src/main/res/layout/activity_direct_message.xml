@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     android:padding="10dp">
 
     <RelativeLayout
@@ -68,19 +69,23 @@
             android:id="@+id/imageButton8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_alignParentTop="false"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
-            app:srcCompat="@drawable/baseline_close_24" />
+            android:background="#FFFFFF"
+            app:srcCompat="@drawable/ic_video_call" />
 
         <ImageButton
             android:id="@+id/imageButton9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginEnd="10dp"
+            android:background="#FFFFFF"
             android:layout_toStartOf="@+id/imageButton8"
-            app:srcCompat="@drawable/baseline_close_24" />
+            app:srcCompat="@drawable/ic_phone_call" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

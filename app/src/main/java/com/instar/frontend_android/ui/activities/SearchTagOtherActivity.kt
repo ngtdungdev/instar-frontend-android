@@ -1,39 +1,38 @@
 package com.instar.frontend_android.ui.activities
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.widget.Toast
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
-import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.launch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivitySearchTagOtherBinding
+import com.instar.frontend_android.enum.EnumUtils
+import com.instar.frontend_android.interfaces.InterfaceUtils
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostTagAdapter
-import com.instar.frontend_android.ui.customviews.ViewEditText
 
 class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var btnRemove: ImageButton
     private lateinit var binding: ActivitySearchTagOtherBinding
     private lateinit var userService: UserService
     private lateinit var query: EditText
-    private lateinit var userId: String
 
     private lateinit var userList: MutableList<User>
+    private lateinit var tagList: MutableList<User>
     private lateinit var userAdapter: PostTagAdapter
     private lateinit var userRecyclerView: RecyclerView
     private lateinit var message: EditText
@@ -47,17 +46,21 @@ class SearchTagOtherActivity: AppCompatActivity() {
         message = binding.message
         setContentView(binding.root)
         btnRemove = binding.iconDelete
+
+        // Nhận danh sách user từ Intent
+        val list = intent.getSerializableExtra("userList") as? ArrayList<User>
+        if (list != null) {
+            tagList = list
+        }
+
+        // Thiết lập LinearLayoutManager cho RecyclerView
+        userRecyclerView.layoutManager = LinearLayoutManager(this)
+
         initView();
     }
 
     fun setQuery() {
         query.hint = "Tìm kiếm người dùng"
-    }
-
-
-    fun getUser(): MutableList<User> {
-        val list: MutableList<User> = mutableListOf()
-        return list
     }
 
     fun initView() {
@@ -97,35 +100,25 @@ class SearchTagOtherActivity: AppCompatActivity() {
 
         query.setOnClickListener {
         }
-
-
-
-
     }
 
     fun search() {
         lifecycleScope.launch {
             val response = try {
-                val response =
-                    userService.searchFollowingUser(query.text.toString()).awaitResponse()
+                val response = userService.searchFollowingUser(query.text.toString()).awaitResponse()
                 response
             } catch (error: Throwable) {
-                // Handle error
-                error.printStackTrace() // Print stack trace for debugging purposes
-                null // Return null to indicate that an error occurred
+                error.printStackTrace()
+                null
             }
 
-            if (response != null && response.data.followingUsers != null) {
-                Log.d("users", response.data.followingUsers.toString())
-                userList = response.data.followingUsers as MutableList<User>;
-                userList.forEach { user ->
-                    Log.d("User", user.username)
+            runOnUiThread {
+                if (response != null && response.data.followingUsers != null) {
+                    userList = response.data.followingUsers as MutableList<User>
+                    updateUserList()
+                } else {
+                    Log.e("Error", "Failed to get following users")
                 }
-
-                updateUserList();
-            } else {
-                // Handle the case where the response is null
-                Log.e("Error", "Failed to get timeline posts")
             }
         }
     }
@@ -133,8 +126,30 @@ class SearchTagOtherActivity: AppCompatActivity() {
         message.hint = "Tìm kiếm người dùng"
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateUserList() {
-        userAdapter = PostTagAdapter(this, userList)
+        userAdapter = PostTagAdapter(this, userList, EnumUtils.PostTagType.TAG_SEARCH, object : InterfaceUtils.OnItemClickListener {
+            override fun onItemClick(user: User) {
+                // Kiểm tra xem user có trong tagList hay không
+                val existingUser = tagList.find { it.id == user.id }
+
+                // Nếu user không tồn tại trong tagList, thêm user vào danh sách
+                if (existingUser == null) {
+                    tagList.add(user)
+                }
+
+                val intent = Intent()
+                intent.putExtra("tagList", ArrayList(tagList)) // Chuyển tagList qua Intent
+                setResult(Activity.RESULT_OK, intent)
+                finish() // Kết thúc activity và trả về kết quả
+            }
+
+            override fun onItemCloseClick(user: User) {
+
+            }
+        })
+
         userRecyclerView.adapter = userAdapter
+        userAdapter.notifyDataSetChanged()
     }
 }

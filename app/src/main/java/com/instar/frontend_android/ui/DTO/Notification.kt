@@ -1,6 +1,8 @@
 package com.instar.frontend_android.ui.DTO
 
-class Notification {
+import java.io.Serializable
+
+class Notification: Serializable {
     var id: String? = null
     var type: String? = null
     var postId: String? = null

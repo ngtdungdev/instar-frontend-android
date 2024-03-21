@@ -63,6 +63,7 @@ class SelectedImageAdapter(private val context: Context, private val data: Mutab
                 holder.videoView.start()
             }
         }else {
+            holder.layout.visibility = View.GONE
             try {
                 Glide.with(context)
                     .load(SaveAndReturnImageToFile.stringToBitmap(item.filePath, context))

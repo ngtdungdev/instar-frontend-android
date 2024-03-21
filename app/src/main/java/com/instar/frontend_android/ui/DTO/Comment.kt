@@ -1,5 +1,7 @@
 package com.instar.frontend_android.ui.DTO
 
+import java.io.Serializable
+
 class Comment (
     var id: String,
     var username: String,
@@ -9,4 +11,4 @@ class Comment (
     var likes: List<String>,
     var createdAt: String,
     var updatedAt: String
-)
+): Serializable

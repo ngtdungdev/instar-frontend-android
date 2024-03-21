@@ -36,12 +36,15 @@ class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var userList: MutableList<User>
     private lateinit var userAdapter: PostTagAdapter
     private lateinit var userRecyclerView: RecyclerView
+    private lateinit var message: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchTagOtherBinding.inflate(layoutInflater)
         userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
         query = binding.message;
         userRecyclerView = binding.searchTagRV
+        message = binding.message
         setContentView(binding.root)
         btnRemove = binding.iconDelete
         initView();
@@ -58,9 +61,15 @@ class SearchTagOtherActivity: AppCompatActivity() {
     }
 
     fun initView() {
+        val viewEditText = ViewEditText()
+        viewEditText.EditTextTag(message,  btnRemove)
+        viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
+            override fun onFocusChange(view: View) {
+                if (message.text.toString().isEmpty()) setMessage()
+            }
+        })
         val debounceHandler = Handler(Looper.getMainLooper())
         var debounceRunnable: Runnable? = null
-
         query.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 debounceRunnable?.let {
@@ -119,6 +128,9 @@ class SearchTagOtherActivity: AppCompatActivity() {
                 Log.e("Error", "Failed to get timeline posts")
             }
         }
+    }
+    private fun setMessage() {
+        message.hint = "Tìm kiếm người dùng"
     }
 
     fun updateUserList() {

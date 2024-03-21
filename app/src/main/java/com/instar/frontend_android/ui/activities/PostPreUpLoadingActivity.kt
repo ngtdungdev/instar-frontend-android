@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.ActivityPostPreupLoadingBinding
 import com.instar.frontend_android.types.requests.PostRequest
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
+import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.HorizontalSpaceItemDecoration
 import com.instar.frontend_android.ui.adapters.SelectedImageAdapter
 import com.instar.frontend_android.ui.services.PostService
@@ -31,10 +33,12 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
     private var imageAndVideo: MutableList<ImageAndVideo> = mutableListOf()
     private lateinit var preUpLoadingRecyclerView: RecyclerView
     private lateinit var btnTagOther : View
+    private lateinit var tagList: MutableList<User>
     private lateinit var btnCreate : View
     private lateinit var contentText : TextView
     private lateinit var imageBack: ImageView
     private lateinit var postService: PostService
+    private val TAG_OTHER_REQUEST_CODE = 102
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +49,7 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
         btnCreate = binding.btnCreate
         btnTagOther = binding.btnTagOthers
         contentText = binding.content
+        tagList = mutableListOf()
         imageAndVideo = (intent.getSerializableExtra("Data") as? MutableList<ImageAndVideo>)!!
         postService = ServiceBuilder.buildService(PostService::class.java, applicationContext)
         initView()
@@ -59,7 +64,8 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
-                val post = PostRequest(id, contentText.text.toString())
+                val tagUserList = tagList.map { it.id }
+                val post = PostRequest(id, contentText.text.toString(), "", tagUserList)
 
                 lifecycleScope.launch {
                     val response = try {
@@ -87,7 +93,8 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
         }
         btnTagOther.setOnClickListener {
             val intent = Intent(this@PostPreUpLoadingActivity, TagOtherActivity::class.java)
-            startActivity(intent)
+            intent.putExtra("userList", ArrayList(tagList)) // Truyền userList qua Intent
+            startActivityForResult(intent, TAG_OTHER_REQUEST_CODE)
         }
         loadRecyclerView()
     }
@@ -128,5 +135,18 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
         val snapPosition = recyclerView.getChildAdapterPosition(snapView)
         val viewHolderPosition = viewHolder.adapterPosition
         return snapPosition == viewHolderPosition
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == TAG_OTHER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val userList = data?.getSerializableExtra("tagList") as? ArrayList<User>
+            tagList.clear()
+            userList?.let {
+                // Xử lý userList được nhận từ TagOtherActivity
+                tagList.addAll(it)
+            }
+        }
     }
 }

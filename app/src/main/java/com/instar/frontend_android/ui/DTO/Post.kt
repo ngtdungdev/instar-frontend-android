@@ -1,5 +1,7 @@
 package com.instar.frontend_android.ui.DTO
 
+import java.io.Serializable
+
 class Post(
     var id: String,
     var desc: String,
@@ -11,4 +13,4 @@ class Post(
     var comments: List<Comment>,
     var createdAt: String,
     var updatedAt: String,
-)
+): Serializable

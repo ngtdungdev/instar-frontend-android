@@ -49,6 +49,7 @@ class HomeFragment : Fragment() {
     private lateinit var user: UserResponse
     private lateinit var btnPostUp: ImageButton
     private lateinit var iconHeart: ImageView
+    private lateinit var btnPersonal: ImageButton
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
@@ -71,7 +72,9 @@ class HomeFragment : Fragment() {
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
         btnPostUp = binding.btnPostUp
+        btnPersonal = binding.btnPersonal
         iconHeart = binding.iconHeart
+
         initView()
         authService.profile().handleResponse(
             onSuccess = { response ->

@@ -1,5 +1,7 @@
 package com.instar.frontend_android.ui.DTO
 
+import java.io.Serializable
+
 class User(
     var id: String,
     var fullname: String,
@@ -15,5 +17,5 @@ class User(
     var stories: List<Story>,
     var verifyCode: String,
     var createdAt: String,
-    var updatedAt: String,
-)
+    var updatedAt: String
+) : Serializable

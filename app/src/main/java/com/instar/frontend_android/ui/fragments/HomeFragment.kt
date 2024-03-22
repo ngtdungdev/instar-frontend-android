@@ -13,6 +13,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
@@ -46,6 +49,7 @@ class HomeFragment : Fragment() {
     private lateinit var user: UserResponse
     private lateinit var btnPostUp: ImageButton
     private lateinit var iconHeart: ImageView
+    private lateinit var btnPersonal: ImageButton
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
@@ -68,7 +72,9 @@ class HomeFragment : Fragment() {
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
         btnPostUp = binding.btnPostUp
+        btnPersonal = binding.btnPersonal
         iconHeart = binding.iconHeart
+
         initView()
         authService.profile().handleResponse(
             onSuccess = { response ->
@@ -117,7 +123,6 @@ class HomeFragment : Fragment() {
         }
         iconHeart.setOnClickListener {
             CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
-
         }
     }
 

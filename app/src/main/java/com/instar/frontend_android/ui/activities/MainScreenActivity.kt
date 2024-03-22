@@ -1,5 +1,4 @@
 package com.instar.frontend_android.ui.activities
-
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -18,9 +18,10 @@ import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 
 
-class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
+class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     private lateinit var binding : ActivityMainScreenBinding
     private lateinit var viewPager : ViewPager2
+    private var savePosition: Int = 0
     companion object {
         const val PERMISSION_CODE = 1001
     }
@@ -63,11 +64,30 @@ class MainScreenActivity : AppCompatActivity(), OnFragmentClickListener{
     }
 
     private fun initView() {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when(savePosition) {
+                    1 -> {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                    else -> viewPager.setCurrentItem(1, true)
+                }
+                savePosition = 1
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback)
         binding = ActivityMainScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewPager = binding.viewPager
         viewPager.adapter = ScreenSlidePagerAdapter(this@MainScreenActivity)
         viewPager.setCurrentItem(1, false)
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                savePosition = position
+            }
+        })
         val recyclerView = viewPager.getChildAt(0) as RecyclerView
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
         touchSlopField.isAccessible = true

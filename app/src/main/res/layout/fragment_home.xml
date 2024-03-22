@@ -87,8 +87,8 @@
             android:id="@+id/btnHome"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/icon_home_black"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/icon_home_black" />
 
         <ImageButton
             android:id="@+id/btnSearch"

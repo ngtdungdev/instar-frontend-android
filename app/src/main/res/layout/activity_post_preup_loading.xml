@@ -65,7 +65,7 @@
                 android:minHeight="80dp">
 
                 <EditText
-                    android:id="@+id/editTextText"
+                    android:id="@+id/content"
                     style="MuL"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -96,11 +96,11 @@
 
                 <ImageView
                     android:id="@+id/imageView15"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="16dp"
+                    android:layout_height="25dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/baseline_close_24" />
+                    android:background="@drawable/btn_next" />
 
                 <TextView
                     android:id="@+id/textView26"
@@ -118,7 +118,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/baseline_close_24" />
+                    android:background="@drawable/ic_person" />
             </RelativeLayout>
 
 
@@ -132,11 +132,11 @@
 
                 <ImageView
                     android:id="@+id/imageView30"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="16dp"
+                    android:layout_height="25dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/baseline_close_24" />
+                    android:background="@drawable/btn_next" />
 
                 <TextView
                     android:id="@+id/textView31"
@@ -154,7 +154,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/baseline_close_24" />
+                    android:background="@drawable/ic_emoji" />
             </RelativeLayout>
 
         </LinearLayout>
@@ -168,7 +168,7 @@
         android:background="#e6e6e6" />
 
     <FrameLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/btnCreate"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/border_post_share">

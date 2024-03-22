@@ -11,6 +11,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -24,6 +25,7 @@ import com.instar.frontend_android.enum.EnumUtils
 import com.instar.frontend_android.interfaces.InterfaceUtils
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostTagAdapter
+import com.instar.frontend_android.ui.customviews.ViewEditText
 
 class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var btnRemove: ImageButton
@@ -35,6 +37,7 @@ class SearchTagOtherActivity: AppCompatActivity() {
     private lateinit var tagList: MutableList<User>
     private lateinit var userAdapter: PostTagAdapter
     private lateinit var userRecyclerView: RecyclerView
+    private lateinit var message: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +45,7 @@ class SearchTagOtherActivity: AppCompatActivity() {
         userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
         query = binding.message;
         userRecyclerView = binding.searchTagRV
+        message = binding.message
         setContentView(binding.root)
         btnRemove = binding.iconDelete
 
@@ -62,9 +66,15 @@ class SearchTagOtherActivity: AppCompatActivity() {
     }
 
     fun initView() {
+        val viewEditText = ViewEditText()
+        viewEditText.EditTextTag(message,  btnRemove)
+        viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
+            override fun onFocusChange(view: View) {
+                if (message.text.toString().isEmpty()) setMessage()
+            }
+        })
         val debounceHandler = Handler(Looper.getMainLooper())
         var debounceRunnable: Runnable? = null
-
         query.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 debounceRunnable?.let {
@@ -105,7 +115,7 @@ class SearchTagOtherActivity: AppCompatActivity() {
             }
 
             runOnUiThread {
-                if (response != null && response.data.followingUsers != null) {
+                if (response != null && response.data?.followingUsers != null) {
                     userList = response.data.followingUsers as MutableList<User>
                     updateUserList()
                 } else {
@@ -113,6 +123,9 @@ class SearchTagOtherActivity: AppCompatActivity() {
                 }
             }
         }
+    }
+    private fun setMessage() {
+        message.hint = "Tìm kiếm người dùng"
     }
 
     @SuppressLint("NotifyDataSetChanged")

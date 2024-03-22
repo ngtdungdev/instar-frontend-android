@@ -131,8 +131,8 @@ class LoginOtherActivity : AppCompatActivity() {
                     // Khởi tạo SharedPreferences
                     val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
 
-                    val accessToken = authResponse.data.accessToken
-                    val refreshToken = authResponse.data.refreshToken
+                    val accessToken = authResponse.data?.accessToken
+                    val refreshToken = authResponse.data?.refreshToken
 
                     with(sharedPreferences.edit()) {
                         putString("accessToken", accessToken)

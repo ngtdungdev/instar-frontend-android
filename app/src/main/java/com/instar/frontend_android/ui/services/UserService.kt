@@ -26,7 +26,7 @@ interface UserService {
     fun deleteUser(@Path("userId") userId: String): Call<ApiResponse<Any>>
 
     @GET(AUTH_PREFIX)
-    fun getUsers(): Call<ApiResponse<Any>>
+    fun getUsers(): Call<ApiResponse<UserResponse>>
 
     @GET("$AUTH_PREFIX/{userId}")
     fun getUser(@Path("userId") userId: String): Call<ApiResponse<UserResponse>>

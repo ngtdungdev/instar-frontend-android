@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
@@ -17,8 +16,6 @@ import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Comment
-import com.instar.frontend_android.ui.DTO.CommentWithReply
-import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -123,24 +120,26 @@ class PostCommentReplyAdapter(private val context: Context, private val data: Mu
         }
 
         holder.like.setOnClickListener {
-            postService.likeCommentPost(postId, comment.id, userId).handleResponse(
-                onSuccess = { response ->
-                    if (holder.isLiked) {
-                        comment.likes.remove(userId)
-                        holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
-                    } else {
-                        comment.likes.add(userId)
-                        holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+            comment.id?.let { it1 ->
+                postService.likeCommentPost(postId, it1, userId).handleResponse(
+                    onSuccess = { response ->
+                        if (holder.isLiked) {
+                            comment.likes.remove(userId)
+                            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
+                        } else {
+                            comment.likes.add(userId)
+                            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                        }
+                        holder.isLiked = !holder.isLiked
+                        holder.textTotalLike.text = comment.likes.size.toString()
+                    },
+                    onError = { error ->
+                        // Handle error
+                        val message = error.message;
+                        Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                     }
-                    holder.isLiked = !holder.isLiked
-                    holder.textTotalLike.text = comment.likes.size.toString()
-                },
-                onError = { error ->
-                    // Handle error
-                    val message = error.message;
-                    Log.e("ServiceBuilder", "Error: $message - ${error.status}")
-                }
-            )
+                )
+            }
         }
     }
 

@@ -60,18 +60,19 @@
 
         <ImageView
             android:id="@+id/btnList"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/imageView17"
-            android:background="@drawable/baseline_close_24" />
+            android:background="@drawable/btn_choose_more_picture" />
 
         <ImageView
             android:id="@+id/imageView17"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/baseline_close_24" />
+            android:background="@drawable/btn_open_camera"
+            android:layout_marginEnd="10dp"/>
 
         <ImageView
             android:id="@+id/imageView16"

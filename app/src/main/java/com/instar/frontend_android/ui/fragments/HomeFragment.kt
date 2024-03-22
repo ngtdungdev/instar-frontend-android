@@ -74,8 +74,8 @@ class HomeFragment : Fragment() {
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
         btnPostUp = binding.btnPostUp
-        iconHeart = binding.iconHeart
         btnPersonal = binding.btnPersonal
+        iconHeart = binding.iconHeart
         url = binding.url
         initView()
         authService.profile().handleResponse(
@@ -150,7 +150,7 @@ class HomeFragment : Fragment() {
         val image1 = Images(Images.TYPE_FRIEND_AVATAR, "Duy bạn tui", null)
         val image2 = Images(Images.TYPE_FRIEND_AVATAR, "Hiếu bạn mới ", null)
         val image3 = Images(Images.TYPE_FRIEND_AVATAR, "Hưng lạnh lùng", null)
-        val image4 = Images(Images.TYPE_FRIEND_AVATAR, "Yến Vi", null)
+        val image4 = Images(Images.TYPE_FRIEND_AVATAR, "Yến Vy", null)
         val image5 = Images(Images.TYPE_FRIEND_AVATAR, "Xuân Hoàng", null)
         val image6 = Images(Images.TYPE_FRIEND_AVATAR, "Hoa Vi", null)
         imageList.add(image1)

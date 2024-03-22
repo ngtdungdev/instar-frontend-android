@@ -70,8 +70,9 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var commentLayoutParams: ConstraintLayout.LayoutParams
     private var collapsedMargin = 0
-    private var buttonHeight = 0
+    private var layoutCommentHeight = 0
     private var expandedHeight = 0
+    private var peekHeightFragment = 0
 
     companion object {
         @SuppressLint("StaticFieldLeak")
@@ -321,9 +322,13 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 commentLayoutParams = layoutComment.layoutParams as ConstraintLayout.LayoutParams
                 when(slideOffset >= 0) {
-                    true ->  commentLayoutParams.topMargin = (((expandedHeight - buttonHeight) - collapsedMargin) * slideOffset + collapsedMargin + 50).toInt()
-                    false ->  commentLayoutParams.topMargin = collapsedMargin + 50
+                    true ->  commentLayoutParams.topMargin = (((expandedHeight - layoutCommentHeight) - collapsedMargin) * slideOffset + collapsedMargin).toInt()
+                    false -> {
+                            commentLayoutParams.topMargin = collapsedMargin
+//                        commentLayoutParams.topMargin = ((expandedHeight - (expandedHeight * -slideOffset * (10 / 7)).toInt()) + collapsedMargin).toInt()
+                    }
                 }
+                Log.i("com", commentLayoutParams.topMargin.toString())
                 layoutComment.layoutParams = commentLayoutParams
             }
         })
@@ -347,14 +352,16 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
             isHideable = true
         }
 
-        buttonHeight = layoutComment.height.plus(40)
-        collapsedMargin = peekHeight - buttonHeight
-        commentLayoutParams.topMargin = collapsedMargin + 50
+        peekHeightFragment = peekHeight
+
+        layoutCommentHeight = layoutComment.height
+        collapsedMargin = peekHeight - layoutCommentHeight
+        commentLayoutParams.topMargin = collapsedMargin
         layoutComment.layoutParams = commentLayoutParams
 
         val recyclerLayoutParams = commentRecyclerView.layoutParams as ConstraintLayout.LayoutParams
-        val k = (buttonHeight - 60) / buttonHeight.toFloat()
-        recyclerLayoutParams.bottomMargin = (k * buttonHeight).toInt()
+        val k = (layoutCommentHeight - 60) / layoutCommentHeight.toFloat()
+        recyclerLayoutParams.bottomMargin = (k * layoutCommentHeight).toInt()
         commentRecyclerView.layoutParams = recyclerLayoutParams
 
         message.setOnClickListener {
@@ -377,13 +384,52 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
             }
         }
 
+//        message.setOnClickListener {
+//            message.hint = "Bình luận về ..."
+//            val inputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//            if (!inputMethodManager.isAcceptingText) {
+//                inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
+//                setBottomSheetPeekHeight(bottomSheet,(expandedHeight))
+//            }
+//        }
+//        message.setOnEditorActionListener { view, actionId, _ ->
+//            when(actionId == EditorInfo.IME_ACTION_DONE) {
+//                true -> {
+//                    val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+//                    setBottomSheetPeekHeight(bottomSheet, expandedHeight)
+//                    true
+//                }
+//                false -> {false}
+//            }
+//        }
+
+
+//        commentRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+//                super.onScrolled(recyclerView, dx, dy)
+//                val inputMethodManager = requireView().context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                if (inputMethodManager.isAcceptingText) {
+//                    inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
+//                    setBottomSheetPeekHeight(bottomSheet,expandedHeight)
+//                }
+//            }
+//        })
     }
 
 
-    private fun setBottomSheetHeight(bottomSheet: FrameLayout, height: Int) {
+    private fun setBottomSheetPeekHeight(bottomSheet: FrameLayout, height: Int) {
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = height
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun setBottomSheetHeight(bottomSheet: FrameLayout, height: Int) {
+        val newLayoutParams = bottomSheet.layoutParams
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        newLayoutParams.height = 1000
+        bottomSheet.layoutParams = newLayoutParams
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
     private fun getBottomSheetDialogDefaultHeight(): Int {
         return getWindowHeight()

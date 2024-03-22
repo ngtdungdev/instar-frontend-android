@@ -53,7 +53,7 @@
         android:id="@+id/layoutComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="550dp"
+        android:layout_marginTop="500dp"
         android:background="#FFFFFF"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"

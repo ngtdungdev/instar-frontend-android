@@ -41,7 +41,7 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
         <activity
-            android:name=".ui.activities.MainScreenActivity"
+            android:name=".ui.activities.StoryActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>

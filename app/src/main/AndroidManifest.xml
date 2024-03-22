@@ -48,6 +48,9 @@
         <activity
             android:name=".ui.activities.PostPreUpLoadingActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.activities.ProfileActivity"
+            android:exported="false" />
 
 
         <activity android:name=".MainActivity" /> <!-- android:exported="true"> -->

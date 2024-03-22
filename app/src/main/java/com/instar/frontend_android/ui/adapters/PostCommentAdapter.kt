@@ -17,6 +17,8 @@ import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.CommentWithReply
+import com.instar.frontend_android.ui.DTO.User
+import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -59,6 +61,7 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val commentWithReply = data[position]
+        var user: User? = null
 
         lifecycleScope.launch {
             try {
@@ -69,9 +72,9 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
                 avatarBinding.hasStory.visibility = View.GONE
 
                 if (response.data != null) {
-                    val user = response.data.user
+                    user = response.data.user
                     if (user != null) {
-                        if (user.stories.isEmpty()) {
+                        if (user!!.stories.isEmpty()) {
                             avatarBinding.hasStory.visibility = View.GONE
                         } else {
                             avatarBinding.hasStory.visibility = View.VISIBLE
@@ -80,7 +83,7 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
                         withContext(Dispatchers.Main) {
                             // Load avatar image using Glide
                             Glide.with(context)
-                                .load(user.profilePicture?.url)
+                                .load(user!!.profilePicture?.url)
                                 .placeholder(R.drawable.default_image) // Placeholder image
                                 .error(R.drawable.default_image) // Image to display if load fails
                                 .into(avatarBinding.url)
@@ -133,10 +136,16 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
         }
 
         holder.btnReply.setOnClickListener {
-
+            user?.let { it1 -> CommentBottomSheetDialogFragment.mention(commentWithReply.comment, it1) }
         }
 
         holder.isLiked = commentWithReply.comment.likes.contains(userId)
+
+        if (holder.isLiked) {
+            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+        } else {
+            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
+        }
 
         holder.like.setOnClickListener {
             if (holder.isLiked) {
@@ -147,24 +156,26 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
         }
 
         holder.like.setOnClickListener {
-            postService.likeCommentPost(postId, commentWithReply.comment.id, userId).handleResponse(
-                onSuccess = { response ->
-                    if (holder.isLiked) {
-                        commentWithReply.comment.likes.remove(userId)
-                        holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
-                    } else {
-                        commentWithReply.comment.likes.add(userId)
-                        holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+            commentWithReply.comment?.id?.let { it1 ->
+                postService.likeCommentPost(postId, it1, userId).handleResponse(
+                    onSuccess = { response ->
+                        if (holder.isLiked) {
+                            commentWithReply.comment.likes.remove(userId)
+                            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
+                        } else {
+                            commentWithReply.comment.likes.add(userId)
+                            holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                        }
+                        holder.isLiked = !holder.isLiked
+                        holder.textTotalLike.text = commentWithReply.comment.likes.size.toString()
+                    },
+                    onError = { error ->
+                        // Handle error
+                        val message = error.message;
+                        Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                     }
-                    holder.isLiked = !holder.isLiked
-                    holder.textTotalLike.text = commentWithReply.comment.likes.size.toString()
-                },
-                onError = { error ->
-                    // Handle error
-                    val message = error.message;
-                    Log.e("ServiceBuilder", "Error: $message - ${error.status}")
-                }
-            )
+                )
+            }
         }
     }
 

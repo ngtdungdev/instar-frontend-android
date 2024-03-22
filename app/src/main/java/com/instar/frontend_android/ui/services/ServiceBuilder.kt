@@ -2,17 +2,9 @@ package com.instar.frontend_android.ui.services
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.instar.frontend_android.R
 import com.instar.frontend_android.types.responses.ApiResponse
-import com.instar.frontend_android.ui.DTO.Images
-import com.instar.frontend_android.ui.activities.LoginOtherActivity
-import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
-import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call

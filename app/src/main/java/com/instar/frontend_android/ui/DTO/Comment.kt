@@ -1,12 +1,14 @@
 package com.instar.frontend_android.ui.DTO
 
-class Comment {
-    var id: String? = null
-    var username: String? = null
-    var content: String? = null
-    var parentId: String? = null
-    var userId: String? = null
-    var likes: List<String>? = null
-    var createdAt: String? = null
-    var updatedAt: String? = null
-}
+import java.io.Serializable
+
+class Comment (
+    var id: String,
+    var username: String,
+    var content: String,
+    var parentId: String,
+    var userId: String,
+    var likes: MutableList<String>,
+    var createdAt: String,
+    var updatedAt: String
+): Serializable

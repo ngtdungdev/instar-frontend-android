@@ -8,7 +8,7 @@ class Comment (
     var content: String,
     var parentId: String,
     var userId: String,
-    var likes: List<String>,
+    var likes: MutableList<String>,
     var createdAt: String,
     var updatedAt: String
 ): Serializable

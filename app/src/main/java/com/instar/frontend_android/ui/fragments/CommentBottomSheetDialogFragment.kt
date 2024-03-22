@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.fragments
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -17,17 +18,24 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputLayout
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentCommentBottomSheetDialogBinding
 import com.instar.frontend_android.ui.DTO.Comment
+import com.instar.frontend_android.ui.DTO.CommentWithReply
+import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostCommentAdapter
 import com.instar.frontend_android.ui.adapters.VerticalSpaceItemDecoration
 
@@ -35,12 +43,15 @@ import com.instar.frontend_android.ui.adapters.VerticalSpaceItemDecoration
 class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var commentRecyclerView: RecyclerView
+    private lateinit var avatarComment: ImageView
     private lateinit var textInputLayout: TextInputLayout
     private lateinit var message: EditText
-    private lateinit var commentList: MutableList<Comment>
+    private lateinit var commentList: MutableList<CommentWithReply>
     private lateinit var commentAdapter: PostCommentAdapter
     private lateinit var binding: FragmentCommentBottomSheetDialogBinding
     private lateinit var layoutComment: View
+    private lateinit var post: Post
+    private lateinit var user: User
 
 
     private lateinit var commentLayoutParams: ConstraintLayout.LayoutParams
@@ -49,7 +60,8 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var expandedHeight = 0
 
     companion object {
-        private lateinit var instance: CommentBottomSheetDialogFragment
+        @SuppressLint("StaticFieldLeak")
+        private var instance: CommentBottomSheetDialogFragment = CommentBottomSheetDialogFragment()
         const val TAG = "CommentBottomSheetDialogFragment"
         @JvmStatic
         fun newInstance(): CommentBottomSheetDialogFragment {
@@ -57,13 +69,31 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    fun setPost(post: Post){
+        this.post = post
+    }
+
+    fun setUserId(user: User){
+        this.user = user
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentCommentBottomSheetDialogBinding.inflate(layoutInflater)
-        commentRecyclerView = binding.recyclerView
+        commentRecyclerView = binding.commentRecyclerView
+        commentRecyclerView = binding.commentRecyclerView
         textInputLayout = binding.textInputLayout
         message = binding.message
         layoutComment = binding.layoutComment
+        avatarComment = binding.avatarComment
+
+        // Load avatar image using Glide
+        Glide.with(requireContext())
+            .load(user.profilePicture?.url)
+            .placeholder(R.drawable.default_image) // Placeholder image
+            .error(R.drawable.default_image) // Image to display if load fails
+            .into(avatarComment)
+
         initView()
         return binding.root
     }
@@ -85,7 +115,7 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun loadAdapter() {
         commentList = getComment()
-        commentAdapter = PostCommentAdapter(requireContext(), commentList)
+        commentAdapter = PostCommentAdapter(requireContext(), commentList, lifecycleScope, post.id, user.id)
         val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         commentRecyclerView.layoutManager = layoutManager
         val scale = resources.displayMetrics.density
@@ -94,20 +124,36 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         commentRecyclerView.adapter = commentAdapter
     }
 
-    private fun getComment(): MutableList<Comment> {
-        val comments: MutableList<Comment> = mutableListOf()
-        comments.add(Comment("1", "Quang Duy", "Hôm nay trời đẹp không Dũng", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng"), "1", "1"))
-        comments.add(Comment("2", "Tiến Dũng", "Hôm nay buồn lắm", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Quang Duy"), "1", "1"))
-        comments.add(Comment("3", "Trọng Hiếu", "Tau cũng buồn vì mất điện thoại, tại thằng hưng", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng"), "1", "1"))
-        comments.add(Comment("4", "Thành Hưng", "Tại gì t mày", "1", "111", listOf("Quang Duy", "Thái An"), "1", "1"))
-        comments.add(Comment("5", "Thái An", "T có bồ rồi bây", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng", "Quang Duy"), "1", "1"))
-        comments.add(Comment("1", "Quang Duy", "Hôm nay trời đẹp không Dũng", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng"), "1", "1"))
-        comments.add(Comment("2", "Tiến Dũng", "Hôm nay buồn lắm", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Quang Duy"), "1", "1"))
-        comments.add(Comment("3", "Trọng Hiếu", "Tau cũng buồn vì mất điện thoại, tại thằng hưng", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng"), "1", "1"))
-        comments.add(Comment("4", "Thành Hưng", "Tại gì t mày", "1", "111", listOf("Quang Duy", "Thái An"), "1", "1"))
-        comments.add(Comment("5", "Thái An", "T có bồ rồi bây", "1", "111", listOf("Trọng Hiếu", "Thành Hưng", "Tiến Dũng", "Quang Duy"), "1", "1"))
+    private fun getComment(): MutableList<CommentWithReply> {
+        val comments: MutableList<CommentWithReply> = mutableListOf()
+
+        post.comments.forEach { comment ->
+            if (comment.parentId == null) {
+                comments.add(CommentWithReply(comment, mutableListOf()))
+            }
+        }
+
+        post.comments.forEach {comment ->
+            if (comment.parentId != null) {
+                val parentId = comment.parentId
+                val parentCommentIndex = comments.indexOfFirst {
+                    it.comment.id != null && it.comment.id == parentId
+                }
+
+                if (parentCommentIndex != -1) {
+                    comments[parentCommentIndex].replies.add(comment)
+                }
+            }
+        }
+
+        comments.sortByDescending { it.comment.createdAt }
+        comments.forEach {
+            it.replies.sortByDescending { it.createdAt }
+        }
+
         return comments
     }
+
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -174,16 +220,7 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 false -> {false}
             }
         }
-//        commentRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//                val inputMethodManager = requireView().context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                if (inputMethodManager.isAcceptingText) {
-//                    inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
-//                    setBottomSheetHeight(bottomSheet,expandedHeight)
-//                }
-//            }
-//        })
+
     }
 
 

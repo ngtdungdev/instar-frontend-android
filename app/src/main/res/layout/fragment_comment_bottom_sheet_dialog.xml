@@ -40,7 +40,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/commentRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="15dp"
@@ -80,7 +80,7 @@
             android:paddingEnd="10dp">
 
             <ImageView
-                android:id="@+id/imageView13"
+                android:id="@+id/avatarComment"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
@@ -94,7 +94,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="15dp"
                 android:layout_toStartOf="@+id/iconDelete"
-                android:layout_toEndOf="@+id/imageView13"
+                android:layout_toEndOf="@+id/avatarComment"
                 app:cursorColor="#2A8F6F">
 
                 <EditText

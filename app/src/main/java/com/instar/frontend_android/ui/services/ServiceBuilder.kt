@@ -159,7 +159,7 @@ object ServiceBuilder {
             .build()
 
         val request = Request.Builder()
-            .url("ws://10.0.2.2:8080/ws")
+            .url("ws://10.0.2.2:8080/api/ws")
             .build()
 
         return newHttpClient.newWebSocket(request, listener)

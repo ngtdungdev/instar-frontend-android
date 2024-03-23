@@ -60,7 +60,7 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
         <activity
-            android:name=".ui.activities.StoryActivity"
+            android:name=".ui.activities.MainScreenActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>

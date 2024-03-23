@@ -34,11 +34,16 @@ import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
+import com.instar.frontend_android.ui.services.WebSocketService
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 
 class PostAdapter(private val data: List<Post>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
     private val viewHolders: MutableList<PostViewHolder> = mutableListOf()
+    private lateinit var webSocket: WebSocket
+    private lateinit var listener: WebSocketListener
 
     init {
         setHasStableIds(true)
@@ -48,6 +53,8 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_newsfeed, parent, false)
         userService = ServiceBuilder.buildService(UserService::class.java, parent.context)
         postService = ServiceBuilder.buildService(PostService::class.java, parent.context)
+        listener = WebSocketService()
+        webSocket = ServiceBuilder.buildWebSocketService(listener)
         return PostViewHolder(view, user, userService, postService, lifecycleScope, fragmentManager).also {
             viewHolders.add(it)
         }
@@ -142,6 +149,8 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                             .placeholder(R.drawable.default_image) // Placeholder image
                             .error(R.drawable.default_image) // Image to display if load fails
                             .into(avatarBinding.url)
+
+
 
                         val urls: List<String> = post.fileUploads.mapNotNull { it.url }
 
@@ -252,6 +261,7 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                         } else {
                             likes.add(id)
                             heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+
                         }
                         isLiked = !isLiked
                         likeTotal.text = likes.size.toString() + " lượt thích"

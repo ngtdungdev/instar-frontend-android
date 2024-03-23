@@ -14,7 +14,7 @@
         app:cardCornerRadius="50dp">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/senderAvatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@mipmap/ic_instagram" />
@@ -30,7 +30,7 @@
         app:cardCornerRadius="50dp">
 
         <TextView
-            android:id="@+id/textView21"
+            android:id="@+id/receivedMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"

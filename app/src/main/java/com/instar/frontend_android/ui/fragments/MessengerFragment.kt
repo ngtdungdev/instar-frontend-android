@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentMessengerBinding
-import com.instar.frontend_android.ui.DTO.Friends
+import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.activities.DirectMessageActivity
 import com.instar.frontend_android.ui.adapters.MessageFriendAdapter
 
 class MessengerFragment : Fragment() {
     private lateinit var binding: FragmentMessengerBinding
-    private lateinit var messageFriendList: List<Friends>
+    private lateinit var messageFriendList: List<Chat>
     private lateinit var newsMessageFriendAdapter: MessageFriendAdapter
     private lateinit var messageFriendsRecyclerView: RecyclerView
 
@@ -25,11 +25,12 @@ class MessengerFragment : Fragment() {
         binding = FragmentMessengerBinding.inflate(inflater, container, false)
         messageFriendsRecyclerView = binding.recyclerViewFriend
 
-        messageFriendList = getFriend()
+        messageFriendList = getMembers()
         newsMessageFriendAdapter = MessageFriendAdapter(messageFriendList)
         newsMessageFriendAdapter.setOnItemClickListener(object : MessageFriendAdapter.OnItemClickListener{
-            override fun onItemClick(position: Int?) {
+            override fun onItemClick(position: Int) {
                 val intent = Intent(context, DirectMessageActivity::class.java)
+                intent.putExtra("chatID", messageFriendList[position].id)
                 context?.startActivity(intent)
                 activity?.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
@@ -39,10 +40,10 @@ class MessengerFragment : Fragment() {
         return binding.root
     }
 
-    private fun getFriend(): ArrayList<Friends> {
-        val friendList = ArrayList<Friends>()
-        val friend1 = Friends("Tin của bạn","conmeo")
-        val friend2 = Friends("Duy ko rep", "conmeo")
+    private fun getMembers(): ArrayList<Chat> {
+        val friendList = ArrayList<Chat>()
+        val friend1 = Chat("", listOf("", ""))
+        val friend2 = Chat("", listOf("", ""))
         friendList.add(friend1)
         friendList.add(friend2)
         return friendList

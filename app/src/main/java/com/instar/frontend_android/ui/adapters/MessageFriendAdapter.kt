@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
-import com.instar.frontend_android.ui.DTO.Friends
+import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.customviews.ViewEffect
 
-class MessageFriendAdapter(private val data: List<Friends>) : RecyclerView.Adapter<MessageFriendAdapter.MessageFriendViewHolder>() {
+class MessageFriendAdapter(private val data: List<Chat>) : RecyclerView.Adapter<MessageFriendAdapter.MessageFriendViewHolder>() {
 
     private var listener: OnItemClickListener? = null
 
@@ -36,6 +36,6 @@ class MessageFriendAdapter(private val data: List<Friends>) : RecyclerView.Adapt
     }
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int?)
+        fun onItemClick(position: Int)
     }
 }

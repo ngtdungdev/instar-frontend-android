@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.utils
 
+import android.content.Context
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import okhttp3.MultipartBody
@@ -31,6 +32,18 @@ object Helpers {
         } else {
             throw IllegalArgumentException("Invalid token format")
         }
+    }
+
+    @JvmStatic
+    fun getUserId(context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+
+        if (accessToken != null) {
+            val decodedTokenJson = decodeJwt(accessToken)
+            return decodedTokenJson.getString("id")
+        }
+        return null
     }
 
     @JvmStatic

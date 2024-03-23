@@ -16,7 +16,7 @@ interface MessageService {
     @POST("$AUTH_PREFIX")
     fun createMessage(@Body message: Any): Call<ApiResponse<Any>>
 
-    @GET("${AUTH_PREFIX}/all/{chatId}")
+    @GET("$AUTH_PREFIX/all/{chatId}")
     fun getAllByChatId(@Path("chatId") chatId: String): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/{messageId}")

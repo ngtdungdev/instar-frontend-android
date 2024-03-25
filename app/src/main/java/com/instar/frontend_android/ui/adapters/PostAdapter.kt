@@ -32,13 +32,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
+import com.instar.frontend_android.types.requests.SocketRequest
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
+import com.instar.frontend_android.ui.services.WebSocketService
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 
 class PostAdapter(private val data: List<Post>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
     private val viewHolders: MutableList<PostViewHolder> = mutableListOf()
+    private lateinit var webSocket: WebSocket
 
     init {
         setHasStableIds(true)
@@ -48,8 +55,70 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_newsfeed, parent, false)
         userService = ServiceBuilder.buildService(UserService::class.java, parent.context)
         postService = ServiceBuilder.buildService(PostService::class.java, parent.context)
-        return PostViewHolder(view, user, userService, postService, lifecycleScope, fragmentManager).also {
+        val listener = object : WebSocketListener() {
+            private val gson = Gson()
+
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                super.onOpen(webSocket, response)
+                println("WebSocket connection opened")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                super.onMessage(webSocket, text)
+                println("Received message: $text")
+
+                // Parse JSON message to SocketRequest
+                val socketRequest = gson.fromJson(text, SocketRequest::class.java)
+
+                // Log information
+                println("Received SocketRequest: $socketRequest")
+
+                // Handle different types of requests
+                when (socketRequest.type) {
+                    "LIKE_POST" -> {
+                        // Handle LIKE_POST request
+                        handleLikePostRequest(socketRequest.data)
+                    }
+                    // Add more cases for other types of requests if needed
+                    else -> {
+                        println("Unknown request type: ${socketRequest.type}")
+                    }
+                }
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                super.onClosed(webSocket, code, reason)
+                println("WebSocket connection closed")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                super.onFailure(webSocket, t, response)
+                println("WebSocket connection failed: ${t.message}")
+            }
+        }
+
+
+        webSocket = ServiceBuilder.buildWebSocketService(listener)
+        return PostViewHolder(view, user, userService, postService, lifecycleScope, fragmentManager, webSocket).also {
             viewHolders.add(it)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun handleLikePostRequest(data: Any?) {
+        // Kiểm tra xem dữ liệu có hợp lệ không
+        if (data is Map<*, *>) {
+            // Lấy thông tin về bài đăng từ dữ liệu
+            val post = data["post"] as? Post
+            // Lấy thông tin về người gửi "like" từ dữ liệu
+            val sender = data["sender"] as? User
+            // Kiểm tra xem post và sender có tồn tại không
+            if (post != null && sender != null) {
+                // Cập nhật trạng thái "like" của bài đăng
+                post.likes.add(sender.id)
+                // Thông báo cập nhật dữ liệu cho adapter
+                notifyDataSetChanged()
+            }
         }
     }
 
@@ -58,7 +127,7 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         return data[position].id.hashCode().toLong()
     }
 
-    class PostViewHolder(view: View, user:User, userService: UserService, postService: PostService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
+    class PostViewHolder(view: View, user:User, userService: UserService, postService: PostService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager, private val webSocket: WebSocket) : RecyclerView.ViewHolder(view) {
         private val avatar: View = view.findViewById(R.id.avatar)
         private val author: TextView = view.findViewById(R.id.author)
         private val subName: TextView = view.findViewById(R.id.subName)
@@ -76,6 +145,7 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         private val userService: UserService = userService
         private val postService: PostService = postService
         private val user: User = user
+        private val gson = Gson() // Initialize Gson
 
         private val carousel: ViewPager2 = view.findViewById(R.id.carousel)
         private val carouselParent: RelativeLayout = view.findViewById(R.id.carouselParent)
@@ -142,6 +212,8 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                             .placeholder(R.drawable.default_image) // Placeholder image
                             .error(R.drawable.default_image) // Image to display if load fails
                             .into(avatarBinding.url)
+
+
 
                         val urls: List<String> = post.fileUploads.mapNotNull { it.url }
 
@@ -252,6 +324,20 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                         } else {
                             likes.add(id)
                             heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+
+                            val additionalData = mapOf(
+                                "sender" to user,
+                                "authorId" to post.userId,
+                                "post" to post,
+                            )
+
+                            val socketRequest = SocketRequest(
+                                type = "LIKE_POST",
+                                data = additionalData,
+                                sendId = user.id
+                            )
+                            val json = gson.toJson(socketRequest)
+                            webSocket.send(json)
                         }
                         isLiked = !isLiked
                         likeTotal.text = likes.size.toString() + " lượt thích"

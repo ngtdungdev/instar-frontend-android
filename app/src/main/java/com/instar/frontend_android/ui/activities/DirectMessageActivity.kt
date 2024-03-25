@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import Socket
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,8 +13,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.instar.frontend_android.R
+import com.instar.frontend_android.data.remote.sockets.ChatEventListener
+import com.instar.frontend_android.data.remote.sockets.ChatStateChangeListener
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
 import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.adapters.DirectMessageAdapter
@@ -21,12 +23,8 @@ import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ChatService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.utils.Helpers
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.handshake.ServerHandshake
-import java.lang.Exception
-import java.net.URI
 
-class DirectMessageActivity : AppCompatActivity() {
+class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateChangeListener {
     private lateinit var binding: ActivityDirectMessageBinding
     private lateinit var message: EditText
     private lateinit var btnSend: TextView
@@ -36,11 +34,11 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var messageList: MutableList<Message>
     private lateinit var messageAdapter: DirectMessageAdapter
     private lateinit var messageRecyclerView: RecyclerView
-    private lateinit var socketClient: WebSocketClient
     private lateinit var authService: AuthService
     private lateinit var chatService: ChatService
     private lateinit var userID: String
     private lateinit var chatID: String
+    private val chatSocket: Socket = Socket.Builder.with("").build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,45 +128,13 @@ class DirectMessageActivity : AppCompatActivity() {
 
     }
 
-    private fun getUserId() {
-
-    }
-
     private fun createConnection() {
-        val url = "ws://10.0.2.2:8080/api/chat"
-        socketClient = object : WebSocketClient(URI.create(url)) {
-            override fun onOpen(handshakedata: ServerHandshake?) {
-                Log.i("com", "HandShakeData: ${handshakedata?.content}")
-            }
 
-            override fun onMessage(message: String?) {
-                val receivedMessage = Gson().fromJson(message, Message::class.java)
-                val senderId = receivedMessage.senderId
-                addNewMessage(Message(Message.TYPE_RECEIVED_MESSAGE, chatID, senderId, message.toString()))
-                Log.i("com", "Received message: $message")
-            }
-
-            override fun onClose(code: Int, reason: String?, remote: Boolean) {
-                Log.i("com", "Close: { code: $code, reason: $reason, remote: $remote }.")
-            }
-
-            override fun onError(ex: Exception?) {
-                Log.e("com", "Error: $ex")
-            }
-        }
-        socketClient.connect()
-        Log.i("com", "$socketClient")
     }
 
     private fun sendMessage(messageText: String) {
-        if (socketClient.isOpen) {
-            socketClient.send(Gson().toJson(object {
-                val chatId = chatID
-                val senderId = ""
-                val text = messageText
-            }))
-            addNewMessage(Message(Message.TYPE_SENT_MESSAGE, chatID, userID, messageText))
-        }
+        addNewMessage(Message(Message.TYPE_SENT_MESSAGE, chatID, userID, messageText))
+        // call api from spring boot here
     }
 
     private fun getMessages(): MutableList<Message> {
@@ -200,6 +166,22 @@ class DirectMessageActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        socketClient.close()
+//        socketClient.close()
+    }
+
+    override fun onNewMessage(message: String) {
+        addNewMessage(Message())
+    }
+
+    override fun onOpen() {
+        Log.d("ChatSocket", "Connection opened")
+    }
+
+    override fun onClosed(code: Int, reason: String) {
+        Log.d("ChatSocket", "Connection closed: $code - $reason")
+    }
+
+    override fun onStateChange(state: Socket.State) {
+        TODO("Not yet implemented")
     }
 }

@@ -19,6 +19,9 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("StaticFieldLeak")
 object ServiceBuilder {
     private lateinit var context: Context
+    private const val HOST = "10.0.2.2"
+    private const val PORT = "8080"
+    private const val URL = "http://$HOST:$PORT/api/"
     private const val BASE_URL = "http://10.0.2.2:8080/api/"
     private lateinit var authService: AuthService
 

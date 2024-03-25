@@ -7,9 +7,6 @@ import com.google.gson.GsonBuilder
 import com.instar.frontend_android.types.responses.ApiResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,12 +19,8 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("StaticFieldLeak")
 object ServiceBuilder {
     private lateinit var context: Context
-    private const val HOST = "10.0.2.2"
-    private const val PORT = "8080"
-    private const val URL = "http://$HOST:$PORT/api/"
     private const val BASE_URL = "http://10.0.2.2:8080/api/"
     private lateinit var authService: AuthService
-    private lateinit var webSocket: WebSocket
 
     // OkHttpClient setup with custom settings
     private val okHttpClient = OkHttpClient.Builder()
@@ -154,18 +147,6 @@ object ServiceBuilder {
                 }
             )
         }
-    }
-
-    fun buildWebSocketService(listener: WebSocketListener): WebSocket {
-        val newHttpClient = okHttpClient.newBuilder()
-            .addInterceptor(TokenInterceptor(context))
-            .build()
-
-        val request = Request.Builder()
-            .url("ws://10.0.2.2:8080/api/ws")
-            .build()
-
-        return newHttpClient.newWebSocket(request, listener)
     }
 
     /**

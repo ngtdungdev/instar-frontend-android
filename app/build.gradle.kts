@@ -84,7 +84,4 @@ dependencies {
         exclude(group = "com.android.support")
         exclude(group = "com.android.support")
     }
-
-    // socket.io
-    implementation("org.java-websocket:Java-WebSocket:1.5.6")
 }

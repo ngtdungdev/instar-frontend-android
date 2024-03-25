@@ -1,10 +1,8 @@
 package com.instar.frontend_android.ui.activities
 
-import Socket
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -14,8 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
-import com.instar.frontend_android.data.remote.sockets.ChatEventListener
-import com.instar.frontend_android.data.remote.sockets.ChatStateChangeListener
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
 import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.adapters.DirectMessageAdapter
@@ -24,7 +20,7 @@ import com.instar.frontend_android.ui.services.ChatService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.utils.Helpers
 
-class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateChangeListener {
+class DirectMessageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDirectMessageBinding
     private lateinit var message: EditText
     private lateinit var btnSend: TextView
@@ -38,7 +34,6 @@ class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateC
     private lateinit var chatService: ChatService
     private lateinit var userID: String
     private lateinit var chatID: String
-    private val chatSocket: Socket = Socket.Builder.with("").build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +49,8 @@ class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateC
         iconLibrary = binding.iconLibrary
         iconMicro = binding.iconMicro
 
-        this.userID = Helpers.getUserId(this) ?: ""
-        this.chatID = intent.extras?.getString("chatID") ?: ""
-        createConnection()
+        userID = Helpers.getUserId(this) ?: ""
+        chatID = intent.extras?.getString("chatID") ?: ""
 
         initView()
     }
@@ -129,7 +123,7 @@ class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateC
     }
 
     private fun createConnection() {
-
+        TODO("Not yet implemented. Might be using Real-time database from Firebase")
     }
 
     private fun sendMessage(messageText: String) {
@@ -162,26 +156,5 @@ class DirectMessageActivity : AppCompatActivity(), ChatEventListener, ChatStateC
         messages.add(message10)
         messages.add(message11)
         return messages;
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        socketClient.close()
-    }
-
-    override fun onNewMessage(message: String) {
-        addNewMessage(Message())
-    }
-
-    override fun onOpen() {
-        Log.d("ChatSocket", "Connection opened")
-    }
-
-    override fun onClosed(code: Int, reason: String) {
-        Log.d("ChatSocket", "Connection closed: $code - $reason")
-    }
-
-    override fun onStateChange(state: Socket.State) {
-        TODO("Not yet implemented")
     }
 }

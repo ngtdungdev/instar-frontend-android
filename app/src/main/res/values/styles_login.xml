@@ -18,7 +18,9 @@
         <item name="android:textStyle">normal</item>
     </style>
     <style name="buttonColorLogin">
-        <item name="android:layout_width">380dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginLeft">18dp</item>
+        <item name="android:layout_marginRight">18dp</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:backgroundTint">#4558FF</item>
     </style>

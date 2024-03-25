@@ -2,13 +2,19 @@ package com.instar.frontend_android.ui.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowManager
+import android.view.WindowMetrics
 import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,17 +58,23 @@ class HomeFragment : Fragment() {
     private lateinit var btnPersonal: View
     private lateinit var url: ImageView
     private lateinit var iconHeart: ImageView
+    private lateinit var layout: View
+    private lateinit var btnHome: ImageView
+    private lateinit var btnSearch:ImageView
+    private lateinit var btnReel:ImageView
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
         listener?.onItemClick(position, "HomeFragment")
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentClickListener) {
             listener = context
         }
     }
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -71,11 +83,15 @@ class HomeFragment : Fragment() {
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
 
         avatarRecyclerView = binding.stories
+        layout = binding.gridLayout
         feedsRecyclerView = binding.newsfeed
         btnMessage = binding.iconMessenger
         btnPostUp = binding.btnPostUp
         btnPersonal = binding.btnPersonal
         iconHeart = binding.iconHeart
+        btnHome = binding.btnHome
+        btnReel = binding.btnReel
+        btnSearch = binding.btnSearch
         url = binding.url
         initView()
         authService.profile().handleResponse(
@@ -118,6 +134,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
         btnPersonal.setOnClickListener {
             val intent = Intent(requireContext(), ProfileActivity::class.java);
@@ -136,7 +153,33 @@ class HomeFragment : Fragment() {
         iconHeart.setOnClickListener {
             CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
         }
+        widthLayout = (getScreenWidth(requireContext()) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
+        setMargin(btnSearch)
+        setMargin(btnPersonal)
+        setMargin(btnReel)
+        setMargin(btnPostUp)
     }
+    private var widthLayout: Int? = null
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun setMargin(view: View) {
+        val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.leftMargin = widthLayout!!
+        view.layoutParams = layoutParams
+    }
+
+    fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun getScreenWidth(context: Context): Int {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowMetrics: WindowMetrics = wm.currentWindowMetrics
+        val insets = windowMetrics.windowInsets
+            .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+        return windowMetrics.bounds.width() - insets.left - insets.right
+    }
+
 
     private suspend fun loadRecyclerView() {
         feedList = getPosts()

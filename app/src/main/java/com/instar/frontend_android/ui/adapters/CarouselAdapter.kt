@@ -99,10 +99,11 @@ class CarouselAdapter(
         }
 
         fun bind(imageUrl: String) {
-            Glide.with(itemView.context)
-                .load(imageUrl)
-                .placeholder(R.drawable.default_image) // Placeholder image
-                .error(R.drawable.default_image) // Image to display if load fails
+           Glide.with(itemView.context)
+                .load("https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687771263/social/odkdjjuqu8uw4idtd8bq.avif")
+                .placeholder(R.drawable.default_image)
+                .centerCrop()
+//                .error(R.drawable.default_image) // Image to display if load fails
                 .into(imageView)
         }
     }

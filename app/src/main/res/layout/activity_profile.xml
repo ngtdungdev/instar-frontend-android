@@ -118,7 +118,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvSoLuongDangTheoDoi"
+                    android:id="@+id/tvSoLuongNguoiTheoDoi"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -130,7 +130,7 @@
                     tools:ignore="DuplicateIds" />
 
                 <TextView
-                    android:id="@+id/tvSoLuongNguoiTheoDoi"
+                    android:id="@+id/tvSoLuongDangTheoDoi"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -192,7 +192,7 @@
 
         <TextView
             android:id="@+id/tvNickname"
-            android:layout_width="93dp"
+            android:layout_width="wrap_content"
             android:layout_height="18dp"
             android:text="Username"
             android:textColor="@color/black"

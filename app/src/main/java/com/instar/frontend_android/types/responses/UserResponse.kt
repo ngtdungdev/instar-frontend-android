@@ -1,6 +1,7 @@
 package com.instar.frontend_android.types.responses
 
 import com.google.gson.annotations.SerializedName
+import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 
 class UserResponse {
@@ -12,4 +13,7 @@ class UserResponse {
 
     @SerializedName("followingUsers")
     var followingUsers: List<User>? = null
+
+    @SerializedName("posts")
+    var posts: List<Post>? = null
 }

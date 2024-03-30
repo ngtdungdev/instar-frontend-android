@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.fragments
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -174,13 +175,19 @@ class HomeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val windowMetrics: WindowMetrics = wm.currentWindowMetrics
-        val insets = windowMetrics.windowInsets
-            .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
-        return windowMetrics.bounds.width() - insets.left - insets.right
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics: WindowMetrics = wm.currentWindowMetrics
+            val insets = windowMetrics.windowInsets
+                .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            windowMetrics.bounds.width() - insets.left - insets.right
+        } else {
+            val display = wm.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            size.x
+        }
     }
-
-
+    
     private suspend fun loadRecyclerView() {
         feedList = getPosts()
         postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!

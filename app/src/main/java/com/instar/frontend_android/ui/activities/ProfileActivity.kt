@@ -4,11 +4,18 @@ import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Point
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
+import android.view.WindowInsets
+import android.view.WindowManager
+import android.view.WindowMetrics
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -38,6 +45,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvSoLuongDangTheoDoi: TextView
     private lateinit var tvSoLuongNguoiTheoDoi: TextView
     private lateinit var imgAvatar : ImageView
+    private lateinit var frameAvatar : FrameLayout
+
     public var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,13 +97,32 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.tvSoLuongNguoiTheoDoi = tvSoLuongNguoiTheoDoi
             this@ProfileActivity.tvSoLuongDangTheoDoi = tvSoLuongDangTheoDoi
             this@ProfileActivity.imgAvatar = imgAvatar
+            this@ProfileActivity.frameAvatar = frameAvatar
         }
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
             startActivity(newPage)
         }
+        frameAvatar.setOnClickListener{
+            val newPost = Intent(this@ProfileActivity, EditProfileActivity::class.java)
+            startActivity(newPost)
+        }
     }
-
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun getScreenWidth(context: Context): Int {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics: WindowMetrics = wm.currentWindowMetrics
+            val insets = windowMetrics.windowInsets
+                .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            windowMetrics.bounds.width() - insets.left - insets.right
+        } else {
+            val display = wm.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            size.x
+        }
+    }
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()

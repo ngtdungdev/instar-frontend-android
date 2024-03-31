@@ -42,6 +42,10 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    packagingOptions {
+        resources.excludes.add("META-INF/INDEX.LIST")
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
 }
 
 dependencies {
@@ -89,4 +93,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-database:20.3.1")
+
+    // Vision API check sensitive images
+    implementation("com.google.cloud:google-cloud-vision:3.37.0")
 }

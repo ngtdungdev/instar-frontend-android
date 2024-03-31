@@ -1,31 +1,80 @@
 package com.instar.frontend_android.ui.services
 
-import com.instar.frontend_android.types.responses.ApiResponse
-import com.instar.frontend_android.types.responses.AuthResponse
-import com.instar.frontend_android.types.responses.UserResponse
+import android.content.Context
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.instar.frontend_android.ui.DTO.Chat
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
 
-interface ChatService {
-    companion object {
-        const val AUTH_PREFIX = "chats"
+class ChatService(val applicationContext: Context) {
+    private val database = FirebaseDatabase.getInstance()
+    private val chatsRef = database.getReference("chats")
+
+    fun createNewChat(chat: Chat) {
+        if (chatExists(chat.members)) {
+            println("Chat exists.")
+            return
+        }
+        val chatId = chat.members.joinToString("-")
+        chatsRef.child(chatId).setValue(chat)
+            .addOnSuccessListener { println("Chat created successfully!") }
+            .addOnFailureListener { exception ->
+                println("Failed to create chat: $exception")
+            }
     }
 
-    @POST("$AUTH_PREFIX")
-    fun createChat(@Body chat: Chat): Call<ApiResponse<Any>>
+    fun getChatsByUserId(userId: String, listener: (List<Chat>) -> Unit) {
+        chatsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val chats = mutableListOf<Chat>()
+                if (dataSnapshot.exists()) {
+                    for (chatSnapshot in dataSnapshot.children) {
+                        val chat = chatSnapshot.getValue(Chat::class.java) ?: continue
+                        if (chatSnapshot.key!!.contains(userId))
+                            chats.add(0, chat)
+                    }
+                }
+                listener(chats)
+            }
 
-    @GET("$AUTH_PREFIX/user/{userId}")
-    fun getChatsByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Error getting chats: $databaseError")
+                listener(emptyList()) // Handle errors by passing an empty list
+            }
+        })
+    }
 
-    @GET("$AUTH_PREFIX/{chatId}")
-    fun getChatById(@Path("chatId") chatId: String): Call<ApiResponse<Any>>
+    fun getChatByMembers(members: List<String>, listener: (Chat?) -> Unit) {
+        val sortedMembers = members.sorted()
+        val chatId = sortedMembers.joinToString("-")
+        if (chatId.isEmpty()) {
+            listener(null) // Indicate no chat found with the provided members
+        }
+        chatsRef.child(chatId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val chat = dataSnapshot.getValue(Chat::class.java)
+                    listener(chat)
+                }
 
-    @PUT("$AUTH_PREFIX/{chatId}")
-    fun updateChat(@Path("chatId") chatId: String): Call<ApiResponse<Any>>
+                override fun onCancelled(databaseError: DatabaseError) {
+                    println("Error getting chat: $databaseError")
+                    listener(null) // Handle errors by passing null
+                }
+            })
+    }
+
+    fun chatExists(members: List<String>): Boolean {
+        var exists = false
+        getChatByMembers(members) { chat: Chat? ->
+            run {
+                if (chat == null)
+                    exists = false
+                else if (chat.members.intersect(members.toSet()).size == members.size)
+                    exists = true
+            }
+        }
+        return exists
+    }
 }
 

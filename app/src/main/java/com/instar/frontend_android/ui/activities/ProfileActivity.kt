@@ -26,12 +26,15 @@ import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
+import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
+import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -43,6 +46,7 @@ import kotlin.math.log
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var userService: UserService
+    private lateinit var postService: PostService
     private lateinit var binding: ActivityProfileBinding
     private lateinit var btn_editProfile : TextView
     private lateinit var btnHome : ImageButton
@@ -61,6 +65,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
+    private lateinit var myPostList: MutableList<Post>
+    private lateinit var mySavedPostList: MutableList<Post>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +79,7 @@ class ProfileActivity : AppCompatActivity() {
         viewPager2.adapter = myViewPagerAdapter
 
         userService = ServiceBuilder.buildService(UserService::class.java, this)
+        postService = ServiceBuilder.buildService(PostService::class.java, this)
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
@@ -96,6 +103,23 @@ class ProfileActivity : AppCompatActivity() {
                         .placeholder(R.drawable.default_image) // Placeholder image
                         .error(R.drawable.default_image) // Image to display if load fails
                         .into(imgAvatar)
+
+                } catch (e: Exception) {
+                    // Handle exceptions, e.g., log or show error to user
+                    e.printStackTrace()
+                }
+            }
+
+            // gọi để lấy bài viết và saved bài viết
+            lifecycleScope.launch {
+                try {
+                    val response1 = getMyPostsData(id)
+                    myPostList = response1.data?.posts!!
+
+                    tvSoLuongBaiViet.text = myPostList.size.toString();
+
+                    val response2 = getMySavedPostsData(id)
+                    mySavedPostList = response2.data?.posts!!
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user
                     e.printStackTrace()
@@ -135,8 +159,15 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnLogout.setOnClickListener {
-            Log.i("hi", "log out ")
+            ServiceBuilder.setRefreshToken(this, null)
+            ServiceBuilder.setAccessToken(this, null)
+
+            val intent = Intent(this, LoginOtherActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
         }
+
         viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -178,6 +209,18 @@ class ProfileActivity : AppCompatActivity() {
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()
+        }
+    }
+
+    private suspend fun getMyPostsData(userId: String): ApiResponse<PostResponse> {
+        return withContext(Dispatchers.IO) {
+            postService.getAllPostsByUserId(userId).awaitResponse()
+        }
+    }
+
+    private suspend fun getMySavedPostsData(userId: String): ApiResponse<PostResponse> {
+        return withContext(Dispatchers.IO) {
+            postService.getSavedPostsByUserId(userId).awaitResponse()
         }
     }
 }

@@ -21,9 +21,11 @@ import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.cloud.vision.v1.Feature
 import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorSettings
-import okio.ByteString.Companion.encodeUtf8
 import java.io.FileInputStream
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Locale
 
 object Helpers {
     @JvmStatic
@@ -59,22 +61,33 @@ object Helpers {
 
     @JvmStatic
     fun convertToTimeAgo(timestamp: String): String {
-        val dateTime = ZonedDateTime.parse(timestamp)
-        val now = ZonedDateTime.now()
-        val duration = Duration.between(dateTime, now)
+        try {
+            // Convert milliseconds since epoch to ZonedDateTime
+            val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp.toLong()), ZoneId.systemDefault())
 
-        return when {
-            duration.seconds < 60 -> "vừa xong"
-            duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
-            duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
-            duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
-            else -> {
-                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    .withLocale(java.util.Locale("vi")) // Set Vietnamese locale for month name
-                dateTime.format(formatter)
+            // Now proceed with your logic to calculate time ago
+
+            val now = ZonedDateTime.now()
+            val duration = Duration.between(dateTime, now)
+
+            return when {
+                duration.seconds < 60 -> "vừa xong"
+                duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
+                duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
+                duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
+                else -> {
+                    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        .withLocale(Locale("vi")) // Set Vietnamese locale for month name
+                    dateTime.format(formatter)
+                }
             }
+        } catch (e: Exception) {
+            // Handle parsing exception
+            e.printStackTrace()
+            return "Invalid timestamp"
         }
     }
+
 
     @JvmStatic
     fun getMediaType(url: String): CarouselAdapter.MediaType {
@@ -177,6 +190,4 @@ object Helpers {
 
         return false
     }
-
-
 }

@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView22"
+        android:id="@+id/timeOfSentMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
@@ -22,7 +22,7 @@
         app:cardCornerRadius="50dp">
 
         <TextView
-            android:id="@+id/textView21"
+            android:id="@+id/sentMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -31,7 +31,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="10dp"
             android:paddingBottom="8dp"
-            android:text="Hdhdhdh"
+            android:text="New message"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
     </androidx.cardview.widget.CardView>

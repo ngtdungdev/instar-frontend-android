@@ -24,6 +24,12 @@ interface PostService {
     @POST(AUTH_PREFIX)
     fun createPost(@Part post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
 
+    @GET("$AUTH_PREFIX/user/{userId}")
+    fun getAllPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
+
+    @GET("$AUTH_PREFIX/user/saved/{userId}")
+    fun getSavedPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
+
     @GET(AUTH_PREFIX)
     fun getAllPosts(): Call<ApiResponse<Any>>
 

@@ -15,6 +15,7 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -24,9 +25,11 @@ import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
+import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
@@ -37,11 +40,17 @@ import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
+import com.instar.frontend_android.ui.services.StoryService
+import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
-    private lateinit var imageList: ArrayList<Images>
+    private var imageList: ArrayList<Images> = ArrayList<Images>()
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
 
@@ -52,8 +61,10 @@ class HomeFragment : Fragment() {
     private lateinit var btnMessage: ImageView
     private lateinit var binding: FragmentHomeBinding
 
+    private lateinit var userService: UserService
     private lateinit var authService: AuthService
     private lateinit var postService: PostService
+    private lateinit var storyService: StoryService
     private lateinit var user: UserResponse
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
@@ -81,8 +92,10 @@ class HomeFragment : Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        userService = ServiceBuilder.buildService(UserService::class.java, requireContext())
         authService = ServiceBuilder.buildService(AuthService::class.java, requireContext())
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
+        storyService = ServiceBuilder.buildService(StoryService::class.java, requireContext())
 
         avatarRecyclerView = binding.stories
         layout = binding.gridLayout
@@ -100,7 +113,9 @@ class HomeFragment : Fragment() {
             onSuccess = { response ->
                 user = response.data!!
                 val avatarUrl = response.data.user?.profilePicture?.url
-                imageList = getImages()
+                CoroutineScope(Dispatchers.Main).launch {
+                    imageList = getStorys()
+                }
 
                 Glide.with(requireContext())
                     .load(response.data?.user?.profilePicture?.url)
@@ -196,24 +211,57 @@ class HomeFragment : Fragment() {
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }
+    private suspend fun getStorys(): ArrayList<Images> {
+    val imageList = ArrayList<Images>()
 
-    private fun getImages(): ArrayList<Images> {
-        val imageList = ArrayList<Images>()
-        val image1 = Images(Images.TYPE_FRIEND_AVATAR, "Duy bạn tui", null)
-        val image2 = Images(Images.TYPE_FRIEND_AVATAR, "Hiếu bạn mới ", null)
-        val image3 = Images(Images.TYPE_FRIEND_AVATAR, "Hưng lạnh lùng", null)
-        val image4 = Images(Images.TYPE_FRIEND_AVATAR, "Yến Vy", null)
-        val image5 = Images(Images.TYPE_FRIEND_AVATAR, "Xuân Hoàng", null)
-        val image6 = Images(Images.TYPE_FRIEND_AVATAR, "Hoa Vi", null)
-        imageList.add(image1)
-        imageList.add(image2)
-        imageList.add(image3)
-        imageList.add(image4)
-        imageList.add(image5)
-        imageList.add(image6)
+    val context = requireContext()
+    val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+    val accessToken = sharedPreferences.getString("accessToken", null)
+    if (accessToken != null) {
+        val decodedTokenJson = Helpers.decodeJwt(accessToken)
+        val id = decodedTokenJson.getString("id")
+        val response = try {
+            val response = storyService.getStoriesByUserId(id).awaitResponse()
+            response
+        } catch (error: Throwable) {
+            // Handle error
+            error.printStackTrace() // Print stack trace for debugging purposes
+            null // Return null to indicate that an error occurred
+        }
+        if (response != null) {
+            val storyResponse = response.data?.timelineStories ?: ArrayList()
+            Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
 
-        return imageList
+            val userIdSet = HashSet<String>()
+
+            for (story in storyResponse) {
+                if (!userIdSet.contains(story.userId)) {
+                    val userInfoResponse = getUserData(story.userId)
+                    val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                    imageList.add(
+                        Images(
+                            Images.TYPE_FRIEND_AVATAR,
+                            story.userId,
+                            avatarUrl
+                        )
+                    )
+                    userIdSet.add(story.userId)
+                }
+            }
+        } else {
+            // Handle the case where the response is null
+            Log.e("Error", "Failed to get timeline stories")
+        }
     }
+    return imageList
+    }
+
+    private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
+        return withContext(Dispatchers.IO) {
+            userService.getUser(userId).awaitResponse()
+        }
+    }
+
 
     private suspend fun getPosts(): ArrayList<Post> {
         var postsList = ArrayList<Post>()
@@ -235,9 +283,9 @@ class HomeFragment : Fragment() {
                 error.printStackTrace() // Print stack trace for debugging purposes
                 null // Return null to indicate that an error occurred
             }
-
             if (response != null) {
                 postsList = response.data?.timelinePosts ?: ArrayList()
+
             } else {
                 // Handle the case where the response is null
                 Log.e("Error", "Failed to get timeline posts")

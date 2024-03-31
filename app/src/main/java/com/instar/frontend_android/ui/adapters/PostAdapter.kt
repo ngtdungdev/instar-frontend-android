@@ -36,6 +36,7 @@ import com.google.gson.Gson
 import com.instar.frontend_android.types.requests.SocketRequest
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
+import com.instar.frontend_android.ui.fragments.SharePostBottomSheetDialogFragment
 import com.instar.frontend_android.ui.services.WebSocketService
 import okhttp3.Response
 import okhttp3.WebSocket
@@ -286,7 +287,7 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                                     return true
                                 }
                             })
-                            val carouselAdapter = CarouselAdapter(mediaList, gestureDetector)
+                            val carouselAdapter = CarouselAdapter(context,mediaList, gestureDetector)
                             carousel.adapter = carouselAdapter
                         }
                     }
@@ -387,6 +388,10 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                         Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                     }
                 )
+            }
+
+            share.setOnClickListener {
+                SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
             }
 
             viewMore.setOnClickListener {

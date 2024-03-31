@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
+import com.instar.frontend_android.ui.services.MyService
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 
 
@@ -64,6 +66,8 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     }
 
     private fun initView() {
+        val serviceIntent = Intent(this, MyService::class.java)
+        startService(serviceIntent)
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when(savePosition) {

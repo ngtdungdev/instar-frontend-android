@@ -138,7 +138,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentCommentBottomSheetDialogBinding.inflate(layoutInflater)
         commentRecyclerView = binding.commentRecyclerView
-        commentRecyclerView = binding.commentRecyclerView
         textInputLayout = binding.textInputLayout
         message = binding.message
         layoutComment = binding.layoutComment

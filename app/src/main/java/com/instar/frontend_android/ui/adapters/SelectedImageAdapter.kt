@@ -2,7 +2,6 @@ package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
 import android.graphics.Point
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
-import com.instar.frontend_android.ui.DTO.Messages
 import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 
 class SelectedImageAdapter(private val context: Context, private val data: MutableList<ImageAndVideo>, private val isEditImage: Boolean) : RecyclerView.Adapter<SelectedImageAdapter.ViewHolder>() {

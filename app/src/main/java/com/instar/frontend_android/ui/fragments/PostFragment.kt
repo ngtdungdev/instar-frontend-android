@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
@@ -114,6 +115,20 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
                 for (position in listSelectorItem) addFilterEditing(filterEditing, fragmentManager,true, position,listSelectorItem.indexOf(position))
             } else addFilterEditing(filterEditing, fragmentManager,false, savePosition, 0)
+
+            for (imageAndVideo in filterEditing) {
+                if (imageAndVideo.filePath.isBlank() || imageAndVideo.filePath.isEmpty()) {
+                    continue
+                }
+
+                val isSensitive = Helpers.detectSensitiveContent(imageAndVideo)
+                if (!isSensitive) { // Kiểm tra nội dung nhạy cảm
+                    // Nếu phát hiện có nội dung nhạy cảm, thông báo cho người dùng và không chuyển sang activity mới
+                    Toast.makeText(requireContext(), "Vui lòng không đăng ảnh nhạy cảm!", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+            }
+
             val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
                 putExtra("Data", filterEditing as Serializable)
             }

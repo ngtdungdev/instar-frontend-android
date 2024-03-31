@@ -1,6 +1,5 @@
 package com.instar.frontend_android.ui.activities
 
-import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -25,7 +24,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityLoginBinding
 import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
@@ -39,7 +37,6 @@ import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.log

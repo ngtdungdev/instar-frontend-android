@@ -1,18 +1,73 @@
 package com.instar.frontend_android.ui.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
+import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.databinding.ActivityStoryBinding
+import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.UserResponse
+import com.instar.frontend_android.ui.DTO.User
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UserService
+import com.instar.frontend_android.ui.utils.Helpers
 import jp.shts.android.storiesprogressview.StoriesProgressView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
-    private val PROGRESS_COUNT = 6
+    private lateinit var userService: UserService
+    private lateinit var binding: ActivityStoryBinding
+    private lateinit var tvName : TextView
+    private lateinit var tvTime : TextView
+//    private lateinit var image : ImageView
+    private lateinit var avatar : ImageView
+    public var user: User? = null
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityStoryBinding.inflate(layoutInflater)
+        setContentView(R.layout.activity_story)
+        initView()
+
+        storiesProgressView = findViewById(R.id.stories)
+        storiesProgressView.setStoriesCount(PROGRESS_COUNT)
+        storiesProgressView.setStoryDuration(3000L)
+        // or
+        // storiesProgressView.setStoriesCountWithDurations(durations)
+        storiesProgressView.setStoriesListener(this)
+        counter = 0
+        storiesProgressView.startStories(counter)
+
+        image = findViewById(R.id.image)
+        image.setImageResource(resources[counter])
+
+        // bind reverse view
+        val reverse = findViewById<View>(R.id.reverse)
+        reverse.setOnClickListener {
+            storiesProgressView.reverse()
+        }
+        reverse.setOnTouchListener(onTouchListener)
+
+        // bind skip view
+        val skip = findViewById<View>(R.id.skip)
+        skip.setOnClickListener {
+            storiesProgressView.skip()
+        }
+        skip.setOnTouchListener(onTouchListener)
+    }
+
+        private val PROGRESS_COUNT = 6
     private lateinit var storiesProgressView: StoriesProgressView
     private lateinit var image: ImageView
     private var counter = 0
@@ -51,53 +106,34 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         }
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        setContentView(R.layout.activity_story)
-
-        storiesProgressView = findViewById(R.id.stories)
-        storiesProgressView.setStoriesCount(PROGRESS_COUNT)
-        storiesProgressView.setStoryDuration(3000L)
-        // or
-        // storiesProgressView.setStoriesCountWithDurations(durations)
-        storiesProgressView.setStoriesListener(this)
-        counter = 0
-        storiesProgressView.startStories(counter)
-
-        image = findViewById(R.id.image)
-        image.setImageResource(resources[counter])
-
-        // bind reverse view
-        val reverse = findViewById<View>(R.id.reverse)
-        reverse.setOnClickListener {
-            storiesProgressView.reverse()
+    private fun initView() {
+        binding.apply {
+            this@StoryActivity.tvName = tvName
+            this@StoryActivity.tvTime = tvTime
+            this@StoryActivity.image = image
+//            this@StoryActivity.avatar = avatar
         }
-        reverse.setOnTouchListener(onTouchListener)
-
-        // bind skip view
-        val skip = findViewById<View>(R.id.skip)
-        skip.setOnClickListener {
-            storiesProgressView.skip()
+    }
+    private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
+        return withContext(Dispatchers.IO) {
+            userService.getUser(userId).awaitResponse()
         }
-        skip.setOnTouchListener(onTouchListener)
     }
 
     override fun onNext() {
-        image.setImageResource(resources[++counter])
+//        image.setImageResource(resources[++counter])
     }
 
     override fun onPrev() {
-        if ((counter - 1) < 0) return
-        image.setImageResource(resources[--counter])
+//        if ((counter - 1) < 0) return
+//        image.setImageResource(resources[--counter])
     }
 
     override fun onComplete() {}
 
     override fun onDestroy() {
         // Very important!
-        storiesProgressView.destroy()
+//        storiesProgressView.destroy()
         super.onDestroy()
     }
 }

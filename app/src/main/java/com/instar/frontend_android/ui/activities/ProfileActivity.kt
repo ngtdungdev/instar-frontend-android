@@ -65,8 +65,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
-    private lateinit var myPostList: MutableList<Post>
-    private lateinit var mySavedPostList: MutableList<Post>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,12 +113,8 @@ class ProfileActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     val response1 = getMyPostsData(id)
-                    myPostList = response1.data?.posts!!
+                    tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
 
-                    tvSoLuongBaiViet.text = myPostList.size.toString();
-
-                    val response2 = getMySavedPostsData(id)
-                    mySavedPostList = response2.data?.posts!!
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user
                     e.printStackTrace()
@@ -218,9 +213,4 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun getMySavedPostsData(userId: String): ApiResponse<PostResponse> {
-        return withContext(Dispatchers.IO) {
-            postService.getSavedPostsByUserId(userId).awaitResponse()
-        }
-    }
 }

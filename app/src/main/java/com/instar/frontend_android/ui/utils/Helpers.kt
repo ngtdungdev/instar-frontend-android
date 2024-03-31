@@ -61,12 +61,9 @@ object Helpers {
 
     @JvmStatic
     fun convertToTimeAgo(timestamp: String): String {
+        println(timestamp)
         try {
-            // Convert milliseconds since epoch to ZonedDateTime
-            val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp.toLong()), ZoneId.systemDefault())
-
-            // Now proceed with your logic to calculate time ago
-
+            val dateTime = ZonedDateTime.parse(timestamp)
             val now = ZonedDateTime.now()
             val duration = Duration.between(dateTime, now)
 
@@ -82,9 +79,33 @@ object Helpers {
                 }
             }
         } catch (e: Exception) {
-            // Handle parsing exception
-            e.printStackTrace()
-            return "Invalid timestamp"
+            try {
+                // Chuyển chuỗi timestamp thành số long
+                val timestampLong = timestamp.toLong()
+
+                // Convert milliseconds since epoch to ZonedDateTime
+                val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestampLong), ZoneId.systemDefault())
+
+                // Now proceed with your logic to calculate time ago
+
+                val now = ZonedDateTime.now()
+                val duration = Duration.between(dateTime, now)
+
+                return when {
+                    duration.seconds < 60 -> "vừa xong"
+                    duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
+                    duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
+                    duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
+                    else -> {
+                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            .withLocale(Locale("vi")) // Set Vietnamese locale for month name
+                        dateTime.format(formatter)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return "Invalid timestamp"
+            }
         }
     }
 

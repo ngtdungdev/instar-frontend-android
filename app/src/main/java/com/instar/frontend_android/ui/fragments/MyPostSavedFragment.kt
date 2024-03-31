@@ -1,14 +1,28 @@
 package com.instar.frontend_android.ui.fragments
 
 import CustomAdapter
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
+import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.PostResponse
+import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.services.PostService
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UserService
+import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +37,9 @@ private const val ARG_PARAM2 = "param2"
 class MyPostSavedFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
+    private lateinit var mySavedPostList: MutableList<Post>
+    private lateinit var postService: PostService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,30 +60,38 @@ class MyPostSavedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
+
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPostSaved) // Sử dụng id recyclerViewPost
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        val dataList = listOf(
-            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
-            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
-            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
-            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
-            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
-            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
-            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
-            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
-            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
-            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
-            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
-            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
-            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
-            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
-            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
-            // Thêm các URL hình ảnh khác vào đây
-        )
+        val sharedPreferences = requireContext().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
 
-        val adapter = CustomAdapter(requireContext(), dataList)
-        recyclerView.adapter = adapter
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+
+            // gọi để lấy bài viết và saved bài viết
+            lifecycleScope.launch {
+                try {
+                    val response2 = getMySavedPostsData(id)
+                    mySavedPostList = response2.data?.posts!!
+
+                    val adapter = CustomAdapter(requireContext(), mySavedPostList)
+                    recyclerView.adapter = adapter
+                } catch (e: Exception) {
+                    // Handle exceptions, e.g., log or show error to user
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private suspend fun getMySavedPostsData(userId: String): ApiResponse<PostResponse> {
+        return withContext(Dispatchers.IO) {
+            postService.getSavedPostsByUserId(userId).awaitResponse()
+        }
     }
 
     companion object {

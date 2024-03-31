@@ -203,8 +203,7 @@ class HomeFragment : Fragment() {
             size.x
         }
     }
-
-
+    
     private suspend fun loadRecyclerView() {
         feedList = getPosts()
         postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!

@@ -1,5 +1,10 @@
 package com.instar.frontend_android.ui.utils
 
+import android.content.Context
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.cloud.vision.v1.AnnotateImageRequest
+import com.google.cloud.vision.v1.BatchAnnotateImagesRequest
+import com.google.cloud.vision.v1.BatchAnnotateImagesResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import okhttp3.MultipartBody
@@ -11,7 +16,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Base64
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
-
+import com.google.protobuf.ByteString
+import com.google.cloud.vision.v1.ImageAnnotatorClient
+import com.google.cloud.vision.v1.Feature
+import com.google.cloud.vision.v1.Image
+import com.google.cloud.vision.v1.ImageAnnotatorSettings
+import java.io.FileInputStream
+import java.io.IOException
 
 object Helpers {
     @JvmStatic
@@ -31,6 +42,18 @@ object Helpers {
         } else {
             throw IllegalArgumentException("Invalid token format")
         }
+    }
+
+    @JvmStatic
+    fun getUserId(context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+
+        if (accessToken != null) {
+            val decodedTokenJson = decodeJwt(accessToken)
+            return decodedTokenJson.getString("id")
+        }
+        return null
     }
 
     @JvmStatic
@@ -78,6 +101,62 @@ object Helpers {
         }
 
         return parts
+    }
+
+    @JvmStatic
+    fun detectSensitiveContent(imageBytes: ByteString): Boolean {
+        try {
+            // Load credentials from the JSON key file
+            val credentials = GoogleCredentials.fromStream(FileInputStream("app/credentials.json"))
+
+            // Create ImageAnnotatorSettings with credentials
+            val settings = ImageAnnotatorSettings.newBuilder()
+                .setCredentialsProvider { credentials }
+                .build()
+
+            // Create ImageAnnotatorClient with settings
+            val client = ImageAnnotatorClient.create(settings)
+
+            try {
+                // Create Image
+                val image = Image.newBuilder().setContent(imageBytes).build()
+
+                // Create Feature for label detection
+                val feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build()
+
+                // Create AnnotateImageRequest
+                val request = AnnotateImageRequest.newBuilder()
+                    .addFeatures(feature)
+                    .setImage(image)
+                    .build()
+
+                // Create BatchAnnotateImagesRequest
+                val batchRequest = BatchAnnotateImagesRequest.newBuilder().addRequests(request).build()
+
+                // Perform image annotation
+                val response: BatchAnnotateImagesResponse = client.batchAnnotateImages(batchRequest)
+
+                // Extract labels from the response
+                val labels = response.responsesList[0].labelAnnotationsList
+
+                // Check for sensitive labels
+                for (label in labels) {
+                    when (label.description) {
+                        "Violence", "Gore", "Suggestive", "Offensive", "Blood" -> return true
+                    }
+                }
+
+            } finally {
+                client.close()
+            }
+        } catch (e: IOException) {
+            // Handle IOException
+            e.printStackTrace()
+        } catch (e: Exception) {
+            // Handle other exceptions
+            e.printStackTrace()
+        }
+        return false
     }
 
 }

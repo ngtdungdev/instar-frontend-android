@@ -18,7 +18,7 @@
             android:background="@drawable/ic_instagram_back_up" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/messengerCurrentUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -38,7 +38,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="0dp"
             android:layout_marginTop="5dp"
-            android:layout_toEndOf="@+id/textView6"
+            android:layout_toEndOf="@+id/messengerCurrentUsername"
             app:srcCompat="@drawable/baseline_keyboard_arrow_down_24" />
 
         <ImageButton
@@ -128,7 +128,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewFriend"
+        android:id="@+id/recyclerViewChats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp" />

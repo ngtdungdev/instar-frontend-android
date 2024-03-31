@@ -86,6 +86,7 @@ class HomeFragment : Fragment() {
             listener = context
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)

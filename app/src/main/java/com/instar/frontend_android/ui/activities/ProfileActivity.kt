@@ -9,10 +9,13 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -51,11 +54,16 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvSoLuongNguoiTheoDoi: TextView
     private lateinit var imgAvatar : ImageView
 //    private lateinit var frameAvatar : FrameLayout
+    private lateinit var btnPostUp: ImageButton
+    private lateinit var btnPersonal: View
+    private lateinit var btnSearch:ImageView
+    private lateinit var btnReel:ImageView
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -98,6 +106,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
         binding.apply {
             btn_editProfile = btnEditProfile
@@ -113,6 +122,10 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.viewPager2 = viewPager2
 
         }
+        btnReel = binding.btnReel
+        btnSearch = binding.btnSearch
+        btnPostUp = binding.btnPostUp
+        btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
             startActivity(newPage)
@@ -135,9 +148,27 @@ class ProfileActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {
             }
         })
+
+        widthLayout = (getScreenWidth(this) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
+        setMargin(btnSearch)
+        setMargin(btnPersonal)
+        setMargin(btnReel)
+        setMargin(btnPostUp)
     }
+
+    private var widthLayout: Int? = null
+
     @RequiresApi(Build.VERSION_CODES.R)
-    fun getScreenWidth(context: Context): Int {
+    fun setMargin(view: View) {
+        val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.leftMargin = widthLayout!!
+        view.layoutParams = layoutParams
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+    private fun getScreenWidth(context: Context): Int {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowMetrics: WindowMetrics = wm.currentWindowMetrics

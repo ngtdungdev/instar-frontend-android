@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -19,6 +20,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnLoginAccount: ImageButton
     private lateinit var textLoginAccount: TextView
     private lateinit var btnLoginFacebook: Button
+    private lateinit var layoutNewAccount: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,10 @@ class LoginActivity : AppCompatActivity() {
         }
         btnLoginFacebook.setOnClickListener {
             val intent = Intent(this@LoginActivity, MainScreenActivity::class.java)
+            startActivity(intent)
+        }
+        btnNewAccount.setOnClickListener {
+            val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
             startActivity(intent)
         }
         effectClick()

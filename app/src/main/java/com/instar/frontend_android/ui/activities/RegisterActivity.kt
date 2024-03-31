@@ -1,16 +1,15 @@
 package com.instar.frontend_android.ui.activities
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.TableLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
@@ -107,21 +106,49 @@ class RegisterActivity : AppCompatActivity() {
     private fun loadActivity() {
         title.text = "Tìm tài khoản"
         textNote.text = "Nhập tên người dùng, email"
+
         labelEmail.text = "Tên người dùng, email"
         emailText.hint = "Tên người dùng, email"
+
+        labelFullname.text = "Họ và tên"
+        fullnameText.hint = "Họ và tên"
+
+        labelUsername.text = "Tên người dùng"
+        usernameText.hint = "Tên người dùng"
+
+        labelPassword.text = "Mật khẩu"
+        passwordText.hint = "Mật khẩu"
+        passwordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        labelPasswordConfirm.text = "Nhập lại mật khẩu"
+        passwordConfirmText.hint = "Nhập lại mật khẩu"
+        passwordConfirmText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        btnPasswordConfirmEyes.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
+        btnPasswordEyes.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
         registerBtn.text = "Đăng ký"
     }
 
+    private lateinit var listEditText:Array<ViewEditText>
     private fun initView() {
-        val viewEditText = ViewEditText()
-        viewEditText.EditTextRemove(emailLayout.Layout, emailText, labelEmail, btnEmail)
-        viewEditText.EditTextEyes(passwordLayout.Layout, passwordText, labelPassword, btnPasswordEyes)
-        viewEditText.EditTextEyes(passwordConfirmLayout.Layout, passwordConfirmText, labelPasswordConfirm, btnPasswordConfirmEyes)
-        viewEditText.EditTextEyes(fullnameLayout.Layout, fullnameText, labelFullname, btnFullname)
-        viewEditText.EditTextEyes(usernameLayout.Layout, usernameText, labelUsername, btnUsername)
+        listEditText = Array(10) { ViewEditText() }
+        for (i in 0..4) {
+            listEditText[i].setOnItemFocusClick(object : ViewEditText.OnItemClick {
+                override fun onEyesChange(view: View) {
+                    checkFocus(i)
+                }
+                override fun onRemoveChange(view: View) {
+                    checkFocus(i)
+                }
+            })
+            when(i) {
+                0 -> listEditText[i].EditTextRemove(fullnameLayout.Layout, fullnameText, labelFullname, btnFullname)
+                1 -> listEditText[i].EditTextRemove(usernameLayout.Layout, usernameText, labelUsername, btnUsername)
+                2 -> listEditText[i].EditTextRemove(emailLayout.Layout, emailText, labelEmail, btnEmail)
+                3 -> listEditText[i].EditTextEyes(passwordLayout.Layout, passwordText, labelPassword, btnPasswordEyes)
+                4 -> listEditText[i].EditTextEyes(passwordConfirmLayout.Layout, passwordConfirmText, labelPasswordConfirm, btnPasswordConfirmEyes)
+            }
+        }
 
         ViewEffect.ViewText(registerBtn)
-
         registerBtn.setOnClickListener {
             if (!Helpers.isValidEmail(emailText.text.toString())
                 || emailText.text.toString().isEmpty()
@@ -161,27 +188,27 @@ class RegisterActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(it.windowToken, 0)
             emailText.clearFocus()
             if (emailText.text.toString().isEmpty()) {
-                setTextField(labelEmail, emailLayout.Layout, emailText, "Email")
+                setEmail()
             }
 
             passwordText.clearFocus()
             if (passwordText.text.toString().isEmpty()) {
-                setTextField(labelPassword, passwordLayout.Layout, passwordText, "Mật khẩu")
+                setPassword()
             }
 
             passwordConfirmText.clearFocus()
             if (passwordConfirmText.text.toString().isEmpty()) {
-                setTextField(labelPasswordConfirm, passwordConfirmLayout.Layout, passwordConfirmText, "Xác nhận mật khẩu")
+                setPasswordConfirm()
             }
 
             usernameText.clearFocus()
             if (usernameText.text.toString().isEmpty()) {
-                setTextField(labelUsername, usernameLayout.Layout, usernameText, "Tên người dùng")
+                setUserName()
             }
 
             fullnameText.clearFocus()
             if (fullnameText.text.toString().isEmpty()) {
-                setTextField(labelFullname, fullnameLayout.Layout, fullnameText, "Họ và tên")
+                setFullName()
             }
         }
 
@@ -190,11 +217,47 @@ class RegisterActivity : AppCompatActivity() {
         effectClick()
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private fun setTextField(label: TextView , tableLayout: TableLayout, text: EditText, hint: String) {
-        label.visibility = View.GONE
-        tableLayout.background = getDrawable(R.drawable.border_component_login_dow)
-        text.hint = hint
+    private fun checkFocus(index: Int) {
+        for (i in 0..4) {
+            if(listEditText[i].returnFocus() && i != index) {
+                when (i) {
+                    0 -> setFullName()
+                    1 -> setUserName()
+                    2 -> setEmail()
+                    3 -> setPassword()
+                    4 -> setPasswordConfirm()
+                }
+            }
+        }
+
+    }
+    private fun setEmail() {
+        labelEmail.visibility = View.GONE
+        emailLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
+        emailText.hint = "Tên người dùng, email"
+    }
+
+    private fun setPassword() {
+        labelPassword.visibility = View.GONE
+        passwordLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
+        passwordText.hint = "Mật khẩu"
+    }
+    private fun setPasswordConfirm() {
+        labelPasswordConfirm.visibility = View.GONE
+        passwordConfirmLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
+        passwordConfirmText.hint = "Nhập lại mật khẩu"
+    }
+
+    private fun setFullName() {
+        labelFullname.visibility = View.GONE
+        fullnameLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
+        fullnameText.hint = "Họ và tên"
+    }
+
+    private fun setUserName() {
+        labelUsername.visibility = View.GONE
+        usernameLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
+        usernameText.hint = "Tên người dùng"
     }
 
     private fun effectClick() {

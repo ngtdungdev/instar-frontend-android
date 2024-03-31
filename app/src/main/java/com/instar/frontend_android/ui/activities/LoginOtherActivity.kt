@@ -90,14 +90,13 @@ class LoginOtherActivity : AppCompatActivity() {
 
         viewEditText.EditTextRemove(emailLayout.Layout, emailText, labelEmail, btnRemove)
         viewEditText.EditTextEyes(passwordLayout.Layout, passwordText, labelPassword, btnEyes)
-        viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
-            override fun onFocusChange(view: View) {
-                if (passwordText.text.toString().isEmpty()) setPassword()
-            }
-        })
-        viewEditText.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
-            override fun onFocusChange(view: View) {
+        viewEditText.setOnItemFocusClick(object : ViewEditText.OnItemClick {
+            override fun onEyesChange(view: View) {
                 if (emailText.text.toString().isEmpty()) setEmail()
+            }
+
+            override fun onRemoveChange(view: View) {
+                if (passwordText.text.toString().isEmpty()) setPassword()
             }
         })
         layoutLogin.setOnClickListener {
@@ -114,6 +113,8 @@ class LoginOtherActivity : AppCompatActivity() {
         }
 
         btnNewAccount.setOnClickListener {
+            val intent = Intent(this@LoginOtherActivity, RegisterActivity::class.java)
+            startActivity(intent)
         }
 
         btnLogin.setOnClickListener {

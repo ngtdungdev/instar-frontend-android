@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.net.Uri
 import android.util.Log
@@ -19,6 +20,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.instar.frontend_android.R
 
 class CarouselAdapter(
+    private val context: Context,
     private val mediaList: List<Pair<String, MediaType>>,
     private val gestureDetector: GestureDetector? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -101,8 +103,9 @@ class CarouselAdapter(
         fun bind(imageUrl: String) {
             Glide.with(itemView.context)
                 .load(imageUrl)
-                .placeholder(R.drawable.default_image) // Placeholder image
-                .error(R.drawable.default_image) // Image to display if load fails
+                .placeholder(R.drawable.default_image)
+                .centerCrop()
+                .error(R.drawable.default_image)
                 .into(imageView)
         }
     }

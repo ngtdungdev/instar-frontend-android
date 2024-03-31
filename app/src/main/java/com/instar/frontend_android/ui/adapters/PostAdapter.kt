@@ -36,7 +36,6 @@ import com.google.gson.Gson
 import com.instar.frontend_android.types.requests.SocketRequest
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
-import com.instar.frontend_android.ui.services.WebSocketService
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener

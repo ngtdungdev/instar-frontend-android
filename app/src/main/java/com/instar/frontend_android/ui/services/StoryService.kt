@@ -1,6 +1,8 @@
 package com.instar.frontend_android.ui.services
 
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.PostResponse
+import com.instar.frontend_android.types.responses.StoryResponse
 import com.instar.frontend_android.ui.DTO.Story
 import retrofit2.Call
 import retrofit2.http.Body
@@ -21,12 +23,12 @@ interface StoryService {
     fun createStory(@Path("userId") userId: String, @Body storyDetail: Story): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/{userId}/{storyId}")
-    fun getStoryByStoryId(@Path("userId") userId: String, @Path("storyId") storyId: String): Call<ApiResponse<Any>>
+    fun getStoryByStoryId(@Path("userId") userId: String, @Path("storyId") storyId: String): Call<ApiResponse<StoryResponse>>
 
     @GET("$AUTH_PREFIX/{userId}")
-    fun getStoriesByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
+    fun getStoriesByUserId(@Path("userId") userId: String): Call<ApiResponse<StoryResponse>>
 
     @GET("$AUTH_PREFIX/timeline/{userId}")
-    fun getStoriesTimelineByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
+    fun getStoriesTimelineByUserId(@Path("userId") userId: String): Call<ApiResponse<StoryResponse>>
 }
 

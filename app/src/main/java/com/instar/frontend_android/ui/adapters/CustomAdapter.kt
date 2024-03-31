@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.instar.frontend_android.R
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Post
@@ -19,6 +20,9 @@ class CustomAdapter(private val context: Context, private val dataList: List<Pos
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val data = dataList[position]
+        Glide.with(context)
+            .load(data)
         val data: Post = dataList[position]
         val firstMedia = data.fileUploads[0]
 

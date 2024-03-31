@@ -11,30 +11,31 @@ import android.widget.TextView
 import com.instar.frontend_android.R
 
 class ViewEditText {
-    interface OnItemRemoveClick {
-        fun onFocusChange(view: View)
+    interface OnItemClick {
+        fun onEyesChange(view: View)
+        fun onRemoveChange(view: View)
     }
 
-    interface OnItemEyesClick {
-        fun onFocusChange(view: View)
+    private var isFocusEditText:Boolean = false
+    fun setFocus(isFocus: Boolean) {
+        isFocusEditText = isFocus
+    }
+    fun returnFocus(): Boolean {
+        return isFocusEditText
     }
 
-    private var listenerRemove: OnItemRemoveClick? = null
-    private var listenerEyes: OnItemEyesClick? = null
+    private var listenerFocus: OnItemClick? = null
 
-    fun setOnItemRemoveClick(listener: OnItemRemoveClick) {
-        listenerRemove = listener
+    fun setOnItemFocusClick(listener: OnItemClick) {
+        listenerFocus = listener
     }
 
-    fun setOnItemEyesClick(listener: OnItemEyesClick) {
-        listenerEyes = listener
-    }
 
     fun setEditTextUser(editText: EditText, button: ImageButton, number: Int) {
         editText.setOnFocusChangeListener { v, hasFocus ->
             editText.hint = ""
             if (editText.text.toString().isNotEmpty()) button.visibility = View.VISIBLE
-            listenerRemove?.onFocusChange(v)
+            listenerFocus?.onRemoveChange(v)
         }
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -46,7 +47,7 @@ class ViewEditText {
             }
 
             override fun afterTextChanged(s: Editable?) {}
-        })
+        })+
     }
 
     fun EditTextTag(editText: EditText, button: ImageButton) {
@@ -60,14 +61,15 @@ class ViewEditText {
 
     fun setEditText(layout: View, editText: EditText, label: TextView, button: ImageButton, number: Int) {
         editText.setOnFocusChangeListener { v, hasFocus ->
+            setFocus(true)
             label.visibility = View.VISIBLE
             editText.hint = ""
             layout.setBackgroundResource(R.drawable.border_component_login_up)
             if (!editText.text.toString().isEmpty()) button.visibility = View.VISIBLE
-            if (listenerRemove != null || listenerEyes != null) {
+            if (listenerFocus != null) {
                 when (number) {
-                    1 -> listenerRemove?.onFocusChange(v)
-                    2 -> listenerEyes?.onFocusChange(v)
+                    1 -> listenerFocus?.onRemoveChange(v)
+                    2 -> listenerFocus?.onEyesChange(v)
                 }
             }
         }

@@ -9,13 +9,16 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
+import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -28,6 +31,7 @@ import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
+import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -38,11 +42,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var userService: UserService
     private lateinit var binding: ActivityProfileBinding
     private lateinit var btn_editProfile : TextView
+    private lateinit var btnHome : ImageButton
+    private lateinit var btnSearch : ImageButton
+    private lateinit var btnLogout : ImageButton
+    private lateinit var btnPostUp1 : ImageButton
     private lateinit var tvTenNguoiDung : TextView
     private lateinit var tvNickname : TextView
     private lateinit var tvDescription: TextView
@@ -111,7 +120,10 @@ class ProfileActivity : AppCompatActivity() {
 //            this@ProfileActivity.frameAvatar = frameAvatar
             this@ProfileActivity.tabLayout = tabLayout
             this@ProfileActivity.viewPager2 = viewPager2
-
+            this@ProfileActivity.btnHome = btnSearch
+            this@ProfileActivity.btnSearch = btnSearch
+            this@ProfileActivity.btnPostUp1 = btnPostUp1
+            this@ProfileActivity.btnLogout = btnLogout
         }
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
@@ -121,12 +133,26 @@ class ProfileActivity : AppCompatActivity() {
 //            val newPost = Intent(this@ProfileActivity, EditProfileActivity::class.java)
 //            startActivity(newPost)
 //        }
+        btnHome.setOnClickListener {
+            val intent = Intent(this, HomeFragment::class.java);
+            startActivity(intent)
+        }
+        btnLogout.setOnClickListener {
+            Log.i("hi", "log out ")
+        }
+        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                tabLayout.getTabAt(position)?.select()
+            }
+        })
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 // Xử lý khi tab được chọn
                 tab?.let {
                     viewPager2.currentItem = it.position
                 }
+
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -136,6 +162,7 @@ class ProfileActivity : AppCompatActivity() {
             }
         })
     }
+
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

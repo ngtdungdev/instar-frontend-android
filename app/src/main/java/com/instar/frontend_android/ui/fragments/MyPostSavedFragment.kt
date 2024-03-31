@@ -1,10 +1,13 @@
 package com.instar.frontend_android.ui.fragments
 
+import CustomAdapter
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 
 // TODO: Rename parameter arguments, choose names that match
@@ -18,7 +21,6 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class MyPostSavedFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
@@ -38,19 +40,39 @@ class MyPostSavedFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_my_post_saved, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPostSaved) // Sử dụng id recyclerViewPost
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        val dataList = listOf(
+            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
+            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
+            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
+            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
+            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
+            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
+            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
+            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
+            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
+            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
+            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
+            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
+            "https://images.hdqwalls.com/wallpapers/sage-valorant-4k-kq.jpg",
+            "https://images.hdqwalls.com/download/2020-valorant-game-4k-e5-1920x1080.jpg",
+            "https://images.hdqwalls.com/download/jett-valorant-4k-k4-2560x1440.jpg",
+            // Thêm các URL hình ảnh khác vào đây
+        )
+
+        val adapter = CustomAdapter(requireContext(), dataList)
+        recyclerView.adapter = adapter
+    }
+
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MyPostSavedFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            MyPostSavedFragment().apply {
+            MyPostFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

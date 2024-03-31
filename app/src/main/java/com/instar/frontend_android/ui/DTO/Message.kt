@@ -1,16 +1,24 @@
 package com.instar.frontend_android.ui.DTO
 
+import java.io.Serializable
 import java.time.LocalDateTime
 
-class Message(
-    val type: Int,
-    val chatId: String,
-    val senderId: String,
-    val text: String,
-    var createdAt: LocalDateTime = LocalDateTime.now(),
-    var updatedAt: LocalDateTime = LocalDateTime.now()
-) {
+class Message: Serializable {
     var id: String? = null
+    var content: Any? = null
+    var senderId: String? = null
+    var chatId: String? = null
+    var type: Int? = null
+    var createdAt: String = LocalDateTime.now().toString()
+
+    constructor()
+
+    constructor(content: Any, senderId: String, chatId: String, createdAt: LocalDateTime = LocalDateTime.now()) {
+        this.content = content
+        this.senderId = senderId
+        this.chatId = chatId
+        this.createdAt = createdAt.toString()
+    }
 
     companion object {
         const val TYPE_AVATAR = 0

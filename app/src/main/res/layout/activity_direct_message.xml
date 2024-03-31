@@ -32,7 +32,7 @@
             app:cardCornerRadius="40dp">
 
             <ImageView
-                android:id="@+id/imageView11"
+                android:id="@+id/directMessageAvatar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@mipmap/no1" />
@@ -50,7 +50,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/Titile"
+                android:id="@+id/directMessageName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Biện Thành Hưng"
@@ -58,7 +58,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/textView15"
+                android:id="@+id/directMessageUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hoạt động 30 phút trước"
@@ -121,7 +121,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="5dp"
-            android:layout_toStartOf="@+id/btnAdd"
+            android:layout_toStartOf="@+id/btnSend"
             android:layout_toEndOf="@+id/imageView13"
             android:background="@android:color/transparent"
             android:ems="10"
@@ -173,7 +173,7 @@
             app:srcCompat="@drawable/ic_micro" />
 
         <TextView
-            android:id="@+id/btnAdd"
+            android:id="@+id/btnSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentTop="true"

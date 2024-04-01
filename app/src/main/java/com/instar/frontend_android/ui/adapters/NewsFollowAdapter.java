@@ -34,6 +34,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         void onPersonalClick(int position);
         void onFriendClick(int position);
     }
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
@@ -59,12 +60,22 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if (listener != null) {
                         listener.onFriendClick(holder.getAdapterPosition());
                     }
+                    Log.i("commeo", "onClick: ");
+//                    if (listener != null) {
+//                        listener.onFriendClick(holder.getAdapterPosition());
+//                    }
                 }
             });
         }
     }
 
     public void bindPersonalAvatar(PersonalAvatar data, Images item) {
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         if(item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
@@ -79,6 +90,12 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void bindFriendAvatar(FriendAvatar data, Images item) {
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         if(item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
@@ -87,7 +104,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         data.nameAvatar.setText(item.getName());
     }
 
-    public class PersonalAvatar extends RecyclerView.ViewHolder {
+    public static class PersonalAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
         View layout;
         public PersonalAvatar(@NonNull View itemView) {
@@ -102,7 +119,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return images.get(position).getType();
     }
 
-    public class FriendAvatar extends RecyclerView.ViewHolder {
+    public static class FriendAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
         ImageView imageBorder;
         TextView nameAvatar;

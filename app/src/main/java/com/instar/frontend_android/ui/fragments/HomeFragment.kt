@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
+class HomeFragment : Fragment() {
     private var imageList: ArrayList<Images> = ArrayList<Images>()
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
@@ -68,8 +69,8 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
     private lateinit var iconHeart: ImageView
     private lateinit var layout: View
     private lateinit var btnHome: ImageView
-    private lateinit var btnSearch:ImageView
-    private lateinit var btnReel:ImageView
+    private lateinit var btnSearch: ImageView
+    private lateinit var btnReel: ImageView
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
@@ -84,7 +85,11 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
@@ -126,8 +131,7 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
                 )
 
                 imageList.add(0, image0)
-                newsFollowAdapter = NewsFollowAdapter(context,imageList)
-                newsFollowAdapter.setOnItemClickItem(this)
+                newsFollowAdapter = NewsFollowAdapter(context, imageList)
                 avatarRecyclerView.adapter = newsFollowAdapter
 
 
@@ -167,7 +171,10 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
             }
         }
         iconHeart.setOnClickListener {
-            CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
+            CommentBottomSheetDialogFragment().show(
+                childFragmentManager,
+                CommentBottomSheetDialogFragment.TAG
+            )
         }
         widthLayout = (getScreenWidth(requireContext()) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
         setMargin(btnSearch)
@@ -175,6 +182,7 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
         setMargin(btnReel)
         setMargin(btnPostUp)
     }
+
     private var widthLayout: Int? = null
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -187,6 +195,7 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
     fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
+
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -202,56 +211,64 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
             size.x
         }
     }
-    
+
     private suspend fun loadRecyclerView() {
         feedList = getPosts()
-        postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
+        postAdapter = user.user?.let {
+            PostAdapter(
+                feedList,
+                lifecycleScope,
+                it,
+                requireActivity().supportFragmentManager
+            )
+        }!!
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }
+
     private suspend fun getStorys(): ArrayList<Images> {
-    val imageList = ArrayList<Images>()
+        val imageList = ArrayList<Images>()
 
-    val context = requireContext()
-    val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-    val accessToken = sharedPreferences.getString("accessToken", null)
-    if (accessToken != null) {
-        val decodedTokenJson = Helpers.decodeJwt(accessToken)
-        val id = decodedTokenJson.getString("id")
-        val response = try {
-            val response = storyService.getStoriesByUserId(id).awaitResponse()
-            response
-        } catch (error: Throwable) {
-            // Handle error
-            error.printStackTrace() // Print stack trace for debugging purposes
-            null // Return null to indicate that an error occurred
-        }
-        if (response != null) {
-            val storyResponse = response.data?.timelineStories ?: ArrayList()
-            Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
-
-            val userIdSet = HashSet<String>()
-
-            for (story in storyResponse) {
-                if (!userIdSet.contains(story.userId)) {
-                    val userInfoResponse = getUserData(story.userId)
-                    val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-                    imageList.add(
-                        Images(
-                            Images.TYPE_FRIEND_AVATAR,
-                            story.userId,
-                            avatarUrl
-                        )
-                    )
-                    userIdSet.add(story.userId)
-                }
+        val context = requireContext()
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+            val response = try {
+                val response = storyService.getStoriesByUserId(id).awaitResponse()
+                response
+            } catch (error: Throwable) {
+                // Handle error
+                error.printStackTrace() // Print stack trace for debugging purposes
+                null // Return null to indicate that an error occurred
             }
-        } else {
-            // Handle the case where the response is null
-            Log.e("Error", "Failed to get timeline stories")
+            if (response != null) {
+                val storyResponse = response.data?.timelineStories ?: ArrayList()
+                Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
+
+                val userIdSet = HashSet<String>()
+
+                for (story in storyResponse) {
+                    if (!userIdSet.contains(story.userId)) {
+                        val userInfoResponse = getUserData(story.userId)
+                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                        imageList.add(
+                            Images(
+                                Images.TYPE_FRIEND_AVATAR,
+                                story.userId,
+                                avatarUrl
+                            )
+                        )
+                        userIdSet.add(story.userId)
+                    }
+                }
+            } else {
+                // Handle the case where the response is null
+                Log.e("Error", "Failed to get timeline stories")
+            }
         }
-    }
-    return imageList
+        return imageList
     }
 
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
@@ -292,12 +309,13 @@ class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
 
         return postsList
     }
+}
 
     override fun onPersonalClick(position: Int) {
         Log.i("com", "onClick: ")
     }
 
     override fun onFriendClick(position: Int) {
-        
+        TODO("Not yet implemented")
     }
 }

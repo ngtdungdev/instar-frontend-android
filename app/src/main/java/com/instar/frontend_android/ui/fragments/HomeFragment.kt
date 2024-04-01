@@ -33,7 +33,6 @@ import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
-import com.instar.frontend_android.ui.adapters.NewsFollowAdapter.OnItemClickListener
 import com.instar.frontend_android.ui.adapters.PostAdapter
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
@@ -50,7 +49,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(), OnItemClickListener {
+class HomeFragment : Fragment() {
     private var imageList: ArrayList<Images> = ArrayList<Images>()
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
@@ -132,6 +131,7 @@ class HomeFragment : Fragment(), OnItemClickListener {
 
                 imageList.add(0, image0)
                 newsFollowAdapter = NewsFollowAdapter(context,imageList)
+//                newsFollowAdapter.setOnItemClickListener(this)
                 avatarRecyclerView.adapter = newsFollowAdapter
 
                 lifecycleScope.launch {
@@ -295,11 +295,11 @@ class HomeFragment : Fragment(), OnItemClickListener {
         return postsList
     }
 
-    override fun onPersonalClick(position: Int) {
-
-    }
-
-    override fun onFriendClick(position: Int) {
-        
-    }
+//    override fun onPersonalClick(position: Int) {
+//
+//    }
+//
+//    override fun onFriendClick(position: Int) {
+//
+//    }
 }

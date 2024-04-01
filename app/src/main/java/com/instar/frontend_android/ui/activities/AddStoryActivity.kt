@@ -1,3 +1,5 @@
+package com.instar.frontend_android.ui.activities
+
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri

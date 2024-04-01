@@ -8,9 +8,9 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
@@ -33,8 +33,6 @@ import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
-import com.instar.frontend_android.ui.fragments.MyPostFragment
-import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
@@ -64,17 +62,16 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvSoLuongDangTheoDoi: TextView
     private lateinit var tvSoLuongNguoiTheoDoi: TextView
     private lateinit var imgAvatar : ImageView
-//    private lateinit var frameAvatar : FrameLayout
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
-    private lateinit var btnSearch:ImageView
     private lateinit var btnReel:ImageView
+    //    private lateinit var frameAvatar : FrameLayout
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
 
-    @RequiresApi(Build.VERSION_CODES.R)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -188,6 +185,7 @@ class ProfileActivity : AppCompatActivity() {
                 tab?.let {
                     viewPager2.currentItem = it.position
                 }
+
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -196,7 +194,6 @@ class ProfileActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {
             }
         })
-
         widthLayout = (getScreenWidth(this) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
         setMargin(btnSearch)
         setMargin(btnPersonal)
@@ -215,8 +212,6 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
-    }
-    private fun getScreenWidth(context: Context): Int {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -245,5 +240,4 @@ class ProfileActivity : AppCompatActivity() {
             postService.getAllPostsByUserId(userId).awaitResponse()
         }
     }
-
 }

@@ -37,7 +37,7 @@ interface PostService {
     fun getTimelinePosts(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
 
     @GET("$AUTH_PREFIX/get-timeline-posts-for-you/{userId}")
-    fun getTimelinePostsForYou(@Path("userId") userId: String): Call<ApiResponse<Any>>
+    fun getTimelinePostsForYou(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
 
     @GET("$AUTH_PREFIX/{postId}")
     fun getPost(@Path("postId") postId: String): Call<ApiResponse<Any>>

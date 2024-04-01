@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -27,13 +28,19 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
+import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.activities.PostFilterEditingActivity
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UploadFileService
 import com.instar.frontend_android.ui.utils.Helpers
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
+import kotlinx.coroutines.launch
+import java.io.IOException
 import java.io.Serializable
 
 class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
@@ -44,6 +51,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var btnListPost: ImageView
     private lateinit var imageBack: ImageButton
     private lateinit var btnContinue: TextView
+    private lateinit var uploadFileService: UploadFileService
     private var isListPost: Boolean = false
     private var savePosition: Int = 0
 
@@ -77,6 +85,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         imageBack = binding.imageBack
         btnContinue = binding.btnContinue
         imagesAndVideosList = ArrayList()
+        uploadFileService = ServiceBuilder.buildService(UploadFileService::class.java, requireContext());
         initView()
         return binding.root
     }
@@ -116,25 +125,25 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 for (position in listSelectorItem) addFilterEditing(filterEditing, fragmentManager,true, position,listSelectorItem.indexOf(position))
             } else addFilterEditing(filterEditing, fragmentManager,false, savePosition, 0)
 
-            for (imageAndVideo in filterEditing) {
-                if (imageAndVideo.filePath.isBlank() || imageAndVideo.filePath.isEmpty()) {
-                    continue
-                }
-
-                val isSensitive = Helpers.detectSensitiveContent(imageAndVideo)
-                if (!isSensitive) { // Kiểm tra nội dung nhạy cảm
-                    // Nếu phát hiện có nội dung nhạy cảm, thông báo cho người dùng và không chuyển sang activity mới
-                    Toast.makeText(requireContext(), "Vui lòng không đăng ảnh nhạy cảm!", Toast.LENGTH_LONG).show()
-                    return@setOnClickListener
+            lifecycleScope.launch {
+                try {
+                    checkImages(filterEditing)
+                    // Sau khi kiểm tra, chuyển đến màn hình tiếp theo
+                    val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                        putExtra("Data", filterEditing as Serializable)
+                    }
+                    startActivity(intent)
+                    requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                } catch (e: IOException) {
+                    // Xử lý lỗi nếu kiểm tra hình ảnh và video thất bại
+                    Toast.makeText(requireContext(), "${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
-
-            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                putExtra("Data", filterEditing as Serializable)
-            }
-            startActivity(intent)
-            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
+    }
+
+    private suspend fun checkImages(filterEditing: MutableList<ImageAndVideo>): ApiResponse<Any> {
+        return uploadFileService.checkVision(Helpers.convertToMultipartParts(filterEditing, "files")).awaitResponse()
     }
 
     private fun addFilterEditing(filterEditing: MutableList<ImageAndVideo>, fragmentManager: FragmentManager, isList: Boolean, position: Int, positionList: Int) {

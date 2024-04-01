@@ -162,6 +162,7 @@ class HomeFragment : Fragment() {
                 fragmentClick(2)
             }
         }
+
         btnPostUp.setOnClickListener {
             if (listener != null) {
                 fragmentClick(0)

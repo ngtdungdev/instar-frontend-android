@@ -82,19 +82,18 @@ class MyPostSavedFragment : Fragment() {
 
                     val adapter = CustomAdapter(requireContext(), mySavedPostList)
                     recyclerView.adapter = adapter
-
+                    if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
+                        linearViewNoItems.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE)
+                    } else {
+                        linearViewNoItems.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE)
+                    }
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user
                     e.printStackTrace()
                 }
             }
-        }
-        if (recyclerView.getAdapter() != null) {
-            linearViewNoItems.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE)
-        } else {
-            linearViewNoItems.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE)
         }
     }
 

@@ -75,20 +75,20 @@ class MyPostFragment : Fragment() {
 
                     val adapter = CustomAdapter(requireContext(), myPostList)
                     recyclerView.adapter = adapter
-
+                    if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
+                        linearViewNoItems.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE)
+                    } else {
+                        linearViewNoItems.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE)
+                    }
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user
                     e.printStackTrace()
                 }
             }
         }
-        if (recyclerView.getAdapter() != null ) {
-            linearViewNoItems.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE)
-        } else {
-            linearViewNoItems.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE)
-        }
+
     }
 
     private suspend fun getMyPostsData(userId: String): ApiResponse<PostResponse> {

@@ -33,6 +33,7 @@ class AddStoryActivity : AppCompatActivity() {
         dataList.addAll(mediaList)
 
         // Cập nhật RecyclerView sau khi có dữ liệu
+        adapter.setOnItemClickListener()
         adapter.notifyDataSetChanged()
     }
 

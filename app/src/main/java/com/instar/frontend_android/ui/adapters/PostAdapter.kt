@@ -33,11 +33,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
+import com.instar.frontend_android.databinding.RecycleViewItemSuggestedPostBinding
+import com.instar.frontend_android.databinding.RecyclerViewItemNewsfeedBinding
+import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
 import com.instar.frontend_android.ui.fragments.SharePostBottomSheetDialogFragment
+import com.instar.frontend_android.ui.utils.PostAdapterType
 
-class PostAdapter(private val data: List<Post>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+class PostAdapter(private val data: List<PostAdapterType>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
     private val viewHolders: MutableList<PostViewHolder> = mutableListOf()
@@ -47,7 +51,12 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item_newsfeed, parent, false)
+        val layoutResId = when (viewType) {
+            PostAdapterType.VIEW_TYPE_DEFAULT -> R.layout.recycler_view_item_newsfeed
+            PostAdapterType.VIEW_TYPE_SUGGEST -> R.layout.recycle_view_item_suggested_post
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
+        val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
         userService = ServiceBuilder.buildService(UserService::class.java, parent.context)
         postService = ServiceBuilder.buildService(PostService::class.java, parent.context)
         return PostViewHolder(view, user, userService, postService, lifecycleScope, fragmentManager).also {
@@ -55,52 +64,33 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return data[position].type!!
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun handleLikePostRequest(data: Any?) {
-        // Kiểm tra xem dữ liệu có hợp lệ không
+        // Check if the data is valid
         if (data is Map<*, *>) {
-            // Lấy thông tin về bài đăng từ dữ liệu
             val post = data["post"] as? Post
-            // Lấy thông tin về người gửi "like" từ dữ liệu
             val sender = data["sender"] as? User
-            // Kiểm tra xem post và sender có tồn tại không
             if (post != null && sender != null) {
-                // Cập nhật trạng thái "like" của bài đăng
                 post.likes.add(sender.id)
-                // Thông báo cập nhật dữ liệu cho adapter
                 notifyDataSetChanged()
             }
         }
     }
 
     override fun getItemId(position: Int): Long {
-        // Assuming Post class has a property 'id' that uniquely identifies each post
-        return data[position].id.hashCode().toLong()
+        return data[position].post?.id.hashCode().toLong()
     }
 
     class PostViewHolder(view: View, user:User, userService: UserService, postService: PostService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
-        private val avatar: View = view.findViewById(R.id.avatar)
-        private val author: TextView = view.findViewById(R.id.author)
-        private val subName: TextView = view.findViewById(R.id.subName)
-        private val likeTotal: TextView = view.findViewById(R.id.likeTotal)
-        private val content: TextView = view.findViewById(R.id.content)
-        private val commentTotal: TextView = view.findViewById(R.id.commentTotal)
-        private val createdAt: TextView = view.findViewById(R.id.createdAt)
-        private val viewMore: TextView = view.findViewById(R.id.viewMore)
-        private val heart: ImageButton = view.findViewById(R.id.heart)
-        private val comment: ImageButton = view.findViewById(R.id.comment)
-        private val share: ImageButton = view.findViewById(R.id.share)
-        private val saved: ImageButton = view.findViewById(R.id.saved)
-        private val imageCounter: TextView = view.findViewById(R.id.imageCounter)
+        private lateinit var postBinding: RecyclerViewItemNewsfeedBinding
 
         private val userService: UserService = userService
         private val postService: PostService = postService
         private val user: User = user
-        private val gson = Gson() // Initialize Gson
-
-        private val carousel: ViewPager2 = view.findViewById(R.id.carousel)
-        private val carouselParent: RelativeLayout = view.findViewById(R.id.carouselParent)
-        private val carouselDot: LinearLayout = view.findViewById(R.id.carouselDot)
 
         private lateinit var pageChangeListener: ViewPager2.OnPageChangeCallback
         private val params = LinearLayout.LayoutParams(
@@ -113,17 +103,24 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         private var isLiked = false
         private var isSaved = false
 
+        private lateinit var suggestedPostBinding: RecycleViewItemSuggestedPostBinding
+
         suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
             return withContext(Dispatchers.IO) {
                 userService.getUser(userId).awaitResponse()
             }
         }
 
-        // Bind data to views
         @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
         fun bind(post: Post) {
-            author.text = "Anonymous"
-            val avatarBinding = RecyclerViewItemAvatarBinding.bind(avatar)
+            if (!::postBinding.isInitialized) {
+                postBinding = RecyclerViewItemNewsfeedBinding.bind(itemView)
+            }
+
+            postBinding.author.text = "Anonymous"
+
+            val avatarBinding = RecyclerViewItemAvatarBinding.bind(itemView.findViewById(R.id.avatar))
+
 
             if (user.stories.isEmpty()) {
                 avatarBinding.hasStory.visibility = View.GONE
@@ -141,53 +138,46 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
             isLiked = post.likes.contains(id)
 
             if (isLiked) {
-                heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
             } else {
-                heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
+                postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
             }
 
             if (isSaved) {
-                saved.setBackgroundResource(R.drawable.icon_bookmark_black)
+                postBinding.saved.setBackgroundResource(R.drawable.icon_bookmark_black)
             } else {
-                saved.setBackgroundResource(R.drawable.icon_bookmark_white)
+                postBinding.saved.setBackgroundResource(R.drawable.icon_bookmark_white)
             }
 
             lifecycleScope.launch {
                 try {
                     val response = getUserData(post.userId)
                     withContext(Dispatchers.Main) {
-                        author.text = response.data?.user?.username ?: "Anonymous"
-                        // Load avatar image using Glide
+                        postBinding.author.text = response.data?.user?.username ?: "Anonymous"
                         Glide.with(context)
                             .load(response.data?.user?.profilePicture?.url)
-                            .placeholder(R.drawable.default_image) // Placeholder image
-                            .error(R.drawable.default_image) // Image to display if load fails
+                            .placeholder(R.drawable.default_image)
+                            .error(R.drawable.default_image)
                             .into(avatarBinding.url)
-
-
 
                         val urls: List<String> = post.fileUploads.mapNotNull { it.url }
 
                         if (urls.isEmpty() || post.fileUploads.isEmpty()) {
-                            carousel.visibility = View.GONE
-                            carouselParent.visibility = View.GONE
-                            carouselParent.layoutParams.height = 0
-                            carouselDot.visibility = View.GONE
-                            carouselParent.requestLayout()
+                            postBinding.carousel?.visibility = View.GONE
+                            postBinding.carouselParent.visibility = View.GONE
+                            postBinding.carouselParent.layoutParams.height = 0
+                            postBinding.carouselDot.visibility = View.GONE
+                            postBinding.carouselParent.requestLayout()
                         } else {
                             if (urls.size > 1) {
-                                carouselDot.visibility = View.VISIBLE
-
-                                carouselDot.removeAllViews()
-
-                                val dotsImage = Array(urls.size) {ImageView(context)}
-
+                                postBinding.carouselDot.visibility = View.VISIBLE
+                                postBinding.carouselDot.removeAllViews()
+                                val dotsImage = Array(urls.size) { ImageView(context) }
                                 dotsImage.forEach {
                                     it.setImageResource(R.drawable.non_active_dot)
-                                    carouselDot.addView(it, params)
+                                    postBinding.carouselDot.addView(it, params)
                                 }
-
-                                imageCounter.text = "1/${dotsImage.size}"
+                                postBinding.imageCounter.text = "1/${dotsImage.size}"
                                 dotsImage[0].setImageResource(R.drawable.active_dot)
 
                                 pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
@@ -199,23 +189,23 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                                                 imageView.setImageResource(R.drawable.non_active_dot)
                                             }
                                         }
-                                        imageCounter.text = "${position + 1}/${dotsImage.size}"
+                                        postBinding.imageCounter.text = "${position + 1}/${dotsImage.size}"
                                         super.onPageSelected(position)
                                     }
                                 }
 
-                                carousel.registerOnPageChangeCallback(pageChangeListener)
+                                postBinding.carousel?.registerOnPageChangeCallback(pageChangeListener)
                             } else {
-                                carouselDot.visibility = View.GONE
-                                imageCounter.visibility = View.GONE
+                                postBinding.carouselDot.visibility = View.GONE
+                                postBinding.imageCounter.visibility = View.GONE
                             }
 
                             val mediaList = urls.map { url ->
                                 url to Helpers.getMediaType(url)
                             }
 
-                            carouselParent.visibility = View.VISIBLE
-                            carousel.visibility = View.VISIBLE
+                            postBinding.carouselParent.visibility = View.VISIBLE
+                            postBinding.carousel?.visibility = View.VISIBLE
 
                             val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                                 override fun onDoubleTap(e: MotionEvent): Boolean {
@@ -224,11 +214,10 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                                             onSuccess = { response ->
                                                 likes.add(id)
                                                 isLiked = true
-                                                heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
-                                                likeTotal.text = likes.size.toString() + " lượt thích"
+                                                postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                                                postBinding.likeTotal.text = "${likes.size} lượt thích"
                                             },
                                             onError = { error ->
-                                                // Handle error
                                                 val message = error.message
                                                 Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                                             }
@@ -237,13 +226,12 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                                     return true
                                 }
                             })
-                            val carouselAdapter = CarouselAdapter(context,mediaList, gestureDetector)
-                            carousel.adapter = carouselAdapter
+                            val carouselAdapter = CarouselAdapter(context, mediaList, gestureDetector)
+                            postBinding.carousel?.adapter = carouselAdapter
                         }
                     }
                 } catch (e: Exception) {
-                    // Handle exceptions
-                    println("Error: ${e.message}")
+                    Log.e("PostAdapter", "Error: ${e.message}")
                 }
             }
 
@@ -253,97 +241,104 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
                 ""
             }
 
-            subName.text = feelingText
-            likeTotal.text = likes.size.toString() + " lượt thích"
-            content.text = post.desc
+            postBinding.subName.text = feelingText
+            postBinding.likeTotal.text = "${likes.size} lượt thích"
+            postBinding.content.text = post.desc
 
             if (post.comments.isEmpty()) {
-                commentTotal.visibility = View.GONE
+                postBinding.commentTotal.visibility = View.GONE
             } else {
-                commentTotal.text = "Xem tất cả ${post.comments.size} bình luận"
+                postBinding.commentTotal.text = "Xem tất cả ${post.comments.size} bình luận"
             }
 
-            createdAt.text = Helpers.convertToTimeAgo(post.createdAt)
+            postBinding.createdAt.text = Helpers.convertToTimeAgo(post.createdAt)
 
-            // Set OnClickListener for heart ImageButton
-            heart.setOnClickListener {
+            postBinding.heart.setOnClickListener {
                 postService.likePost(id, post.id).handleResponse(
                     onSuccess = { response ->
                         if (isLiked) {
                             likes.remove(id)
-                            heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
+                            postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
                         } else {
                             likes.add(id)
-                            heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+                            postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
                         }
                         isLiked = !isLiked
-                        likeTotal.text = likes.size.toString() + " lượt thích"
+                        postBinding.likeTotal.text = "${likes.size} lượt thích"
                     },
                     onError = { error ->
-                        // Handle error
-                        val message = error.message;
+                        val message = error.message
                         Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                     }
                 )
             }
 
-            // Set OnClickListener for comment ImageButton
-            comment.setOnClickListener {
+            postBinding.comment.setOnClickListener {
                 val existingFragment = fragmentManager.findFragmentByTag(CommentBottomSheetDialogFragment.TAG)
                 if (existingFragment == null) {
-                    // Fragment chưa được thêm vào trước đó, hãy tạo và hiển thị nó
                     val fragment = CommentBottomSheetDialogFragment.newInstance()
                     fragment.setPost(post)
                     fragment.setUserId(user)
                     fragment.show(fragmentManager, CommentBottomSheetDialogFragment.TAG)
                 } else {
-                    // Fragment đã tồn tại, không cần thêm mới
                     Log.d("PostAdapter", "CommentBottomSheetDialogFragment already added")
                 }
             }
 
-            // Set OnClickListener for share ImageButton
-            share.setOnClickListener {
+            postBinding.share.setOnClickListener {
                 val fragment = ShareFragment()
-                fragment.show(fragmentManager, "ShareFragment - " + post.id)
+                fragment.show(fragmentManager, "ShareFragment - ${post.id}")
             }
 
-            saved.setOnClickListener {
+            postBinding.saved.setOnClickListener {
                 postService.savePost(id, post.id).handleResponse(
                     onSuccess = { response ->
                         if (isSaved) {
-                            saved.setBackgroundResource(R.drawable.icon_bookmark_white)
+                            postBinding.saved.setBackgroundResource(R.drawable.icon_bookmark_white)
                         } else {
-                            saved.setBackgroundResource(R.drawable.icon_bookmark_black)
+                            postBinding.saved.setBackgroundResource(R.drawable.icon_bookmark_black)
                         }
                         isSaved = !isSaved
                     },
                     onError = { error ->
-                        // Handle error
-                        val message = error.message;
+                        val message = error.message
                         Log.e("ServiceBuilder", "Error: $message - ${error.status}")
                     }
                 )
             }
 
-            share.setOnClickListener {
+            postBinding.share.setOnClickListener {
                 SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
             }
 
-            viewMore.setOnClickListener {
+            postBinding.viewMore.setOnClickListener {
 
             }
         }
 
-        // Method to clear resources associated with ViewPager2
         fun clearViewPagerCallback() {
-            carousel.unregisterOnPageChangeCallback(pageChangeListener)
+            postBinding.carousel.unregisterOnPageChangeCallback(pageChangeListener)
+        }
+
+        fun bindStory(story: List<Story>) {
+            // Not yet implemented
+        }
+
+        fun bindText(text: String) {
+            if (!::suggestedPostBinding.isInitialized) {
+                suggestedPostBinding = RecycleViewItemSuggestedPostBinding.bind(itemView)
+            }
+            suggestedPostBinding.title.text = text
         }
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = data[position]
-        holder.bind(item)
+        when (item.type) {
+            PostAdapterType.VIEW_TYPE_STORY -> holder.bindStory(item.story!!)
+            PostAdapterType.VIEW_TYPE_SUGGEST -> holder.bindText(item.text!!)
+            else -> holder.bind(item.post!!)
+        }
     }
 
     override fun getItemCount(): Int = data.size
@@ -358,4 +353,5 @@ class PostAdapter(private val data: List<Post>, private val lifecycleScope: Life
         clearPageChangeListeners()
         super.onDetachedFromRecyclerView(recyclerView)
     }
+
 }

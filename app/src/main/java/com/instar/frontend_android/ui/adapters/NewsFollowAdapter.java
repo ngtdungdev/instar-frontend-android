@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.instar.frontend_android.R;
 import com.instar.frontend_android.ui.DTO.Images;
+import com.instar.frontend_android.ui.activities.AddStoryActivity;
 
 import java.util.List;
 
@@ -23,17 +25,21 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<Images> images;
     private Context context;
     private OnItemClickItem listener;
+
     public NewsFollowAdapter(Context context, List<Images> images) {
         this.context = context;
         this.images = images;
     }
+
     public void setOnItemClickItem(OnItemClickItem listener) {
         this.listener = listener;
     }
+
     public interface OnItemClickItem {
         void onPersonalClick(int position);
         void onFriendClick(int position);
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -51,67 +57,49 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Images item = images.get(position);
         if (holder instanceof PersonalAvatar) {
-            bindPersonalAvatar(((PersonalAvatar) holder), item);
+            bindPersonalAvatar(((PersonalAvatar) holder), item, position);
         } else if (holder instanceof FriendAvatar) {
-            bindFriendAvatar(((FriendAvatar) holder), item);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onFriendClick(holder.getAdapterPosition());
-                    }
-                    Log.i("commeo", "onClick: ");
-//                    if (listener != null) {
-//                        listener.onFriendClick(holder.getAdapterPosition());
-//                    }
-                }
-            });
+            bindFriendAvatar(((FriendAvatar) holder), item, position);
         }
     }
 
-    public void bindPersonalAvatar(PersonalAvatar data, Images item) {
-        data.imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        if(item.getUrl() != null) {
+    public void bindPersonalAvatar(PersonalAvatar data, Images item, int position) {
+        if (item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
                     .into(data.imageButton);
-        } else data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
+        } else {
+            data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
+        }
+
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, AddStoryActivity.class);
+                context.startActivity(intent);
+            }
+        });
+    }
+
+    public void bindFriendAvatar(FriendAvatar data, Images item, int position) {
+        if (item.getUrl() != null) {
+            Glide.with(context)
+                    .load(item.getUrl())
+                    .into(data.imageButton);
+        } else {
+            data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
+        }
+        data.nameAvatar.setText(item.getName());
+
         data.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("conmeo", "onClick: ");
+                if (listener != null) {
+                    listener.onFriendClick(position);
+                }
+                Log.i("commeo", "onClick: ");
             }
         });
-    }
-
-    public void bindFriendAvatar(FriendAvatar data, Images item) {
-        data.imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        if(item.getUrl() != null) {
-            Glide.with(context)
-                    .load(item.getUrl())
-                    .into(data.imageButton);
-        } else data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
-        data.nameAvatar.setText(item.getName());
-    }
-
-    public static class PersonalAvatar extends RecyclerView.ViewHolder {
-        ImageButton imageButton;
-        View layout;
-        public PersonalAvatar(@NonNull View itemView) {
-            super(itemView);
-            layout = itemView.findViewById(R.id.layout);
-            imageButton = itemView.findViewById(R.id.imageButton);
-        }
     }
 
     @Override
@@ -119,19 +107,30 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return images.get(position).getType();
     }
 
+    @Override
+    public int getItemCount() {
+        return images.size();
+    }
+
+    public static class PersonalAvatar extends RecyclerView.ViewHolder {
+        ImageButton imageButton;
+
+        public PersonalAvatar(@NonNull View itemView) {
+            super(itemView);
+            imageButton = itemView.findViewById(R.id.imageButton);
+        }
+    }
+
     public static class FriendAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
         ImageView imageBorder;
         TextView nameAvatar;
+
         public FriendAvatar(@NonNull View itemView) {
             super(itemView);
             imageButton = itemView.findViewById(R.id.imageButton);
             imageBorder = itemView.findViewById(R.id.imageBorder);
             nameAvatar = itemView.findViewById(R.id.nameAvatar);
         }
-    }
-    @Override
-    public int getItemCount() {
-        return images.size();
     }
 }

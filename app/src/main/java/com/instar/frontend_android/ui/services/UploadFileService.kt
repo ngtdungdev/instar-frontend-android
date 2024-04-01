@@ -20,6 +20,12 @@ interface UploadFileService {
         @Part files: List<MultipartBody.Part>
     ): Call<ApiResponse<List<ProfilePicture>>>
 
+    @Multipart
+    @POST("$AUTH_PREFIX/vision")
+    fun checkVision(
+        @Part files: List<MultipartBody.Part>
+    ): Call<ApiResponse<Any>>
+
     @POST("$AUTH_PREFIX/{filename}")
     fun delete(
         @Path("filename") filename: String

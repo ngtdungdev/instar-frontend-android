@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +24,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
+import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
@@ -40,18 +43,19 @@ import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.StoryService
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import com.instar.frontend_android.ui.utils.PostAdapterType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
 class HomeFragment : Fragment() {
     private var imageList: ArrayList<Images> = ArrayList<Images>()
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
 
-    private lateinit var feedList: ArrayList<Post>
+    private lateinit var feedList: MutableList<PostAdapterType>
     private lateinit var postAdapter: PostAdapter
     private lateinit var feedsRecyclerView: RecyclerView
 
@@ -69,8 +73,8 @@ class HomeFragment : Fragment() {
     private lateinit var iconHeart: ImageView
     private lateinit var layout: View
     private lateinit var btnHome: ImageView
-    private lateinit var btnSearch: ImageView
-    private lateinit var btnReel: ImageView
+    private lateinit var btnSearch:ImageView
+    private lateinit var btnReel:ImageView
 
     private var listener: OnFragmentClickListener? = null
     private fun fragmentClick(position: Int) {
@@ -85,11 +89,7 @@ class HomeFragment : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
@@ -131,9 +131,8 @@ class HomeFragment : Fragment() {
                 )
 
                 imageList.add(0, image0)
-                newsFollowAdapter = NewsFollowAdapter(context, imageList)
+                newsFollowAdapter = NewsFollowAdapter(context,imageList)
                 avatarRecyclerView.adapter = newsFollowAdapter
-
 
                 lifecycleScope.launch {
                     loadRecyclerView() // Call the suspend function within the coroutine
@@ -164,17 +163,13 @@ class HomeFragment : Fragment() {
                 fragmentClick(2)
             }
         }
-
         btnPostUp.setOnClickListener {
             if (listener != null) {
                 fragmentClick(0)
             }
         }
         iconHeart.setOnClickListener {
-            CommentBottomSheetDialogFragment().show(
-                childFragmentManager,
-                CommentBottomSheetDialogFragment.TAG
-            )
+            CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
         }
         widthLayout = (getScreenWidth(requireContext()) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
         setMargin(btnSearch)
@@ -182,7 +177,6 @@ class HomeFragment : Fragment() {
         setMargin(btnReel)
         setMargin(btnPostUp)
     }
-
     private var widthLayout: Int? = null
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -195,7 +189,6 @@ class HomeFragment : Fragment() {
     fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
-
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -213,19 +206,26 @@ class HomeFragment : Fragment() {
     }
 
     private suspend fun loadRecyclerView() {
-        feedList = getPosts()
-        postAdapter = user.user?.let {
-            PostAdapter(
-                feedList,
-                lifecycleScope,
-                it,
-                requireActivity().supportFragmentManager
-            )
-        }!!
+        val postList = getPosts()
+        val suggestPostList = getSuggestedPosts()
+        feedList = mutableListOf()
+
+        for (post in postList) {
+            feedList.add(PostAdapterType(post, null, null, PostAdapterType.VIEW_TYPE_DEFAULT))
+        }
+
+        if (suggestPostList.size > 0) {
+            feedList.add(PostAdapterType(null, "Gợi ý bài viết cho bạn", null, PostAdapterType.VIEW_TYPE_SUGGEST))
+
+            for (suggestPost in suggestPostList) {
+                feedList.add(PostAdapterType(suggestPost, null, null, PostAdapterType.VIEW_TYPE_DEFAULT))
+            }
+        }
+
+        postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }
-
     private suspend fun getStorys(): ArrayList<Images> {
         val imageList = ArrayList<Images>()
 
@@ -309,13 +309,36 @@ class HomeFragment : Fragment() {
 
         return postsList
     }
-}
 
-    override fun onPersonalClick(position: Int) {
-        Log.i("com", "onClick: ")
-    }
+    private suspend fun getSuggestedPosts(): ArrayList<Post> {
+        var postsList = ArrayList<Post>()
 
-    override fun onFriendClick(position: Int) {
-        TODO("Not yet implemented")
+        val context = requireContext()
+
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+        val accessToken = sharedPreferences.getString("accessToken", null)
+
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+            val response = try {
+                val response = postService.getTimelinePostsForYou(id).awaitResponse()
+                response
+            } catch (error: Throwable) {
+                // Handle error
+                error.printStackTrace() // Print stack trace for debugging purposes
+                null // Return null to indicate that an error occurred
+            }
+            if (response != null) {
+                postsList = response.data?.timelinePosts ?: ArrayList()
+
+            } else {
+                // Handle the case where the response is null
+                Log.e("Error", "Failed to get timeline posts")
+            }
+        }
+
+        return postsList
     }
 }

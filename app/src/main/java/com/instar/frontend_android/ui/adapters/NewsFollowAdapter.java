@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,18 +22,19 @@ import java.util.List;
 public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Images> images;
     private Context context;
-    private OnItemClickListener listener;
+//    private OnItemClickListener listener;
     public NewsFollowAdapter(Context context, List<Images> images) {
         this.context = context;
         this.images = images;
     }
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
-    }
-    public interface OnItemClickListener {
-        void onPersonalClick(Integer position);
-        void onFriendClick(Integer position);
-    }
+//    public void setOnItemClickListener(OnItemClickListener listener) {
+//        this.listener = listener;
+//    }
+//    public interface OnItemClickListener {
+//        void onPersonalClick(Integer position);
+//        void onFriendClick(Integer position);
+//    }
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
@@ -50,28 +52,27 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Images item = images.get(position);
         if (holder instanceof PersonalAvatar) {
             bindPersonalAvatar(((PersonalAvatar) holder), item);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onPersonalClick(0);
-                    }
-                }
-            });
         } else if (holder instanceof FriendAvatar) {
             bindFriendAvatar(((FriendAvatar) holder), item);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onFriendClick(position);
-                    }
+                    Log.i("commeo", "onClick: ");
+//                    if (listener != null) {
+//                        listener.onFriendClick(holder.getAdapterPosition());
+//                    }
                 }
             });
         }
     }
 
     public void bindPersonalAvatar(PersonalAvatar data, Images item) {
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         if(item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
@@ -80,6 +81,12 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void bindFriendAvatar(FriendAvatar data, Images item) {
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         if(item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
@@ -88,7 +95,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         data.nameAvatar.setText(item.getName());
     }
 
-    public class PersonalAvatar extends RecyclerView.ViewHolder {
+    public static class PersonalAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
         public PersonalAvatar(@NonNull View itemView) {
             super(itemView);
@@ -101,7 +108,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return images.get(position).getType();
     }
 
-    public class FriendAvatar extends RecyclerView.ViewHolder {
+    public static class FriendAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
         ImageView imageBorder;
         TextView nameAvatar;

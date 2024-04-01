@@ -9,7 +9,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -25,8 +26,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instarfrontendandroid"
         android:usesCleartextTraffic="true"
-
         tools:targetApi="30">
+        <activity
+            android:name=".ui.activities.AddStoryActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activities.SearchActivity"
             android:exported="false" />
@@ -57,9 +60,7 @@
         <activity
             android:name=".ui.activities.ProfileActivity"
             android:exported="false" />
-
         <activity android:name=".ui.activities.RegisterActivity" /> <!-- android:exported="true"> -->
-
         <activity android:name=".MainActivity" /> <!-- android:exported="true"> -->
         <!-- <intent-filter> -->
         <!-- <action android:name="android.intent.action.MAIN" /> -->
@@ -68,8 +69,8 @@
         <!-- </activity> -->
         <activity
             android:name=".ui.activities.MainScreenActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -83,7 +84,7 @@
             android:name=".ui.activities.SearchTagOtherActivity"
             android:exported="false" />
 
-        <service android:name=".ui.services.MyService"></service>
+        <service android:name=".ui.services.MyService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

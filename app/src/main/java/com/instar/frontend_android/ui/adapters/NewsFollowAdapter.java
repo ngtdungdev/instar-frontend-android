@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,17 +22,17 @@ import java.util.List;
 public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Images> images;
     private Context context;
-    private OnItemClickListener listener;
+    private OnItemClickItem listener;
     public NewsFollowAdapter(Context context, List<Images> images) {
         this.context = context;
         this.images = images;
     }
-    public void setOnItemClickListener(OnItemClickListener listener) {
+    public void setOnItemClickItem(OnItemClickItem listener) {
         this.listener = listener;
     }
-    public interface OnItemClickListener {
-        void onPersonalClick(Integer position);
-        void onFriendClick(Integer position);
+    public interface OnItemClickItem {
+        void onPersonalClick(int position);
+        void onFriendClick(int position);
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -50,21 +51,13 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Images item = images.get(position);
         if (holder instanceof PersonalAvatar) {
             bindPersonalAvatar(((PersonalAvatar) holder), item);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onPersonalClick(0);
-                    }
-                }
-            });
         } else if (holder instanceof FriendAvatar) {
             bindFriendAvatar(((FriendAvatar) holder), item);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onFriendClick(position);
+                        listener.onFriendClick(holder.getAdapterPosition());
                     }
                 }
             });
@@ -77,6 +70,12 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     .load(item.getUrl())
                     .into(data.imageButton);
         } else data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
+        data.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("conmeo", "onClick: ");
+            }
+        });
     }
 
     public void bindFriendAvatar(FriendAvatar data, Images item) {
@@ -90,8 +89,10 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class PersonalAvatar extends RecyclerView.ViewHolder {
         ImageButton imageButton;
+        View layout;
         public PersonalAvatar(@NonNull View itemView) {
             super(itemView);
+            layout = itemView.findViewById(R.id.layout);
             imageButton = itemView.findViewById(R.id.imageButton);
         }
     }

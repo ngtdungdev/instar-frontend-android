@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,16 +23,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
-import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
-import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
-import com.instar.frontend_android.ui.adapters.NewsFollowAdapter.OnItemClickListener
 import com.instar.frontend_android.ui.adapters.PostAdapter
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
@@ -46,11 +42,10 @@ import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(), OnItemClickListener {
+class HomeFragment : Fragment(), NewsFollowAdapter.OnItemClickItem {
     private var imageList: ArrayList<Images> = ArrayList<Images>()
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
@@ -132,7 +127,9 @@ class HomeFragment : Fragment(), OnItemClickListener {
 
                 imageList.add(0, image0)
                 newsFollowAdapter = NewsFollowAdapter(context,imageList)
+                newsFollowAdapter.setOnItemClickItem(this)
                 avatarRecyclerView.adapter = newsFollowAdapter
+
 
                 lifecycleScope.launch {
                     loadRecyclerView() // Call the suspend function within the coroutine
@@ -297,7 +294,7 @@ class HomeFragment : Fragment(), OnItemClickListener {
     }
 
     override fun onPersonalClick(position: Int) {
-
+        Log.i("com", "onClick: ")
     }
 
     override fun onFriendClick(position: Int) {

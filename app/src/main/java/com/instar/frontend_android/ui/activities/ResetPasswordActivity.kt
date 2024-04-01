@@ -90,6 +90,7 @@ class ResetPasswordActivity : AppCompatActivity() {
     private fun loadActivity() {
         title.text = "Thay đổi mật khẩu"
         textNote.text = "Không tiết lộ mật khẩu cho người khác để tránh trường hợp mất tài khoản"
+
         passwordText.hint = "Mật khẩu mới"
         labelPassword.text = "Mật khẩu mới"
         repeatPasswordText.hint = "Nhập lại mật khẩu mới "
@@ -114,23 +115,28 @@ class ResetPasswordActivity : AppCompatActivity() {
         viewEditText2.EditTextEyes(layoutRepeatPassword.Layout, repeatPasswordText, labelRepeatPassword, btnEyesRepeatPassword)
         viewEditText.EditTextEyes(layoutSms.Layout, SmsText, labelSms, btnEyes)
         ViewEffect.ViewText(btnText)
-        viewEditText1.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
-            override fun onFocusChange(view: View) {
+        viewEditText1.setOnItemFocusClick(object : ViewEditText.OnItemClick {
+            override fun onEyesChange(view: View) {
                 if (repeatPasswordText.text.toString().isEmpty()) setRepeatPassword()
                 if (SmsText.text.toString().isEmpty()) setSms()
             }
-
+            override fun onRemoveChange(view: View) {
+            }
         })
-        viewEditText2.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
-            override fun onFocusChange(view: View) {
+        viewEditText2.setOnItemFocusClick(object : ViewEditText.OnItemClick {
+            override fun onEyesChange(view: View) {
                 if (passwordText.text.toString().isEmpty()) setPassword()
                 if (SmsText.text.toString().isEmpty()) setSms()
             }
+            override fun onRemoveChange(view: View) {
+            }
         })
-        viewEditText.setOnItemEyesClick(object : ViewEditText.OnItemEyesClick {
-            override fun onFocusChange(view: View) {
+        viewEditText.setOnItemFocusClick(object : ViewEditText.OnItemClick {
+            override fun onEyesChange(view: View) {
                 if (passwordText.text.toString().isEmpty()) setPassword()
                 if (repeatPasswordText.text.toString().isEmpty()) setRepeatPassword()
+            }
+            override fun onRemoveChange(view: View) {
             }
         })
         ViewEffect.ViewText(btnText)

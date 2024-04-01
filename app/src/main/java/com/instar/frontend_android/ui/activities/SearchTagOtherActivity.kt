@@ -68,8 +68,10 @@ class SearchTagOtherActivity: AppCompatActivity() {
     fun initView() {
         val viewEditText = ViewEditText()
         viewEditText.EditTextTag(message,  btnRemove)
-        viewEditText.setOnItemRemoveClick(object : ViewEditText.OnItemRemoveClick {
-            override fun onFocusChange(view: View) {
+        viewEditText.setOnItemFocusClick(object : ViewEditText.OnItemClick {
+            override fun onEyesChange(view: View) {
+            }
+            override fun onRemoveChange(view: View) {
                 if (message.text.toString().isEmpty()) setMessage()
             }
         })

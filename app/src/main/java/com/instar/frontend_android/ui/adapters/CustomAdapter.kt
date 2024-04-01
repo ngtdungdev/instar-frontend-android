@@ -6,8 +6,11 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.instar.frontend_android.R
+import com.instar.frontend_android.ui.DTO.Post
 
-class CustomAdapter(private val context: Context, private val dataList: List<String>) :
+class CustomAdapter(private val context: Context, private val dataList: List<Post>) :
     RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -20,6 +23,12 @@ class CustomAdapter(private val context: Context, private val dataList: List<Str
         val data = dataList[position]
         Glide.with(context)
             .load(data)
+        val data: Post = dataList[position]
+        val firstMedia = data.fileUploads[0]
+
+        Glide.with(context)
+            .load(firstMedia.url)
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
             .into(holder.imageView)
     }
 

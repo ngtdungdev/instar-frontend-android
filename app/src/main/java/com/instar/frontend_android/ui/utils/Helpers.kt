@@ -23,6 +23,9 @@ import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorSettings
 import java.io.FileInputStream
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Locale
 
 object Helpers {
     @JvmStatic
@@ -58,22 +61,54 @@ object Helpers {
 
     @JvmStatic
     fun convertToTimeAgo(timestamp: String): String {
-        val dateTime = ZonedDateTime.parse(timestamp)
-        val now = ZonedDateTime.now()
-        val duration = Duration.between(dateTime, now)
+        println(timestamp)
+        try {
+            val dateTime = ZonedDateTime.parse(timestamp)
+            val now = ZonedDateTime.now()
+            val duration = Duration.between(dateTime, now)
 
-        return when {
-            duration.seconds < 60 -> "vừa xong"
-            duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
-            duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
-            duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
-            else -> {
-                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    .withLocale(java.util.Locale("vi")) // Set Vietnamese locale for month name
-                dateTime.format(formatter)
+            return when {
+                duration.seconds < 60 -> "vừa xong"
+                duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
+                duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
+                duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
+                else -> {
+                    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        .withLocale(Locale("vi")) // Set Vietnamese locale for month name
+                    dateTime.format(formatter)
+                }
+            }
+        } catch (e: Exception) {
+            try {
+                // Chuyển chuỗi timestamp thành số long
+                val timestampLong = timestamp.toLong()
+
+                // Convert milliseconds since epoch to ZonedDateTime
+                val dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestampLong), ZoneId.systemDefault())
+
+                // Now proceed with your logic to calculate time ago
+
+                val now = ZonedDateTime.now()
+                val duration = Duration.between(dateTime, now)
+
+                return when {
+                    duration.seconds < 60 -> "vừa xong"
+                    duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
+                    duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
+                    duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
+                    else -> {
+                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            .withLocale(Locale("vi")) // Set Vietnamese locale for month name
+                        dateTime.format(formatter)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return "Invalid timestamp"
             }
         }
     }
+
 
     @JvmStatic
     fun getMediaType(url: String): CarouselAdapter.MediaType {
@@ -103,60 +138,77 @@ object Helpers {
         return parts
     }
 
+
     @JvmStatic
-    fun detectSensitiveContent(imageBytes: ByteString): Boolean {
-        try {
-            // Load credentials from the JSON key file
-            val credentials = GoogleCredentials.fromStream(FileInputStream("app/credentials.json"))
-
-            // Create ImageAnnotatorSettings with credentials
-            val settings = ImageAnnotatorSettings.newBuilder()
-                .setCredentialsProvider { credentials }
-                .build()
-
-            // Create ImageAnnotatorClient with settings
-            val client = ImageAnnotatorClient.create(settings)
-
-            try {
-                // Create Image
-                val image = Image.newBuilder().setContent(imageBytes).build()
-
-                // Create Feature for label detection
-                val feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build()
-
-                // Create AnnotateImageRequest
-                val request = AnnotateImageRequest.newBuilder()
-                    .addFeatures(feature)
-                    .setImage(image)
-                    .build()
-
-                // Create BatchAnnotateImagesRequest
-                val batchRequest = BatchAnnotateImagesRequest.newBuilder().addRequests(request).build()
-
-                // Perform image annotation
-                val response: BatchAnnotateImagesResponse = client.batchAnnotateImages(batchRequest)
-
-                // Extract labels from the response
-                val labels = response.responsesList[0].labelAnnotationsList
-
-                // Check for sensitive labels
-                for (label in labels) {
-                    when (label.description) {
-                        "Violence", "Gore", "Suggestive", "Offensive", "Blood" -> return true
-                    }
-                }
-
-            } finally {
-                client.close()
-            }
-        } catch (e: IOException) {
-            // Handle IOException
-            e.printStackTrace()
-        } catch (e: Exception) {
-            // Handle other exceptions
-            e.printStackTrace()
-        }
-        return false
+    fun getImageBytesFromImageAndVideo(imageAndVideo: ImageAndVideo): ByteString? {
+        // Xử lý trích xuất dữ liệu hình ảnh từ imageAndVideo
+        val uriString = imageAndVideo.filePath
+        // Chuyển đổi chuỗi String thành ByteString
+        return uriString.let { ByteString.copyFrom(it.toByteArray()) }
     }
 
+    @JvmStatic
+    fun detectSensitiveContent(imageAndVideo: ImageAndVideo): Boolean {
+        // Xử lý trích xuất dữ liệu hình ảnh từ imageAndVideo
+        val imageBytes: ByteString? = getImageBytesFromImageAndVideo(imageAndVideo)
+
+        if (imageBytes != null) {
+            try {
+                // Load credentials from the JSON key file
+                val credentials = GoogleCredentials.fromStream(FileInputStream("app/credentials.json"))
+
+                // Create ImageAnnotatorSettings with credentials
+                val settings = ImageAnnotatorSettings.newBuilder()
+                    .setCredentialsProvider { credentials }
+                    .build()
+
+                // Create ImageAnnotatorClient with settings
+                val client = ImageAnnotatorClient.create(settings)
+
+                try {
+                    // Create Image
+                    val image = Image.newBuilder().setContent(imageBytes).build()
+
+                    // Create Feature for label detection
+                    val feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build()
+
+                    // Create AnnotateImageRequest
+                    val request = AnnotateImageRequest.newBuilder()
+                        .addFeatures(feature)
+                        .setImage(image)
+                        .build()
+
+                    // Create BatchAnnotateImagesRequest
+                    val batchRequest = BatchAnnotateImagesRequest.newBuilder().addRequests(request).build()
+
+                    // Perform image annotation
+                    val response: BatchAnnotateImagesResponse = client.batchAnnotateImages(batchRequest)
+
+                    // Extract labels from the response
+                    val labels = response.responsesList[0].labelAnnotationsList
+
+                    // Check for sensitive labels
+                    for (label in labels) {
+                        when (label.description) {
+                            "Violence", "Gore", "Suggestive", "Offensive", "Blood" -> return true
+                        }
+                    }
+
+                } finally {
+                    client.close()
+                }
+            } catch (e: IOException) {
+                // Handle IOException
+                e.printStackTrace()
+            } catch (e: Exception) {
+                // Handle other exceptions
+                e.printStackTrace()
+            }
+        } else {
+            // Xử lý khi không thể trích xuất dữ liệu hình ảnh
+            println("Failed to extract image data from ImageAndVideo")
+        }
+
+        return false
+    }
 }

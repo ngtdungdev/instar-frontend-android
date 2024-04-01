@@ -47,7 +47,7 @@ class ViewEditText {
             }
 
             override fun afterTextChanged(s: Editable?) {}
-        })+
+        })
     }
 
     fun EditTextTag(editText: EditText, button: ImageButton) {

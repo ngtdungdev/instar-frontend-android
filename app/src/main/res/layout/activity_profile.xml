@@ -170,6 +170,7 @@
             </LinearLayout>
 
 
+
         </LinearLayout>
     </LinearLayout>
 
@@ -212,8 +213,9 @@
 
             <TextView
                 android:id="@+id/btnEditProfile"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="36dp"
+                android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_background_gray"
@@ -222,19 +224,6 @@
                 android:maxLines="1"
                 android:padding="8dp"
                 android:text="Chỉnh sửa trang cá nhân"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btnShareProfile"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:background="@drawable/button_background_gray"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:text="Chia sẻ trang cá nhân"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

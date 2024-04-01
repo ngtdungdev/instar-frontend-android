@@ -21,13 +21,18 @@ import java.util.List;
 public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Images> images;
     private Context context;
+    private OnItemClickListener listener;
     public NewsFollowAdapter(Context context, List<Images> images) {
         this.context = context;
         this.images = images;
     }
-
-
-    @NonNull
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+    public interface OnItemClickListener {
+        void onPersonalClick(Integer position);
+        void onFriendClick(Integer position);
+    }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
@@ -45,8 +50,24 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Images item = images.get(position);
         if (holder instanceof PersonalAvatar) {
             bindPersonalAvatar(((PersonalAvatar) holder), item);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onPersonalClick(0);
+                    }
+                }
+            });
         } else if (holder instanceof FriendAvatar) {
             bindFriendAvatar(((FriendAvatar) holder), item);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onFriendClick(position);
+                    }
+                }
+            });
         }
     }
 

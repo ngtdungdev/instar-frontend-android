@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
@@ -54,6 +55,7 @@ class MyPostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
+        val linearViewNoItems: LinearLayout = view.findViewById(com.instar.frontend_android.R.id.linearNoItems)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPost) // Sử dụng id recyclerViewPost
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
@@ -79,6 +81,13 @@ class MyPostFragment : Fragment() {
                     e.printStackTrace()
                 }
             }
+        }
+        if (recyclerView.getAdapter() != null ) {
+            linearViewNoItems.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE)
+        } else {
+            linearViewNoItems.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE)
         }
     }
 

@@ -4,7 +4,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.fragments.MyPostFragment">
-
+    <LinearLayout
+        android:id="@+id/linearNoItems"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal">
+        <TextView
+            android:id="@+id/textViewNoItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hãy lưu lại khoảng khắc đầu tiên của bạn"
+            android:textSize="18dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/icon_no_items"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPost"
         android:layout_width="match_parent"

@@ -1,28 +1,29 @@
 package com.instar.frontend_android.ui.fragments
 
 import CustomAdapter
+import android.R
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.instar.frontend_android.R
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
-import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,15 +55,16 @@ class MyPostSavedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_post_saved, container, false)
+        return inflater.inflate(com.instar.frontend_android.R.layout.fragment_my_post_saved, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
+        val linearViewNoItems: LinearLayout = view.findViewById(com.instar.frontend_android.R.id.linearNoItems)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPostSaved) // Sử dụng id recyclerViewPost
+        val recyclerView: RecyclerView = view.findViewById(com.instar.frontend_android.R.id.recyclerViewPostSaved) // Sử dụng id recyclerViewPost
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
         val sharedPreferences = requireContext().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
@@ -80,11 +82,19 @@ class MyPostSavedFragment : Fragment() {
 
                     val adapter = CustomAdapter(requireContext(), mySavedPostList)
                     recyclerView.adapter = adapter
+
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user
                     e.printStackTrace()
                 }
             }
+        }
+        if (recyclerView.getAdapter() != null) {
+            linearViewNoItems.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE)
+        } else {
+            linearViewNoItems.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE)
         }
     }
 

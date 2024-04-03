@@ -32,6 +32,7 @@ import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
+import com.instar.frontend_android.ui.activities.SearchActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.adapters.PostAdapter
 import com.instar.frontend_android.ui.services.AuthService
@@ -156,6 +157,10 @@ class HomeFragment : Fragment() {
     private fun initView() {
         btnPersonal.setOnClickListener {
             val intent = Intent(requireContext(), ProfileActivity::class.java);
+            startActivity(intent)
+        }
+        btnSearch.setOnClickListener {
+            val intent = Intent(requireContext(), SearchActivity::class.java);
             startActivity(intent)
         }
         btnMessage.setOnClickListener {

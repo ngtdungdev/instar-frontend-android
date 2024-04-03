@@ -209,7 +209,7 @@ class HomeFragment : Fragment() {
             size.x
         }
     }
-    
+
     private suspend fun loadRecyclerView() {
         val postList = getPosts()
         val suggestPostList = getSuggestedPosts()
@@ -232,48 +232,48 @@ class HomeFragment : Fragment() {
         feedsRecyclerView.adapter = postAdapter
     }
     private suspend fun getStorys(): ArrayList<Images> {
-    val imageList = ArrayList<Images>()
+        val imageList = ArrayList<Images>()
 
-    val context = requireContext()
-    val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-    val accessToken = sharedPreferences.getString("accessToken", null)
-    if (accessToken != null) {
-        val decodedTokenJson = Helpers.decodeJwt(accessToken)
-        val id = decodedTokenJson.getString("id")
-        val response = try {
-            val response = storyService.getStoriesByUserId(id).awaitResponse()
-            response
-        } catch (error: Throwable) {
-            // Handle error
-            error.printStackTrace() // Print stack trace for debugging purposes
-            null // Return null to indicate that an error occurred
-        }
-        if (response != null) {
-            val storyResponse = response.data?.timelineStories ?: ArrayList()
-            Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
-
-            val userIdSet = HashSet<String>()
-
-            for (story in storyResponse) {
-                if (!userIdSet.contains(story.userId)) {
-                    val userInfoResponse = getUserData(story.userId)
-                    val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-                    imageList.add(
-                        Images(
-                            Images.TYPE_FRIEND_AVATAR,
-                            story.userId,
-                            avatarUrl
-                        )
-                    )
-                    userIdSet.add(story.userId)
-                }
+        val context = requireContext()
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+            val response = try {
+                val response = storyService.getStoriesByUserId(id).awaitResponse()
+                response
+            } catch (error: Throwable) {
+                // Handle error
+                error.printStackTrace() // Print stack trace for debugging purposes
+                null // Return null to indicate that an error occurred
             }
-        } else {
-            // Handle the case where the response is null
-            Log.e("Error", "Failed to get timeline stories")
+            if (response != null) {
+                val storyResponse = response.data?.timelineStories ?: ArrayList()
+                Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
+
+                val userIdSet = HashSet<String>()
+
+                for (story in storyResponse) {
+                    if (!userIdSet.contains(story.userId)) {
+                        val userInfoResponse = getUserData(story.userId)
+                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                        imageList.add(
+                            Images(
+                                Images.TYPE_FRIEND_AVATAR,
+                                story.userId,
+                                avatarUrl
+                            )
+                        )
+                        userIdSet.add(story.userId)
+                    }
+                }
+            } else {
+                // Handle the case where the response is null
+                Log.e("Error", "Failed to get timeline stories")
+            }
         }
-    }
-    return imageList
+        return imageList
     }
 
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {

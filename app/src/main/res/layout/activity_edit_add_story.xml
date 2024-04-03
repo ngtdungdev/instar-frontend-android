@@ -2,17 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main"
     android:background="@color/black">
-    <FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragmentContainerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="100dp"
-            android:background="@mipmap/ic_instagram"/>
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/imageStory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </ImageView>
     <ImageButton
         android:id="@+id/imgBack"
         android:layout_width="50dp"

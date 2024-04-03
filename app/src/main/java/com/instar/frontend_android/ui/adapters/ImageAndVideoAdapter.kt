@@ -24,7 +24,6 @@ class ImageAndVideoAdapter(
     private val data: List<ImageAndVideoInternalMemory>,
     private val isListPost: Boolean,
     private var savePosition: Int
-
 ): RecyclerView.Adapter< ImageAndVideoAdapter.ImageViewHolder >(){
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.post_item_image, parent, false)
@@ -168,11 +167,8 @@ class ImageAndVideoAdapter(
         }
     }
 
-    fun setOnItemClickListener() {
-        if (savePosition == 0){
-            val intent = Intent(context, AddStoryActivity::class.java)
-            context.startActivity(intent)
-        }
+    fun getSavePosition(): Int {
+        return savePosition
     }
 
     class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {

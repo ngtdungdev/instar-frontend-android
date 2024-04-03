@@ -34,6 +34,7 @@ import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -156,6 +157,7 @@ class ProfileActivity : AppCompatActivity() {
         btnLogout.setOnClickListener {
             ServiceBuilder.setRefreshToken(this, null)
             ServiceBuilder.setAccessToken(this, null)
+            Helpers.getUserId(this)?.let { userId -> NotificationService.deleteToken(userId) }
 
             val intent = Intent(this, LoginOtherActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

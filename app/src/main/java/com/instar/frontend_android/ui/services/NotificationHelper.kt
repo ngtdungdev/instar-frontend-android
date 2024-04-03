@@ -13,9 +13,9 @@ import com.instar.frontend_android.MainActivity
 import com.instar.frontend_android.R
 
 object NotificationHelper {
+    private const val CHANNEL_ID = "com.instar.frontend_android"
+    private const val CHANNEL_NAME = "Instar"
 
-    private const val CHANNEL_ID = "Your_Channel_ID"
-    private const val CHANNEL_NAME = "Your_Channel_Name"
     fun showNotification(context: Context, title: String, message: String, id: Int) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT).apply {

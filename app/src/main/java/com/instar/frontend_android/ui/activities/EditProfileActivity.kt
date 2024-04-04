@@ -7,14 +7,17 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
+import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
@@ -29,28 +32,13 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var edtIntroduction: EditText
     private lateinit var imageAvatar: ImageView
     private lateinit var btnEditAvatar: TextView
+    private lateinit var btnSaveProfile: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("accessToken", null)
-
-//        if (accessToken != null) {
-//            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-//            val id = decodedTokenJson.getString("id")
-//            lifecycleScope.launch {
-//                try {
-//                    val response = getUserData(id)
-//                    val user = response.data?.user
-//                    if (user != null) {
-//
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
-//            }
-//        }
+        userService = ServiceBuilder.buildService(UserService::class.java, this);
 
         btnBack = findViewById(R.id.btnBack)
         edtFullname = findViewById(R.id.edtFullname)
@@ -58,34 +46,83 @@ class EditProfileActivity : AppCompatActivity() {
         edtIntroduction = findViewById(R.id.edtIntroduction)
         imageAvatar = findViewById(R.id.imageAvatar)
         btnEditAvatar = findViewById(R.id.customButton)
+        btnSaveProfile = findViewById(R.id.btnSaveProfile)
+
+        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+
+        val user = intent.getSerializableExtra("user") as User
+        if (user != null) {
+            updateUserInformation(user)
+        } else {
+            if (accessToken != null) {
+                val decodedTokenJson = Helpers.decodeJwt(accessToken)
+                val id = decodedTokenJson.getString("id")
+                lifecycleScope.launch {
+                    try {
+                        val response = getUserData(id)
+                        val user = response.data?.user
+                        if (user != null) {
+                            updateUserInformation(user)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
 
         btnBack.setOnClickListener {
             // Xử lý cập nhật lại thông tin người dùng nếu như có chỉnh sửa
             val newPage = Intent(this@EditProfileActivity, ProfileActivity::class.java)
             startActivity(newPage)
+            finish()
         }
+
         btnEditAvatar.setOnClickListener {
 
         }
-        updateUserInformation()
+
+        btnSaveProfile.setOnClickListener {
+            // xử lý sự kiện lưu thay đổiuse
+            if (accessToken != null) {
+                val decodedTokenJson = Helpers.decodeJwt(accessToken)
+                val id = decodedTokenJson.getString("id")
+
+                user.username = edtUsername.text.toString();
+                user.fullname = edtFullname.text.toString();
+                user.desc = edtIntroduction.text.toString();
+
+                userService.updateUser(id, user, null).handleResponse(
+                    onSuccess = {
+                        val intent = Intent(this, HomeFragment::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                        finish()
+                    },
+                    onError = {
+                        Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                    }
+                );
+            }
+
+        }
     }
+
+    private fun updateUserInformation(user: User) {
+        edtUsername.setText(user.username)
+        edtFullname.setText(user.fullname)
+        edtIntroduction.setText(user.desc)
+        Glide.with(this@EditProfileActivity)
+            .load(user.profilePicture?.url)
+            .placeholder(R.drawable.default_image)
+            .error(R.drawable.default_image)
+            .into(imageAvatar)
+    }
+
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()
         }
-    }
-    private fun updateUserInformation() {
-        val username = intent.getStringExtra("username")
-        val fullname = intent.getStringExtra("fullname")
-        val description = intent.getStringExtra("description")
-        val uri = intent.getStringExtra("avatarUri")
-        edtUsername.setText(username)
-        edtFullname.setText(fullname)
-        edtIntroduction.setText(description)
-        Glide.with(this@EditProfileActivity)
-            .load(uri)
-            .placeholder(R.drawable.default_image)
-            .error(R.drawable.default_image)
-            .into(imageAvatar)
     }
 }

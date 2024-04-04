@@ -28,6 +28,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="30">
         <activity
+            android:name=".ui.activities.UpdateAvatarActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.EditAddStoryActivity"
             android:exported="false" />
         <activity

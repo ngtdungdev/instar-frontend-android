@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
@@ -55,12 +56,12 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                FCMService(this).getFirebaseCloudMessagingToken()
+                FCMService(this@MainScreenActivity).getFirebaseCloudMessagingToken()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE)
+                ActivityCompat.requestPermissions(this@MainScreenActivity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE)
             }
         } else {
-            FCMService(this).getFirebaseCloudMessagingToken()
+            FCMService(this@MainScreenActivity).getFirebaseCloudMessagingToken()
         }
     }
 

@@ -43,13 +43,13 @@ class MainActivity : AppCompatActivity() {
         val type: String = intent.extras!!.getString("type", "")
         when (type) {
             "message" -> {
-                val mainIntent = Intent(this, MainScreenActivity::class.java)
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
                 mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 mainIntent.putExtra("position", 2)
                 startActivity(mainIntent)
 
                 val chatId: String = intent.extras!!.getString("chatId", "")
-                val intent = Intent(this, DirectMessageActivity::class.java)
+                val intent = Intent(this@MainActivity, DirectMessageActivity::class.java)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.putExtra("chatID", chatId)
                 startActivity(intent)

@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.services
 
+import com.google.firebase.database.FirebaseDatabase
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.ui.DTO.Notification
 import retrofit2.Call
@@ -12,6 +13,17 @@ import retrofit2.http.Path
 interface NotificationService {
     companion object {
         const val AUTH_PREFIX = "notifications"
+
+        private val database = FirebaseDatabase.getInstance()
+        private val notificationTokensRef = database.getReference("notificationTokens")
+
+        fun createNewToken(userId: String, token: String) {
+            notificationTokensRef.child(userId).setValue(token)
+        }
+
+        fun deleteToken(userId: String) {
+            notificationTokensRef.child(userId).removeValue()
+        }
     }
 
     @POST("$AUTH_PREFIX/{userId}")

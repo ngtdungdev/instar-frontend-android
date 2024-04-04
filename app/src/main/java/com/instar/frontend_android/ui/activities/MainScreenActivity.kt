@@ -1,4 +1,6 @@
 package com.instar.frontend_android.ui.activities
+
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,24 +9,27 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
-import com.instar.frontend_android.ui.services.MyService
-import com.instar.frontend_android.ui.services.NotificationService
+import com.instar.frontend_android.ui.services.FCMService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
-
 
 class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     private lateinit var binding : ActivityMainScreenBinding
     private lateinit var viewPager : ViewPager2
     private var savePosition: Int = 0
     companion object {
+        const val REQUEST_CODE = 201
         const val PERMISSION_CODE = 1001
     }
 
@@ -49,8 +54,17 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         } else {
             initView()
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                FCMService(this@MainScreenActivity).getFirebaseCloudMessagingToken()
+            } else {
+                ActivityCompat.requestPermissions(this@MainScreenActivity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE)
+            }
+        } else {
+            FCMService(this@MainScreenActivity).getFirebaseCloudMessagingToken()
+        }
     }
-    private var listener: OnFragmentClickListener? = null
+
     @RequiresApi(Build.VERSION_CODES.R)
     private fun requestPermission() {
         try {
@@ -66,8 +80,8 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     }
 
     private fun initView() {
-        val serviceIntent = Intent(this, MyService::class.java)
-        startService(serviceIntent)
+//        val serviceIntent = Intent(this, MyService::class.java)
+//        startService(serviceIntent)
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when(savePosition) {
@@ -85,7 +99,8 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         setContentView(binding.root)
         viewPager = binding.viewPager
         viewPager.adapter = ScreenSlidePagerAdapter(this@MainScreenActivity)
-        viewPager.setCurrentItem(1, false)
+        val position: Int = intent.extras?.getInt("position", 1) ?: 1
+        viewPager.setCurrentItem(position, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -108,8 +123,6 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         if (requestCode == PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initView()
-            } else {
-                finish()
             }
         }
     }

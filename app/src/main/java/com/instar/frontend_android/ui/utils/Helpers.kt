@@ -125,13 +125,13 @@ object Helpers {
     }
 
     @JvmStatic
-    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>): List<MultipartBody.Part> {
+    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>, name: String = "file"): List<MultipartBody.Part> {
         val parts = mutableListOf<MultipartBody.Part>()
 
         for (imageAndVideo in imageAndVideoList) {
             val file = File(imageAndVideo.filePath)
             val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("file", file.name, requestFile)
+            val part = MultipartBody.Part.createFormData(name, file.name, requestFile)
             parts.add(part)
         }
 
@@ -145,70 +145,5 @@ object Helpers {
         val uriString = imageAndVideo.filePath
         // Chuyển đổi chuỗi String thành ByteString
         return uriString.let { ByteString.copyFrom(it.toByteArray()) }
-    }
-
-    @JvmStatic
-    fun detectSensitiveContent(imageAndVideo: ImageAndVideo): Boolean {
-        // Xử lý trích xuất dữ liệu hình ảnh từ imageAndVideo
-        val imageBytes: ByteString? = getImageBytesFromImageAndVideo(imageAndVideo)
-
-        if (imageBytes != null) {
-            try {
-                // Load credentials from the JSON key file
-                val credentials = GoogleCredentials.fromStream(FileInputStream("app/credentials.json"))
-
-                // Create ImageAnnotatorSettings with credentials
-                val settings = ImageAnnotatorSettings.newBuilder()
-                    .setCredentialsProvider { credentials }
-                    .build()
-
-                // Create ImageAnnotatorClient with settings
-                val client = ImageAnnotatorClient.create(settings)
-
-                try {
-                    // Create Image
-                    val image = Image.newBuilder().setContent(imageBytes).build()
-
-                    // Create Feature for label detection
-                    val feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build()
-
-                    // Create AnnotateImageRequest
-                    val request = AnnotateImageRequest.newBuilder()
-                        .addFeatures(feature)
-                        .setImage(image)
-                        .build()
-
-                    // Create BatchAnnotateImagesRequest
-                    val batchRequest = BatchAnnotateImagesRequest.newBuilder().addRequests(request).build()
-
-                    // Perform image annotation
-                    val response: BatchAnnotateImagesResponse = client.batchAnnotateImages(batchRequest)
-
-                    // Extract labels from the response
-                    val labels = response.responsesList[0].labelAnnotationsList
-
-                    // Check for sensitive labels
-                    for (label in labels) {
-                        when (label.description) {
-                            "Violence", "Gore", "Suggestive", "Offensive", "Blood" -> return true
-                        }
-                    }
-
-                } finally {
-                    client.close()
-                }
-            } catch (e: IOException) {
-                // Handle IOException
-                e.printStackTrace()
-            } catch (e: Exception) {
-                // Handle other exceptions
-                e.printStackTrace()
-            }
-        } else {
-            // Xử lý khi không thể trích xuất dữ liệu hình ảnh
-            println("Failed to extract image data from ImageAndVideo")
-        }
-
-        return false
     }
 }

@@ -3,76 +3,64 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_home"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
-
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
-
-        <RelativeLayout
-            android:id="@+id/layoutMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageButton
-                android:id="@+id/iconName"
-                android:layout_width="143dp"
-                android:layout_height="60dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:backgroundTint="@android:color/transparent"
-                android:src="@drawable/ic_instagram_name_icon" />
-
-            <ImageView
-                android:id="@+id/iconStar"
-                android:layout_width="20.31dp"
-                android:layout_height="18.68dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="130dp"
-                android:layout_marginTop="13dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_instagram_icon_star" />
-
-            <ImageView
-                android:id="@+id/iconMessenger"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/ic_instagram_icon_messenger" />
-
-            <ImageView
-                android:id="@+id/iconHeart"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="69dp"
-                android:src="@drawable/ic_instagram_icon_heart" />
-        </RelativeLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/stories"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:layout_margin="15dp"
+            app:cardCornerRadius="10dp">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#DDDDDD">
+
+                <ImageButton
+                    android:id="@+id/imageView10"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="13dp"
+                    android:alpha="0.6"
+                    android:background="@drawable/icon_magnifyingglass" />
+
+                <EditText
+                    android:id="@+id/edtSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tìm kiếm"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_toEndOf="@+id/imageView10"
+                    android:background="@null"
+                    android:alpha="0.6"
+                    android:textColor="#000000"
+                    android:textSize="17sp" />
+                <ImageButton
+                    android:id="@+id/iconDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/baseline_close_24" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/newsfeed"
+            android:id="@+id/recyclerViewAccount"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
     </LinearLayout>
-
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/grid_layout"
         android:layout_width="match_parent"
@@ -143,5 +131,4 @@
             </FrameLayout>
         </LinearLayout>
     </androidx.gridlayout.widget.GridLayout>
-
 </LinearLayout>

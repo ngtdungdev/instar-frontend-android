@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Nickname
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
@@ -61,7 +63,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvSoLuongDangTheoDoi: TextView
     private lateinit var tvSoLuongNguoiTheoDoi: TextView
     private lateinit var imgAvatar : ImageView
-    //    private lateinit var frameAvatar : FrameLayout
+    private lateinit var btnPostUp: ImageButton
+    private lateinit var btnPersonal: View
+    private lateinit var btnReel:ImageView
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
@@ -84,46 +88,54 @@ class ProfileActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
-        if (accessToken != null) {
-            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-            val id = decodedTokenJson.getString("id")
 
-            lifecycleScope.launch {
-                try {
-                    val response = getUserData(id)
-                    user = response.data?.user
-                    tvTenNguoiDung.text  = user?.username // Set username if available
-                    tvNickname.text  = user?.fullname
-                    tvDescription.text = user?.desc
-//                    tvSoLuongBaiViet
-                    tvSoLuongNguoiTheoDoi.text = user?.followers?.size.toString()
-                    tvSoLuongDangTheoDoi.text = user?.followings?.size.toString()
-                    Glide.with(this@ProfileActivity)
-                        .load(response.data?.user?.profilePicture?.url)
-                        .placeholder(R.drawable.default_image) // Placeholder image
-                        .error(R.drawable.default_image) // Image to display if load fails
-                        .into(imgAvatar)
+        val userintent: User? = intent.getSerializableExtra("user") as? User
 
-                } catch (e: Exception) {
-                    // Handle exceptions, e.g., log or show error to user
-                    e.printStackTrace()
-                }
-            }
-
-            // gọi để lấy bài viết và saved bài viết
-            lifecycleScope.launch {
-                try {
-                    val response1 = getMyPostsData(id)
-                    tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
-
-                } catch (e: Exception) {
-                    // Handle exceptions, e.g., log or show error to user
-                    e.printStackTrace()
+        if (userintent != null) {
+            updateUserInformation(userintent)
+        } else {
+            if (accessToken != null) {
+                val decodedTokenJson = Helpers.decodeJwt(accessToken)
+                val id = decodedTokenJson.getString("id")
+                lifecycleScope.launch {
+                    try {
+                        val response = getUserData(id)
+                        val user = response.data?.user
+                        if (user != null) {
+                            updateUserInformation(user)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
     }
 
+    private fun updateUserInformation(user: User) {
+        tvTenNguoiDung.text = user.username
+        tvNickname.text = user.fullname
+        tvDescription.text = user.desc
+        tvSoLuongNguoiTheoDoi.text = user.followers?.size.toString()
+        tvSoLuongDangTheoDoi.text = user.followings?.size.toString()
+        Glide.with(this@ProfileActivity)
+            .load(user.profilePicture?.url)
+            .placeholder(R.drawable.default_image) // Placeholder image
+            .error(R.drawable.default_image) // Image to display if load fails
+            .into(imgAvatar)
+        lifecycleScope.launch {
+            try {
+                val response1 = getMyPostsData(user.id)
+                tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
         binding.apply {
             btn_editProfile = btnEditProfile
@@ -134,22 +146,25 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.tvSoLuongNguoiTheoDoi = tvSoLuongNguoiTheoDoi
             this@ProfileActivity.tvSoLuongDangTheoDoi = tvSoLuongDangTheoDoi
             this@ProfileActivity.imgAvatar = imgAvatar
-//            this@ProfileActivity.frameAvatar = frameAvatar
             this@ProfileActivity.tabLayout = tabLayout
             this@ProfileActivity.viewPager2 = viewPager2
-            this@ProfileActivity.btnHome = btnSearch
+            this@ProfileActivity.btnHome = btnHome
             this@ProfileActivity.btnSearch = btnSearch
             this@ProfileActivity.btnPostUp1 = btnPostUp1
             this@ProfileActivity.btnLogout = btnLogout
         }
+        btnReel = binding.btnReel
+        btnSearch = binding.btnSearch
+        btnPostUp = binding.btnPostUp
+        btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
+            newPage.putExtra("username", tvTenNguoiDung.text.toString())
+            newPage.putExtra("fullname", tvNickname.text.toString())
+            newPage.putExtra("description", tvDescription.text.toString())
+            newPage.putExtra("avatarUri", user?.profilePicture?.url)
             startActivity(newPage)
         }
-//        frameAvatar.setOnClickListener{
-//            val newPost = Intent(this@ProfileActivity, EditProfileActivity::class.java)
-//            startActivity(newPost)
-//        }
         btnHome.setOnClickListener {
             val intent = Intent(this, HomeFragment::class.java);
             startActivity(intent)
@@ -186,6 +201,24 @@ class ProfileActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {
             }
         })
+        widthLayout = (getScreenWidth(this) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
+        setMargin(btnSearch)
+        setMargin(btnPersonal)
+        setMargin(btnReel)
+        setMargin(btnPostUp)
+    }
+
+    private var widthLayout: Int? = null
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun setMargin(view: View) {
+        val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.leftMargin = widthLayout!!
+        view.layoutParams = layoutParams
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -214,5 +247,4 @@ class ProfileActivity : AppCompatActivity() {
             postService.getAllPostsByUserId(userId).awaitResponse()
         }
     }
-
 }

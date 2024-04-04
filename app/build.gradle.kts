@@ -100,4 +100,8 @@ dependencies {
 
     // Vision API check sensitive images
     implementation("com.google.cloud:google-cloud-vision:3.37.0")
+    implementation("io.grpc:grpc-okhttp:1.62.2")
+    implementation("io.grpc:grpc-core:1.62.2")
+    implementation("io.grpc:grpc-stub:1.62.2")
+
 }

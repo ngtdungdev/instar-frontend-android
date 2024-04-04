@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="10dp"
+    android:id="@+id/music_item">
+
+    <FrameLayout
+        android:id="@+id/avt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/hasStory"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/backgroud_radius_gradient_orangepink" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_gravity="center"
+            app:cardCornerRadius="60dp">
+
+            <ImageView
+                android:id="@+id/imgAvt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="2dp"
+                android:src="@drawable/backgroud_radius_grey" />
+
+            <ImageButton
+                android:id="@+id/url"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_background"
+                />
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/avt"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="3dp"
+        android:id="@+id/tvUseName"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:text="usename" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/avt"
+        android:layout_below="@id/tvUseName"
+        android:layout_marginStart="10dp"
+        android:id="@+id/tvTen"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:text="Tên" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/avt"
+        android:layout_below="@id/tvTen"
+        android:layout_marginStart="10dp"
+        android:id="@+id/tvSLNguoiTheoDoi"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:text="100 người theo dõi" />
+</RelativeLayout>

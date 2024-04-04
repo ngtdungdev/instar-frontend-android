@@ -32,6 +32,7 @@ import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
+import com.instar.frontend_android.ui.activities.SearchActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.adapters.PostAdapter
 import com.instar.frontend_android.ui.services.AuthService
@@ -43,6 +44,7 @@ import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.StoryService
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import com.instar.frontend_android.ui.utils.PostAdapterType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -54,7 +56,7 @@ class HomeFragment : Fragment() {
     private lateinit var newsFollowAdapter: NewsFollowAdapter
     private lateinit var avatarRecyclerView: RecyclerView
 
-    private lateinit var feedList: ArrayList<Post>
+    private lateinit var feedList: MutableList<PostAdapterType>
     private lateinit var postAdapter: PostAdapter
     private lateinit var feedsRecyclerView: RecyclerView
 
@@ -157,6 +159,10 @@ class HomeFragment : Fragment() {
             val intent = Intent(requireContext(), ProfileActivity::class.java);
             startActivity(intent)
         }
+        btnSearch.setOnClickListener {
+            val intent = Intent(requireContext(), SearchActivity::class.java);
+            startActivity(intent)
+        }
         btnMessage.setOnClickListener {
             if (listener != null) {
                 fragmentClick(2)
@@ -203,56 +209,71 @@ class HomeFragment : Fragment() {
             size.x
         }
     }
-    
+
     private suspend fun loadRecyclerView() {
-        feedList = getPosts()
+        val postList = getPosts()
+        val suggestPostList = getSuggestedPosts()
+        feedList = mutableListOf()
+
+        for (post in postList) {
+            feedList.add(PostAdapterType(post, null, null, PostAdapterType.VIEW_TYPE_DEFAULT))
+        }
+
+        if (suggestPostList.size > 0) {
+            feedList.add(PostAdapterType(null, "Gợi ý bài viết cho bạn", null, PostAdapterType.VIEW_TYPE_SUGGEST))
+
+            for (suggestPost in suggestPostList) {
+                feedList.add(PostAdapterType(suggestPost, null, null, PostAdapterType.VIEW_TYPE_DEFAULT))
+            }
+        }
+
         postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }
     private suspend fun getStorys(): ArrayList<Images> {
-    val imageList = ArrayList<Images>()
+        val imageList = ArrayList<Images>()
 
-    val context = requireContext()
-    val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-    val accessToken = sharedPreferences.getString("accessToken", null)
-    if (accessToken != null) {
-        val decodedTokenJson = Helpers.decodeJwt(accessToken)
-        val id = decodedTokenJson.getString("id")
-        val response = try {
-            val response = storyService.getStoriesByUserId(id).awaitResponse()
-            response
-        } catch (error: Throwable) {
-            // Handle error
-            error.printStackTrace() // Print stack trace for debugging purposes
-            null // Return null to indicate that an error occurred
-        }
-        if (response != null) {
-            val storyResponse = response.data?.timelineStories ?: ArrayList()
-            Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
-
-            val userIdSet = HashSet<String>()
-
-            for (story in storyResponse) {
-                if (!userIdSet.contains(story.userId)) {
-                    val userInfoResponse = getUserData(story.userId)
-                    val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-                    imageList.add(
-                        Images(
-                            Images.TYPE_FRIEND_AVATAR,
-                            story.userId,
-                            avatarUrl
-                        )
-                    )
-                    userIdSet.add(story.userId)
-                }
+        val context = requireContext()
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("accessToken", null)
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+            val response = try {
+                val response = storyService.getStoriesByUserId(id).awaitResponse()
+                response
+            } catch (error: Throwable) {
+                // Handle error
+                error.printStackTrace() // Print stack trace for debugging purposes
+                null // Return null to indicate that an error occurred
             }
-        } else {
-            // Handle the case where the response is null
-            Log.e("Error", "Failed to get timeline stories")
+            if (response != null) {
+                val storyResponse = response.data?.timelineStories ?: ArrayList()
+                Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
+
+                val userIdSet = HashSet<String>()
+
+                for (story in storyResponse) {
+                    if (!userIdSet.contains(story.userId)) {
+                        val userInfoResponse = getUserData(story.userId)
+                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                        imageList.add(
+                            Images(
+                                Images.TYPE_FRIEND_AVATAR,
+                                story.userId,
+                                avatarUrl
+                            )
+                        )
+                        userIdSet.add(story.userId)
+                    }
+                }
+            } else {
+                // Handle the case where the response is null
+                Log.e("Error", "Failed to get timeline stories")
+            }
         }
-    }
-    return imageList
+        return imageList
     }
 
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
@@ -276,6 +297,38 @@ class HomeFragment : Fragment() {
             val id = decodedTokenJson.getString("id")
             val response = try {
                 val response = postService.getTimelinePosts(id).awaitResponse()
+                response
+            } catch (error: Throwable) {
+                // Handle error
+                error.printStackTrace() // Print stack trace for debugging purposes
+                null // Return null to indicate that an error occurred
+            }
+            if (response != null) {
+                postsList = response.data?.timelinePosts ?: ArrayList()
+
+            } else {
+                // Handle the case where the response is null
+                Log.e("Error", "Failed to get timeline posts")
+            }
+        }
+
+        return postsList
+    }
+
+    private suspend fun getSuggestedPosts(): ArrayList<Post> {
+        var postsList = ArrayList<Post>()
+
+        val context = requireContext()
+
+        val sharedPreferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+
+        val accessToken = sharedPreferences.getString("accessToken", null)
+
+        if (accessToken != null) {
+            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+            val id = decodedTokenJson.getString("id")
+            val response = try {
+                val response = postService.getTimelinePostsForYou(id).awaitResponse()
                 response
             } catch (error: Throwable) {
                 // Handle error

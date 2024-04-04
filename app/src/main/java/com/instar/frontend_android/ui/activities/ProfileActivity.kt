@@ -65,7 +65,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
     private lateinit var btnReel:ImageView
-    //    private lateinit var frameAvatar : FrameLayout
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
@@ -146,10 +145,9 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.tvSoLuongNguoiTheoDoi = tvSoLuongNguoiTheoDoi
             this@ProfileActivity.tvSoLuongDangTheoDoi = tvSoLuongDangTheoDoi
             this@ProfileActivity.imgAvatar = imgAvatar
-//            this@ProfileActivity.frameAvatar = frameAvatar
             this@ProfileActivity.tabLayout = tabLayout
             this@ProfileActivity.viewPager2 = viewPager2
-            this@ProfileActivity.btnHome = btnSearch
+            this@ProfileActivity.btnHome = btnHome
             this@ProfileActivity.btnSearch = btnSearch
             this@ProfileActivity.btnPostUp1 = btnPostUp1
             this@ProfileActivity.btnLogout = btnLogout
@@ -160,6 +158,10 @@ class ProfileActivity : AppCompatActivity() {
         btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
+            newPage.putExtra("username", tvTenNguoiDung.text.toString())
+            newPage.putExtra("fullname", tvNickname.text.toString())
+            newPage.putExtra("description", tvDescription.text.toString())
+            newPage.putExtra("avatarUri", user?.profilePicture?.url)
             startActivity(newPage)
         }
         btnHome.setOnClickListener {

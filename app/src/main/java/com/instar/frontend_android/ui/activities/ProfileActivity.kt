@@ -162,10 +162,6 @@ class ProfileActivity : AppCompatActivity() {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
             startActivity(newPage)
         }
-//        frameAvatar.setOnClickListener{
-//            val newPost = Intent(this@ProfileActivity, EditProfileActivity::class.java)
-//            startActivity(newPost)
-//        }
         btnHome.setOnClickListener {
             val intent = Intent(this, HomeFragment::class.java);
             startActivity(intent)

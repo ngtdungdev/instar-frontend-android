@@ -16,7 +16,7 @@
       android:paddingTop="15dp">
 
     <ImageView
-        android:id="@+id/btn_back"
+        android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -48,14 +48,28 @@
       android:layout_gravity="center"
       android:layout_marginTop="20dp"
       android:orientation="vertical">
-    <ImageView
-        android:id="@+id/imageAvatar"
+    <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/circle_background"
-        android:scaleType="centerCrop"
         android:layout_gravity="center"
-        android:src="@mipmap/no3" />
+        tools:layout_editor_absoluteX="30dp"
+        tools:layout_editor_absoluteY="70dp">
+
+      <androidx.cardview.widget.CardView
+          android:layout_width="85dp"
+          android:layout_height="85dp"
+          android:layout_gravity="center"
+          app:cardCornerRadius="50dp">
+        <ImageView
+            android:id="@+id/imageAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="2dp"
+            android:src="@drawable/backgroud_radius_grey" />
+      </androidx.cardview.widget.CardView>
+
+    </FrameLayout>
     <TextView
         android:paddingTop="10dp"
         android:id="@+id/customButton"
@@ -80,17 +94,19 @@
         android:text="Tên"
         android:textColor="#737373"/>
     <EditText
-        android:id="@+id/edtName"
+        android:id="@+id/edtFullname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="textStart"
         android:text="Biện Thành Hưng"/>
+
     <TextView
-        android:paddingTop="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tên người dùng"
-        android:drawableBottom="#737373"/>
+        android:drawableBottom="#737373"
+        android:paddingTop="5dp"
+        android:text="Tên người dùng" />
+
     <EditText
         android:id="@+id/edtUsername"
         android:layout_width="match_parent"
@@ -109,34 +125,5 @@
         android:layout_height="wrap_content"
         android:textAlignment="textStart"
         android:text="Tiểu sử"/>
-    <TextView
-        android:paddingTop="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giới tính"
-        android:drawableBottom="#737373"/>
-    <RadioGroup
-        android:id="@+id/radioGroupGender"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center">
-
-      <RadioButton
-          android:layout_gravity="center"
-          android:id="@+id/radioButtonMale"
-          android:layout_width="150dp"
-          android:layout_height="wrap_content"
-          android:text="Nam"
-          android:outlineAmbientShadowColor="#0306AA"/>
-
-      <RadioButton
-          android:id="@+id/radioButtonFemale"
-          android:layout_width="150dp"
-          android:layout_height="wrap_content"
-          android:text="Nữ"/>
-
-    </RadioGroup>
-
   </LinearLayout>
 </LinearLayout>

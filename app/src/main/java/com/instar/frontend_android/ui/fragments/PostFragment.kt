@@ -113,8 +113,14 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
             if (isListPost) {
                 val listSelectorItem: MutableList<Int> = imagesAdapter.getListSelectorItem()
-                for (position in listSelectorItem) addFilterEditing(filterEditing, fragmentManager,true, position,listSelectorItem.indexOf(position))
-            } else addFilterEditing(filterEditing, fragmentManager,false, savePosition, 0)
+                for (position in listSelectorItem) addFilterEditing(
+                    filterEditing,
+                    fragmentManager,
+                    true,
+                    position,
+                    listSelectorItem.indexOf(position)
+                )
+            } else addFilterEditing(filterEditing, fragmentManager, false, savePosition, 0)
 
             for (imageAndVideo in filterEditing) {
                 if (imageAndVideo.filePath.isBlank() || imageAndVideo.filePath.isEmpty()) {
@@ -124,16 +130,41 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 val isSensitive = Helpers.detectSensitiveContent(imageAndVideo)
                 if (!isSensitive) { // Kiểm tra nội dung nhạy cảm
                     // Nếu phát hiện có nội dung nhạy cảm, thông báo cho người dùng và không chuyển sang activity mới
-                    Toast.makeText(requireContext(), "Vui lòng không đăng ảnh nhạy cảm!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Vui lòng không đăng ảnh nhạy cảm!",
+                        Toast.LENGTH_LONG
+                    ).show()
+//                    lifecycleScope.launch {
+//                        try {
+//                            checkImages(filterEditing)
+//                            val intent =
+//                                Intent(context, PostFilterEditingActivity::class.java).apply {
+//                                    putExtra("Data", filterEditing as Serializable)
+//                                }
+//                            startActivity(intent)
+//                            requireActivity().overridePendingTransition(
+//                                R.anim.slide_in_right,
+//                                R.anim.slide_out_left
+//                            )
+//                        } catch (e: IOException) {
+//                            // Xử lý lỗi nếu kiểm tra hình ảnh và video thất bại
+//                            Toast.makeText(requireContext(), "${e.message}", Toast.LENGTH_LONG)
+//                                .show()
+//                        }
+//                    }
                     return@setOnClickListener
                 }
-            }
 
-            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                putExtra("Data", filterEditing as Serializable)
+                val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                    putExtra("Data", filterEditing as Serializable)
+                }
+                startActivity(intent)
+                requireActivity().overridePendingTransition(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
             }
-            startActivity(intent)
-            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 
@@ -177,6 +208,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         val sortOrder = "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
         return CursorLoader(requireContext(), MediaStore.Files.getContentUri("external"), projection, selection, selectionArgs, sortOrder)
     }
+
     override fun onLoadFinished(loader: Loader<Cursor?>, data: Cursor?) {
         if (loader.id == LOADER_ID && data != null) {
             val idColumn = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
@@ -235,24 +267,20 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             imagesAdapter = ImageAndVideoAdapter(requireContext(), imagesAndVideosList, isListPost, savePosition)
             imagesRecyclerView.adapter = imagesAdapter
             imagesAdapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
-                override fun onItemClick(position: Int?) {
-                    if (position != null) {
-                        if (isListPost) {
-                            showListFragment(position, position, false)
-                        } else {
-                            var item = imagesAndVideosList[position]
-                            val fragmentTag = returnFragmentTag(item.type.toString())
-                            showFragment(item, fragmentTag)
-                        }
-                        savePosition = position
+                override fun onItemClick(position: Int) {
+                    if (isListPost) {
+                        showListFragment(position, position, false)
+                    } else {
+                        val item = imagesAndVideosList[position]
+                        val fragmentTag = returnFragmentTag(item.type.toString())
+                        showFragment(item, fragmentTag)
                     }
+                    savePosition = position
                 }
 
-                override fun onDeleteClick(position: Int?, save: Int) {
-                    if (position != null) {
-                        showListFragment(position, save, true)
-                        savePosition = save
-                    }
+                override fun onDeleteClick(position: Int, save: Int) {
+                    showListFragment(position, save, true)
+                    savePosition = save
                 }
             })
         }
@@ -276,6 +304,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
         val tag = position.toString()
         showFragmentItem(item, tag)
     }
+
     private fun showFragmentItem(item: ImageAndVideoInternalMemory, fragmentTag: String) {
         val fragmentManager = requireActivity().supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()

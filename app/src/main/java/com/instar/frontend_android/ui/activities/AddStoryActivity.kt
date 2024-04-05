@@ -76,7 +76,20 @@ class AddStoryActivity : AppCompatActivity() {
                 mediaList.add(ImageAndVideoInternalMemory(id.toString(), mediaUri.toString(), path, dateTaken.toString(), duration.toString(), mediaType))
             }
         }
-
         return mediaList
+    }
+
+    private fun loadRecyclerView() {
+        adapter = ImageAndVideoAdapter(this, dataList, isListPost = false, savePosition = 0)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = GridLayoutManager(this, 3)
+//        adapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
+//            override fun onItemClick(position: Int) {
+//                if (!isIntentCalled) {
+//                    this@AddStoryActivity.pos = position
+//                }
+//            }
+//            override fun onDeleteClick(position: Int, savePosition: Int) {}
+//        })
     }
 }

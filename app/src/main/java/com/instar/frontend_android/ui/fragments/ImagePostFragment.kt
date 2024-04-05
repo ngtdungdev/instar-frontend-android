@@ -61,7 +61,7 @@ class ImagePostFragment : Fragment() {
         }
     }
 
-    fun getBitMapImage(text: String): String? {
+    fun getBitMapImage(text: String): String {
         val bitmap: Bitmap = cropImageView.getCroppedImage()!!
         return  SaveAndReturnImageToFile.bitmapToBase64(bitmap, text, requireContext())
     }

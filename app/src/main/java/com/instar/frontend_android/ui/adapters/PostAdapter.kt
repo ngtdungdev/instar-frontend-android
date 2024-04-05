@@ -7,11 +7,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
@@ -32,19 +29,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.bumptech.glide.Glide
-import com.google.gson.Gson
 import com.instar.frontend_android.databinding.RecycleViewItemSuggestedPostBinding
 import com.instar.frontend_android.databinding.RecyclerViewItemNewsfeedBinding
+import com.instar.frontend_android.types.requests.NotificationRequest
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.ShareFragment
 import com.instar.frontend_android.ui.fragments.SharePostBottomSheetDialogFragment
+import com.instar.frontend_android.ui.services.FCMNotificationService
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.utils.PostAdapterType
 
 class PostAdapter(private val data: List<PostAdapterType>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
+    private lateinit var notificationService: NotificationService
     private val viewHolders: MutableList<PostViewHolder> = mutableListOf()
+    private lateinit var fcmNotificationService: FCMNotificationService
 
     init {
         setHasStableIds(true)
@@ -57,9 +58,13 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
             else -> throw IllegalArgumentException("Invalid view type")
         }
         val view = LayoutInflater.from(parent.context).inflate(layoutResId, parent, false)
+
         userService = ServiceBuilder.buildService(UserService::class.java, parent.context)
         postService = ServiceBuilder.buildService(PostService::class.java, parent.context)
-        return PostViewHolder(view, user, userService, postService, lifecycleScope, fragmentManager).also {
+        notificationService = ServiceBuilder.buildService(NotificationService::class.java, parent.context)
+        fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, parent.context)
+
+        return PostViewHolder(view, user, userService, postService, fcmNotificationService, notificationService, lifecycleScope, fragmentManager).also {
             viewHolders.add(it)
         }
     }
@@ -85,14 +90,20 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
         return data[position].post?.id.hashCode().toLong()
     }
 
-    class PostViewHolder(view: View, user:User, userService: UserService, postService: PostService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
+    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+        val item = data[position]
+        when (item.type) {
+            PostAdapterType.VIEW_TYPE_STORY -> holder.bindStory(item.story!!)
+            PostAdapterType.VIEW_TYPE_SUGGEST -> holder.bindText(item.text!!)
+            else -> holder.bind(item.post!!)
+        }
+    }
+
+    class PostViewHolder(view: View, private val user:User, private val userService: UserService, private val postService: PostService, private val fcmNotificationService: FCMNotificationService, private val notificationService: NotificationService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
         private lateinit var postBinding: RecyclerViewItemNewsfeedBinding
 
-        private val userService: UserService = userService
-        private val postService: PostService = postService
-        private val user: User = user
-
         private lateinit var pageChangeListener: ViewPager2.OnPageChangeCallback
+
         private val params = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -216,6 +227,7 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                                                 isLiked = true
                                                 postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
                                                 postBinding.likeTotal.text = "${likes.size} lượt thích"
+
                                             },
                                             onError = { error ->
                                                 val message = error.message
@@ -262,6 +274,18 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                         } else {
                             likes.add(id)
                             postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+
+                            val notificationRequest = NotificationRequest(post.id, null, id, post.userId, "like-post")
+
+                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the user notification.") },
+                                onError = { println("Error while sending user notification.") }
+                            )
+
+                            fcmNotificationService.sendLikePostNotification(notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the user notification.") },
+                                onError = { println("Error while sending user notification.") }
+                            )
                         }
                         isLiked = !isLiked
                         postBinding.likeTotal.text = "${likes.size} lượt thích"
@@ -329,15 +353,6 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                 suggestedPostBinding = RecycleViewItemSuggestedPostBinding.bind(itemView)
             }
             suggestedPostBinding.title.text = text
-        }
-    }
-
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val item = data[position]
-        when (item.type) {
-            PostAdapterType.VIEW_TYPE_STORY -> holder.bindStory(item.story!!)
-            PostAdapterType.VIEW_TYPE_SUGGEST -> holder.bindText(item.text!!)
-            else -> holder.bind(item.post!!)
         }
     }
 

@@ -1,13 +1,16 @@
 package com.instar.frontend_android.ui.activities
 
 import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,19 +26,27 @@ import com.instar.frontend_android.databinding.ActivityAddStoryBinding
 import com.instar.frontend_android.databinding.ActivityUpdateAvatarBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
+import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.ImagePostFragment
 import com.instar.frontend_android.ui.fragments.PostFragment
 import com.instar.frontend_android.ui.fragments.VideoPostFragment
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
+import com.instar.frontend_android.ui.services.UserService
+import com.instar.frontend_android.ui.utils.Helpers
 import java.io.Serializable
 
 
 class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {
+    private lateinit var userService: UserService
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ImageAndVideoAdapter
     private lateinit var fragmentContainer: View
     private lateinit var btnSave: TextView
+    private lateinit var btnBack: ImageView
     private lateinit var imagePostFragment: ImagePostFragment
     private var dataList: MutableList<ImageAndVideoInternalMemory> = mutableListOf()
     private lateinit var btnSelect: TextView // Di chuyển khai báo vào đây
@@ -50,6 +61,10 @@ class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+
+
+
         LoaderManager.getInstance(this).initLoader(PostFragment.LOADER_ID, null, this)
         initView()
     }
@@ -61,6 +76,7 @@ class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
         recyclerView = findViewById(R.id.recyclerView)
         fragmentContainer = findViewById(R.id.fragmentContainer)
         btnSave = findViewById(R.id.btnSave)
+        btnBack = findViewById(R.id.btnBack)
         adapter = ImageAndVideoAdapter(this, dataList, isListPost = false, savePosition = 0)
         val layoutManager = GridLayoutManager(this, 3)
         recyclerView.layoutManager =  layoutManager
@@ -74,16 +90,23 @@ class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
         }
 
         btnSave.setOnClickListener {
+            userService = ServiceBuilder.buildService(UserService::class.java, this);
+
             val bitmap = imagePostFragment.getBitMapImage("Image")
             val rect = imagePostFragment.getCropRect(this.contentResolver)!!
             val rectString = "${rect.left},${rect.top},${rect.right},${rect.bottom}"
             val image = ImageAndVideo(bitmap, dataList[savePosition].uri, rectString,"", 0)
-            val intent = Intent(this, PostFilterEditingActivity::class.java).apply {
-                putExtra("Data", image)
-            }
-            // câu lệnh lấy dữ liệu bên một activity khác val image = intent.getSerializableExtra("Data") as? ImageAndVideo
-            startActivity(intent)
+            val intent = Intent(this@UpdateAvatarActivity, EditProfileActivity::class.java)
+                intent.putExtra("newurl", image.uri)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
             this.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+        btnSave.setOnClickListener {
+            val newPage = Intent(this@UpdateAvatarActivity, EditProfileActivity::class.java)
+            startActivity(newPage)
+            finish()
         }
     }
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {

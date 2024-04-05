@@ -67,7 +67,7 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         skip.setOnTouchListener(onTouchListener)
     }
 
-        private val PROGRESS_COUNT = 6
+    private val PROGRESS_COUNT = 6
     private lateinit var storiesProgressView: StoriesProgressView
     private lateinit var image: ImageView
     private var counter = 0

@@ -18,6 +18,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.coroutineScope
@@ -89,10 +90,11 @@ class ProfileActivity : AppCompatActivity() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
 
-        val userintent: User? = intent.getSerializableExtra("user") as? User
+        val user: User? = intent.getSerializableExtra("user") as? User
+        Toast.makeText(this, user?.fullname.toString(), Toast.LENGTH_LONG).show()
 
-        if (userintent != null) {
-            updateUserInformation(userintent)
+        if (user != null) {
+            updateUserInformation(user)
         } else {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
@@ -159,10 +161,7 @@ class ProfileActivity : AppCompatActivity() {
         btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
-            newPage.putExtra("username", tvTenNguoiDung.text.toString())
-            newPage.putExtra("fullname", tvNickname.text.toString())
-            newPage.putExtra("description", tvDescription.text.toString())
-            newPage.putExtra("avatarUri", user?.profilePicture?.url)
+            newPage.putExtra("user", user)
             startActivity(newPage)
         }
         btnHome.setOnClickListener {

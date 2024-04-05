@@ -1,16 +1,22 @@
 package com.instar.frontend_android.ui.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
+import com.instar.frontend_android.ui.activities.AddStoryActivity
+import com.instar.frontend_android.ui.activities.ProfileActivity
 import kotlin.math.ceil
 
 class ImageAndVideoAdapter(
@@ -24,7 +30,6 @@ class ImageAndVideoAdapter(
         return ImageViewHolder(view)
     }
     private var saveImage: ImageView? = null
-
     interface OnItemClickListener {
         fun onItemClick(position: Int?)
         fun onDeleteClick(position: Int?, savePosition: Int)
@@ -44,6 +49,7 @@ class ImageAndVideoAdapter(
         return data[position].type
     }
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        listener?.onItemClick(position)
         val item = data[position]
         if(item.type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
             holder.time.visibility = View.VISIBLE
@@ -111,6 +117,7 @@ class ImageAndVideoAdapter(
             holder.image.alpha = 0.7F
             saveImage = holder.image
         }
+        listener?.onDeleteClick(position, savePosition)
     }
     private fun formatDuration(durationMillis: Long): String {
         if (durationMillis < 0) return ""
@@ -159,6 +166,11 @@ class ImageAndVideoAdapter(
             holder.checked.visibility = View.GONE
         }
     }
+
+    fun getSavePosition(): Int {
+        return savePosition
+    }
+
     class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val image: ImageView = view.findViewById(R.id.imageView)
         val time: TextView = view.findViewById(R.id.time)

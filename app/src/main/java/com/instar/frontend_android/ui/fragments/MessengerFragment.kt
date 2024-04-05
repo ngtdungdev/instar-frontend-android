@@ -74,8 +74,8 @@ class MessengerFragment : Fragment() {
             override fun onItemClick(position: Int) {
                 val intent = Intent(context, DirectMessageActivity::class.java)
                 intent.putExtra("chatID", chatList[position].members.joinToString("-"))
-                context?.startActivity(intent)
-                activity?.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                requireContext().startActivity(intent)
+                requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
         })
         chatRecyclerView.layoutManager = LinearLayoutManager(context)

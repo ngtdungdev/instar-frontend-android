@@ -18,15 +18,18 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
+import com.instar.frontend_android.types.requests.MessageRequest
 import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.DirectMessageAdapter
 import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ChatService
+import com.instar.frontend_android.ui.services.FCMNotificationService
 import com.instar.frontend_android.ui.services.MessageService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +53,7 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var authService: AuthService
     private lateinit var messageService: MessageService
     private lateinit var userService: UserService
+    private lateinit var fcmNotificationService: FCMNotificationService
     private lateinit var userID: String
     private lateinit var chatID: String
     private lateinit var messagesRef: DatabaseReference
@@ -81,7 +85,8 @@ class DirectMessageActivity : AppCompatActivity() {
         chatID = intent.extras?.getString("chatID").toString()
         messagesRef = FirebaseDatabase.getInstance().getReference("messages")
 
-        userService = ServiceBuilder.buildService(UserService::class.java, this)
+        userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
+        fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, applicationContext)
         ChatService(applicationContext)
             .getChatByMembers(chatID.split("-")) { chat: Chat? ->
                 if (chat != null) {
@@ -93,7 +98,7 @@ class DirectMessageActivity : AppCompatActivity() {
 
     private fun initView() {
         // load the direct message details
-        lifecycleScope.launch {
+//        lifecycleScope.launch {
             var chatName = currentChat.name
             var chatUsername = "${currentChat.members.size} thành viên"
             var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
@@ -113,7 +118,7 @@ class DirectMessageActivity : AppCompatActivity() {
                 .into(directMessageAvatar as ImageView)
             directMessageName.text = chatName
             directMessageUsername.text = chatUsername
-        }
+//        }
 
         // load all messages of the chat
         messageList = mutableListOf()
@@ -185,12 +190,27 @@ class DirectMessageActivity : AppCompatActivity() {
     private fun sendMessage(messageText: String) {
         val message = Message(messageText, userID, chatID)
         messageService.createNewMessage(message) // push to Firebase
+        val messageRequest = MessageRequest().apply {
+            text = messageText
+            senderId = userID
+            chatId = chatID
+        }
+        fcmNotificationService.sendChatNotification(messageRequest).handleResponse(
+            onSuccess = { println("Successfully sent the chat notification.") },
+            onError = { println("Error while sending chat notification.") }
+        )
     }
 
-    private suspend fun getUserData(userId: String): User? {
-        val response = withContext(Dispatchers.IO) {
-            return@withContext userService.getUser(userId).awaitResponse()
-        }
-        return response.data?.user
+    private fun getUserData(userId: String): User? {
+//        val response = withContext(Dispatchers.IO) {
+//            return@withContext userService.getUser(userId).awaitResponse()
+//        }
+//        return response.data?.user
+        var user: User? = null
+        userService.getUser(userId).handleResponse(
+            onSuccess = { response -> user = response.data?.user },
+            onError = {}
+        )
+        return user
     }
 }

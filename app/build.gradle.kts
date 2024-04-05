@@ -94,7 +94,9 @@ dependencies {
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
-    implementation("com.google.firebase:firebase-database:20.3.1")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
 
     // Vision API check sensitive images
     implementation("com.google.cloud:google-cloud-vision:3.37.0")

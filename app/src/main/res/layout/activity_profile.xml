@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.activities.ProfileActivity"
     tools:layout_editor_absoluteX="-9dp"
     tools:layout_editor_absoluteY="0dp">
@@ -306,6 +307,7 @@
         android:id="@+id/tabLayout"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:background="@color/white"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/linear2"
         tools:layout_editor_absoluteX="0dp"

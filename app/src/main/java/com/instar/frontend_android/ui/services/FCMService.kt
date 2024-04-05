@@ -4,20 +4,24 @@ import android.content.Context
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.utils.Helpers
+import retrofit2.awaitResponse
 
 class FCMService : FirebaseMessagingService {
     private var applicationContext: Context
     private var notificationService: NotificationService
     private var userService: UserService
     private var chatService: ChatService
+    private var postService: PostService
 
     constructor() {
         this.applicationContext = this
         this.notificationService = ServiceBuilder.buildService(NotificationService::class.java, this)
         this.userService = ServiceBuilder.buildService(UserService::class.java, this)
+        this.postService = ServiceBuilder.buildService(PostService::class.java, this)
         this.chatService = ChatService(this)
     }
 
@@ -25,6 +29,7 @@ class FCMService : FirebaseMessagingService {
         this.applicationContext = applicationContext
         this.notificationService = ServiceBuilder.buildService(NotificationService::class.java, applicationContext)
         this.userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
+        this.postService = ServiceBuilder.buildService(PostService::class.java, applicationContext)
         this.chatService = ChatService(applicationContext)
     }
 
@@ -64,19 +69,79 @@ class FCMService : FirebaseMessagingService {
                 )
             }
             "follow" -> {
-                TODO("Not yet implemented.")
+                var user: User?
+                userService.getUser(userId!!).handleResponse(
+                    onSuccess = { response ->
+                        user = response.data?.user
+                        NotificationHelper.showNotification(this, "Theo dõi", "${user?.username} đã theo dõi bạn", 1, data)
+
+                    },
+                    onError = { error -> println(error) }
+                )
             }
             "like-post" -> {
-                TODO("Not yet implemented.")
+                val postId = data["postId"]
+
+//                var post: Post?
+//
+//                postService.getPost(postId!!).handleResponse(
+//                    onSuccess = { response ->
+//                        post = response.data?.post
+//
+//
+//                    },
+//                    onError = { error -> println(error) }
+//                )
+
+                var user: User?
+                userService.getUser(userId!!).handleResponse(
+                    onSuccess = { response ->
+                        user = response.data?.user
+                        NotificationHelper.showNotification(this, "Có người đã thích bài viết của bạn", "${user?.username} đã thích bài viết của bạn", 1, data)
+                    },
+                    onError = { error -> println(error) }
+                )
+
+
             }
             "like-comment" -> {
-                TODO("Not yet implemented.")
+                val chatId = data["chatId"]
+                val message = data["message"]
+
+                var user: User?
+                userService.getUser(userId!!).handleResponse(
+                    onSuccess = { response ->
+                        user = response.data?.user
+                        NotificationHelper.showNotification(this, "Có người đã thích bình luận của bạn", "${user?.username} đã thích bình luận của bạn", 1, data)
+                    },
+                    onError = { error -> println(error) }
+                )
             }
             "add-comment" -> {
-                TODO("Not yet implemented.")
+                val chatId = data["chatId"]
+                val message = data["message"]
+
+                var user: User?
+                userService.getUser(userId!!).handleResponse(
+                    onSuccess = { response ->
+                        user = response.data?.user
+                        NotificationHelper.showNotification(this, "Có người đã bình luận vào bài viết của bạn", "${user?.username} đã bình luận vào bài viết của bạn", 1, data)
+                    },
+                    onError = { error -> println(error) }
+                )
             }
             "reply-comment" -> {
-                TODO("Not yet implemented.")
+                val chatId = data["chatId"]
+                val message = data["message"]
+
+                var user: User?
+                userService.getUser(userId!!).handleResponse(
+                    onSuccess = { response ->
+                        user = response.data?.user
+                        NotificationHelper.showNotification(this, "Có người đã phản hồi bình luận của bạn", "${user?.username} đã bình luận đã phản hồi bình luận của bạn", 1, data)
+                    },
+                    onError = { error -> println(error) }
+                )
             }
             else -> {
 

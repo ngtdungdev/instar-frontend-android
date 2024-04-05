@@ -37,12 +37,15 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentCommentBottomSheetDialogBinding
+import com.instar.frontend_android.types.requests.NotificationRequest
 import com.instar.frontend_android.ui.DTO.Comment
 import com.instar.frontend_android.ui.DTO.CommentWithReply
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostCommentAdapter
 import com.instar.frontend_android.ui.adapters.VerticalSpaceItemDecoration
+import com.instar.frontend_android.ui.services.FCMNotificationService
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
@@ -66,7 +69,8 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var user: User
     private var comment: Comment? = null
     private lateinit var userList: List<User>
-
+    private lateinit var fcmNotificationService: FCMNotificationService
+    private lateinit var notificationService: NotificationService
 
     private lateinit var commentLayoutParams: ConstraintLayout.LayoutParams
     private var collapsedMargin = 0
@@ -194,11 +198,43 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
                 postService.commentPost(post.id, newComment).handleResponse(
                     onSuccess = { response ->
+                        val comment = response.data?.comment
+
                         Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
                         instance.comment = null
                         instance.message.clearFocus()
                         instance.message.clearComposingText()
                         instance.message.text?.clear()
+
+                        if (comment?.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
+                            val notificationRequest = NotificationRequest(post.id,
+                                comment.id, user.id, post.userId, "add-comment")
+
+                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the comment notification.") },
+                                onError = { println("Error while sending comment notification.") }
+                            )
+
+                            fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the add comment notification.") },
+                                onError = { println("Error while sending add comment notification.") }
+                            )
+                        } else {
+                            val notificationRequest = NotificationRequest(post.id,
+                                comment?.id, user.id, post.userId, "reply-comment")
+
+                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the comment notification.") },
+                                onError = { println("Error while sending comment notification.") }
+                            )
+
+                            fcmNotificationService.sendReplyCommentNotification(notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the add comment notification.") },
+                                onError = { println("Error while sending add comment notification.") }
+                            )
+                        }
+
+
                     },
                     onError = { error ->
                         Toast.makeText(context, "Failure", Toast.LENGTH_LONG).show()

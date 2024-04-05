@@ -9,6 +9,8 @@ class PostRequest {
 
     private val tagUser: List<String>? = null
 
+
+
     constructor(userId: String, desc: String, feeling: String, tagUser: List<String>)
     constructor(userId: String, desc: String)
 }

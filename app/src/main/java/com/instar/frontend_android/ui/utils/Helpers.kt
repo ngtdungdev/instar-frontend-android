@@ -1,10 +1,6 @@
 package com.instar.frontend_android.ui.utils
 
 import android.content.Context
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.vision.v1.AnnotateImageRequest
-import com.google.cloud.vision.v1.BatchAnnotateImagesRequest
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import okhttp3.MultipartBody
@@ -17,12 +13,6 @@ import java.util.Base64
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.google.protobuf.ByteString
-import com.google.cloud.vision.v1.ImageAnnotatorClient
-import com.google.cloud.vision.v1.Feature
-import com.google.cloud.vision.v1.Image
-import com.google.cloud.vision.v1.ImageAnnotatorSettings
-import java.io.FileInputStream
-import java.io.IOException
 import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale

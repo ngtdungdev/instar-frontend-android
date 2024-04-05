@@ -14,11 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
+import com.instar.frontend_android.types.requests.NotificationRequest
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.CommentWithReply
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
+import com.instar.frontend_android.ui.services.FCMNotificationService
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -31,6 +34,9 @@ import kotlinx.coroutines.withContext
 class PostCommentAdapter(private val context: Context, private val data: MutableList<CommentWithReply>, private val lifecycleScope: LifecycleCoroutineScope, private val postId: String, private val userId: String) : RecyclerView.Adapter<PostCommentAdapter.ViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
+    private lateinit var fcmNotificationService: FCMNotificationService
+    private lateinit var notificationService: NotificationService
+
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: View = view.findViewById(R.id.avatar)
@@ -48,6 +54,8 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         userService = ServiceBuilder.buildService(UserService::class.java, parent.context)
         postService = ServiceBuilder.buildService(PostService::class.java, parent.context)
+        notificationService = ServiceBuilder.buildService(NotificationService::class.java, parent.context)
+        fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, parent.context)
         return ViewHolder(LayoutInflater.from(parent.context).inflate(
             R.layout.recycler_view_post_comment_item, parent, false))
     }
@@ -153,9 +161,7 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
             } else {
                 holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart)
             }
-        }
 
-        holder.like.setOnClickListener {
             commentWithReply.comment?.id?.let { it1 ->
                 postService.likeCommentPost(postId, it1, userId).handleResponse(
                     onSuccess = { response ->
@@ -165,6 +171,18 @@ class PostCommentAdapter(private val context: Context, private val data: Mutable
                         } else {
                             commentWithReply.comment.likes.add(userId)
                             holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
+
+                            val notificationRequest = NotificationRequest(postId, it1, userId, commentWithReply.comment.userId, "like-comment")
+
+                            notificationService.createNotification(userId, notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the comment notification.") },
+                                onError = { println("Error while sending comment notification.") }
+                            )
+
+                            fcmNotificationService.sendLikeCommentNotification(notificationRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the comment notification.") },
+                                onError = { println("Error while sending comment notification.") }
+                            )
                         }
                         holder.isLiked = !holder.isLiked
                         holder.textTotalLike.text = commentWithReply.comment.likes.size.toString()

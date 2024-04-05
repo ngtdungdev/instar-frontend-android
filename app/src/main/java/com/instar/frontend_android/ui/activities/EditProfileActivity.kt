@@ -29,6 +29,8 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var edtIntroduction: EditText
     private lateinit var imageAvatar: ImageView
     private lateinit var btnEditAvatar: TextView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
@@ -65,7 +67,8 @@ class EditProfileActivity : AppCompatActivity() {
             startActivity(newPage)
         }
         btnEditAvatar.setOnClickListener {
-
+            val newPage = Intent(this@EditProfileActivity, UpdateAvatarActivity::class.java)
+            startActivity(newPage)
         }
         updateUserInformation()
     }

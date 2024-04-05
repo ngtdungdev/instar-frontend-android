@@ -40,7 +40,7 @@ interface PostService {
     fun getTimelinePostsForYou(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>
 
     @GET("$AUTH_PREFIX/{postId}")
-    fun getPost(@Path("postId") postId: String): Call<ApiResponse<Any>>
+    fun getPost(@Path("postId") postId: String): Call<ApiResponse<PostResponse>>
 
     @Multipart
     @PUT("$AUTH_PREFIX/{postId}")
@@ -50,7 +50,7 @@ interface PostService {
     fun deletePost(@Path("userId") userId: String, @Path("postId") postId: String): Call<ApiResponse<Any>>
 
     @POST("$AUTH_PREFIX/comment/{postId}")
-    fun commentPost(@Path("postId") postId: String, @Body comment: Comment): Call<ApiResponse<Any>>
+    fun commentPost(@Path("postId") postId: String, @Body comment: Comment): Call<ApiResponse<PostResponse>>
 
     @POST("$AUTH_PREFIX/like-comment/{postId}/{commentId}/{userId}")
     fun likeCommentPost(@Path("postId") postId: String, @Path("commentId") commentId: String, @Path("userId") userId: String): Call<ApiResponse<Any>>

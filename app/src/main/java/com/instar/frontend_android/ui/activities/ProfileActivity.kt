@@ -159,10 +159,7 @@ class ProfileActivity : AppCompatActivity() {
         btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
-            newPage.putExtra("username", tvTenNguoiDung.text.toString())
-            newPage.putExtra("fullname", tvNickname.text.toString())
-            newPage.putExtra("description", tvDescription.text.toString())
-            newPage.putExtra("avatarUri", user?.profilePicture?.url)
+            newPage.putExtra("user", user)
             startActivity(newPage)
         }
         btnHome.setOnClickListener {

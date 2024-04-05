@@ -2,12 +2,13 @@ package com.instar.frontend_android.ui.services
 
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -19,8 +20,8 @@ interface UserService {
     @POST(AUTH_PREFIX)
     fun createUser(@Body userRequestDTO: Any): Call<ApiResponse<Any>>
 
-    @PUT("$AUTH_PREFIX/{userId}")
-    fun updateUser(@Path("userId") userId: String, @Body userRequestDTO: Any): Call<ApiResponse<Any>>
+    @POST("$AUTH_PREFIX/{userId}")
+    fun updateUser(@Path("userId") userId: String, @Part user: Any, @Part files: MultipartBody.Part?): Call<ApiResponse<Any>>
 
     @DELETE("$AUTH_PREFIX/{userId}")
     fun deleteUser(@Path("userId") userId: String): Call<ApiResponse<Any>>

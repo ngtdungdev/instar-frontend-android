@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
+import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -51,8 +52,8 @@ class EditProfileActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
-        val user = intent.getSerializableExtra("user") as? User
-        Toast.makeText(this, intent.getStringExtra("newurl"), Toast.LENGTH_SHORT).show()
+        var user = intent.getSerializableExtra("user") as? User
+
         if (user != null) {
             updateUserInformation(user)
         } else {
@@ -62,10 +63,8 @@ class EditProfileActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     try {
                         val response = getUserData(id)
-                        val user = response.data?.user
-                        if (user != null) {
-                            updateUserInformation(user)
-                        }
+                        user = response.data?.user
+                        user?.let { updateUserInformation(it) }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -94,23 +93,37 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.username = edtUsername.text.toString();
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
-                user?.profilePicture?.url = intent.getStringExtra("newurl")
 
                 if (user != null) {
-                    userService.updateUser(id, user, null).handleResponse(
-                        onSuccess = {
-                            val intent = Intent(this, ProfileActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                            startActivity(intent)
-                            finish()
-                        },
-                        onError = {
-                            Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                        }
-                    )
+                    val imageAvatarUrl = intent.getSerializableExtra("image") as ImageAndVideo;
+
+                    if (imageAvatarUrl != null) {
+                        userService.updateUser(id, user!!, Helpers.convertToMultipartPart(imageAvatarUrl)).handleResponse(
+                            onSuccess = {
+                                val intent = Intent(this, ProfileActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                                finish()
+                            },
+                            onError = {
+                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    } else {
+                        userService.updateUser(id, user!!, null).handleResponse(
+                            onSuccess = {
+                                val intent = Intent(this, ProfileActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                                finish()
+                            },
+                            onError = {
+                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }
                 };
             }
-
         }
     }
 
@@ -118,7 +131,11 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
-        if(intent.getStringExtra("newurl") == null){
+
+        val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
+
+        if(imageAvatarUrl == null) {
+            println(user.profilePicture?.url)
             Glide.with(this@EditProfileActivity)
                 .load(user.profilePicture?.url)
                 .placeholder(R.drawable.default_image)
@@ -127,7 +144,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
         else{
             Glide.with(this@EditProfileActivity)
-                .load(intent.getStringExtra("newurl"))
+                .load(imageAvatarUrl.uri)
                 .placeholder(R.drawable.default_image)
                 .error(R.drawable.default_image)
                 .into(imageAvatar)

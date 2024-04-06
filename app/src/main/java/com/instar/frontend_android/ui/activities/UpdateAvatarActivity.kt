@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -72,6 +73,7 @@ class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
         const val LOADER_ID = 101
     }
     private lateinit var fragment: Fragment;
+    @SuppressLint("SuspiciousIndentation")
     private fun initView() {
         recyclerView = findViewById(R.id.recyclerView)
         fragmentContainer = findViewById(R.id.fragmentContainer)
@@ -97,10 +99,10 @@ class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<
             val rectString = "${rect.left},${rect.top},${rect.right},${rect.bottom}"
             val image = ImageAndVideo(bitmap, dataList[savePosition].uri, rectString,"", 0)
             val intent = Intent(this@UpdateAvatarActivity, EditProfileActivity::class.java)
-                intent.putExtra("newurl", image.uri)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-                finish()
+            intent.putExtra("image", image)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
             this.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         btnSave.setOnClickListener {

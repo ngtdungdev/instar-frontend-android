@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -52,6 +53,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var userAdapter: SearchAdapter
     private lateinit var userRecyclerView: RecyclerView
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchAccountBinding.inflate(layoutInflater)
@@ -78,11 +80,15 @@ class SearchActivity : AppCompatActivity() {
     private fun initView() {
         btnPersonal.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java);
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
+            finish()
         }
         btnSearch.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java);
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
+            finish()
         }
         widthLayout = (getScreenWidth(this) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
         setMargin(btnSearch)
@@ -148,14 +154,21 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateUserList() {
         userAdapter = SearchAdapter(this, userList, object : InterfaceUtils.OnItemClickListener {
             override fun onItemClick(user: User) {
+                hideKeyboard()
                 val intent = Intent(this@SearchActivity, ProfileActivity::class.java)
                 intent.putExtra("user", user)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
+                finish()
             }
             override fun onItemCloseClick(user: User) {
             }

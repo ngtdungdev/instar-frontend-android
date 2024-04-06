@@ -115,7 +115,7 @@ object Helpers {
     }
 
     @JvmStatic
-    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>, name: String = "file"): List<MultipartBody.Part> {
+    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>, name: String = "files"): List<MultipartBody.Part> {
         val parts = mutableListOf<MultipartBody.Part>()
 
         for (imageAndVideo in imageAndVideoList) {
@@ -126,6 +126,13 @@ object Helpers {
         }
 
         return parts
+    }
+
+    @JvmStatic
+    fun convertToMultipartPart(imageAndVideo: ImageAndVideo, name: String = "files"): MultipartBody.Part {
+        val file = File(imageAndVideo.filePath)
+        val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData(name, file.name, requestFile)
     }
 
 

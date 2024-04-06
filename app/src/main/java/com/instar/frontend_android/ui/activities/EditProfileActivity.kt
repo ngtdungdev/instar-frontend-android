@@ -95,7 +95,7 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.desc = edtIntroduction.text.toString();
 
                 if (user != null) {
-                    val imageAvatarUrl = intent.getSerializableExtra("image") as ImageAndVideo;
+                    val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
 
                     if (imageAvatarUrl != null) {
                         userService.updateUser(id, user!!, Helpers.convertToMultipartPart(imageAvatarUrl)).handleResponse(

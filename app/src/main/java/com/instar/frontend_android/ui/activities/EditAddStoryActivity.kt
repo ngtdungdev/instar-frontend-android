@@ -71,12 +71,14 @@ class EditAddStoryActivity : AppCompatActivity() {
 
                 storyService.createStory(id, part).handleResponse(
                     onSuccess = {
-                        val intent = Intent(this, HomeFragment::class.java)
+                        val intent = Intent(this, MainScreenActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
                         finish()
                     },
                     onError = {
+                        println(it)
+                        println(it.status)
                         Toast.makeText(this, "Đăng lỗi", Toast.LENGTH_LONG).show()
                     }
                 );

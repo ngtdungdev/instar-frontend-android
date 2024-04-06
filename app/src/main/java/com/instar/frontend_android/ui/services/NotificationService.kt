@@ -3,6 +3,7 @@ package com.instar.frontend_android.ui.services
 import com.google.firebase.database.FirebaseDatabase
 import com.instar.frontend_android.types.requests.NotificationRequest
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.NotificationResponse
 import com.instar.frontend_android.ui.DTO.Notification
 import retrofit2.Call
 import retrofit2.http.Body
@@ -25,8 +26,6 @@ interface NotificationService {
         fun deleteToken(userId: String) {
             notificationTokensRef.child(userId).removeValue()
         }
-
-
     }
 
     @POST("$AUTH_PREFIX/{userId}")
@@ -42,7 +41,7 @@ interface NotificationService {
     fun deleteNotifications(@Path("userId") userId: String): Call<ApiResponse<Any>>
 
     @GET("$AUTH_PREFIX/{userId}")
-    fun getNotifications(@Path("userId") userId: String): Call<ApiResponse<List<Notification>>>
+    fun getNotifications(@Path("userId") userId: String): Call<ApiResponse<NotificationResponse>>
 
     @GET("$AUTH_PREFIX/{userId}/{notificationId}")
     fun getNotification(@Path("userId") userId: String, @Path("notificationId") notificationId: String): Call<ApiResponse<Notification>>

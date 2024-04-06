@@ -7,7 +7,8 @@ class Notification: Serializable {
     var type: String? = null
     var postId: String? = null
     var commentId: String? = null
-    var fromUserId: String? = null
+    val senderId: String? = null
+    val toUserId: String? = null
     var message: String? = null
     var createdAt: String? = null
 }

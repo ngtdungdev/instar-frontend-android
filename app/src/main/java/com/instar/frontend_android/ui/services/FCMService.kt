@@ -4,11 +4,9 @@ import android.content.Context
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.utils.Helpers
-import retrofit2.awaitResponse
 
 class FCMService : FirebaseMessagingService {
     private var applicationContext: Context
@@ -61,7 +59,6 @@ class FCMService : FirebaseMessagingService {
                                     notificationText = "${user?.fullname}: $message"
                                 }
                                 NotificationHelper.showNotification(this, notificationTitle, notificationText, 1, data)
-                                // TODO: Add new notification to MongoDB
                             }
                         }
                     },
@@ -73,72 +70,47 @@ class FCMService : FirebaseMessagingService {
                 userService.getUser(userId!!).handleResponse(
                     onSuccess = { response ->
                         user = response.data?.user
-                        NotificationHelper.showNotification(this, "Theo dõi", "${user?.username} đã theo dõi bạn", 1, data)
-
+                        NotificationHelper.showNotification(this, "Theo dõi", "${user?.username} đã theo dõi bạn", 1, data, user)
                     },
                     onError = { error -> println(error) }
                 )
             }
             "like-post" -> {
-                val postId = data["postId"]
-
-//                var post: Post?
-//
-//                postService.getPost(postId!!).handleResponse(
-//                    onSuccess = { response ->
-//                        post = response.data?.post
-//
-//
-//                    },
-//                    onError = { error -> println(error) }
-//                )
-
                 var user: User?
                 userService.getUser(userId!!).handleResponse(
                     onSuccess = { response ->
                         user = response.data?.user
-                        NotificationHelper.showNotification(this, "Có người đã thích bài viết của bạn", "${user?.username} đã thích bài viết của bạn", 1, data)
+                        NotificationHelper.showNotification(this, "Có người đã thích bài viết của bạn", "${user?.username} đã thích bài viết của bạn", 1, data, user)
                     },
                     onError = { error -> println(error) }
                 )
-
-
             }
             "like-comment" -> {
-                val chatId = data["chatId"]
-                val message = data["message"]
-
                 var user: User?
                 userService.getUser(userId!!).handleResponse(
                     onSuccess = { response ->
                         user = response.data?.user
-                        NotificationHelper.showNotification(this, "Có người đã thích bình luận của bạn", "${user?.username} đã thích bình luận của bạn", 1, data)
+                        NotificationHelper.showNotification(this, "Có người đã thích bình luận của bạn", "${user?.username} đã thích bình luận của bạn", 1, data, user)
                     },
                     onError = { error -> println(error) }
                 )
             }
             "add-comment" -> {
-                val chatId = data["chatId"]
-                val message = data["message"]
-
                 var user: User?
                 userService.getUser(userId!!).handleResponse(
                     onSuccess = { response ->
                         user = response.data?.user
-                        NotificationHelper.showNotification(this, "Có người đã bình luận vào bài viết của bạn", "${user?.username} đã bình luận vào bài viết của bạn", 1, data)
+                        NotificationHelper.showNotification(this, "Có người đã bình luận vào bài viết của bạn", "${user?.username} đã bình luận vào bài viết của bạn", 1, data, user)
                     },
                     onError = { error -> println(error) }
                 )
             }
             "reply-comment" -> {
-                val chatId = data["chatId"]
-                val message = data["message"]
-
                 var user: User?
                 userService.getUser(userId!!).handleResponse(
                     onSuccess = { response ->
                         user = response.data?.user
-                        NotificationHelper.showNotification(this, "Có người đã phản hồi bình luận của bạn", "${user?.username} đã bình luận đã phản hồi bình luận của bạn", 1, data)
+                        NotificationHelper.showNotification(this, "Có người đã phản hồi bình luận của bạn", "${user?.username} đã bình luận đã phản hồi bình luận của bạn", 1, data, user)
                     },
                     onError = { error -> println(error) }
                 )

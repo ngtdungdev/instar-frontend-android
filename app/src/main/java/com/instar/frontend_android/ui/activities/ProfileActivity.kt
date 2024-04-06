@@ -28,6 +28,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityProfileBinding
+import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
@@ -52,6 +53,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
     private lateinit var binding: ActivityProfileBinding
+    private lateinit var url: ImageView
     private lateinit var btn_editProfile : TextView
     private lateinit var btnHome : ImageButton
     private lateinit var btnSearch : ImageButton
@@ -73,6 +75,7 @@ class ProfileActivity : AppCompatActivity() {
     public var user: User? = null
 
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -90,8 +93,7 @@ class ProfileActivity : AppCompatActivity() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
 
-        val user: User? = intent.getSerializableExtra("user") as? User
-        Toast.makeText(this, user?.fullname.toString(), Toast.LENGTH_LONG).show()
+        var user: User? = intent.getSerializableExtra("user") as? User
 
         if (user != null) {
             updateUserInformation(user)
@@ -99,13 +101,12 @@ class ProfileActivity : AppCompatActivity() {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
+
                 lifecycleScope.launch {
                     try {
                         val response = getUserData(id)
-                        val user = response.data?.user
-                        if (user != null) {
-                            updateUserInformation(user)
-                        }
+                        user = response.data?.user
+                        user?.let { updateUserInformation(it) }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -120,11 +121,19 @@ class ProfileActivity : AppCompatActivity() {
         tvDescription.text = user.desc
         tvSoLuongNguoiTheoDoi.text = user.followers?.size.toString()
         tvSoLuongDangTheoDoi.text = user.followings?.size.toString()
+
         Glide.with(this@ProfileActivity)
             .load(user.profilePicture?.url)
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(imgAvatar)
+
+        Glide.with(this@ProfileActivity)
+            .load(user.profilePicture?.url)
+            .placeholder(R.drawable.default_image) // Placeholder image
+            .error(R.drawable.default_image) // Image to display if load fails
+            .into(url)
+
         lifecycleScope.launch {
             try {
                 val response1 = getMyPostsData(user.id)
@@ -154,19 +163,25 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.btnSearch = btnSearch
             this@ProfileActivity.btnPostUp1 = btnPostUp1
             this@ProfileActivity.btnLogout = btnLogout
+            this@ProfileActivity.url = url
         }
         btnReel = binding.btnReel
         btnSearch = binding.btnSearch
         btnPostUp = binding.btnPostUp
         btnPersonal = binding.btnPersonal
+
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             newPage.putExtra("user", user)
             startActivity(newPage)
+            finish()
         }
         btnHome.setOnClickListener {
-            val intent = Intent(this, HomeFragment::class.java);
+            val intent = Intent(this, MainScreenActivity::class.java);
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
+            finish()
         }
         btnLogout.setOnClickListener {
             ServiceBuilder.setRefreshToken(this, null)

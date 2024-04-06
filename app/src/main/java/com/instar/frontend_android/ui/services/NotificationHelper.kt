@@ -5,31 +5,47 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.FutureTarget
 import com.instar.frontend_android.MainActivity
 import com.instar.frontend_android.R
+import com.instar.frontend_android.ui.DTO.User
 
 object NotificationHelper {
     private const val CHANNEL_ID = "com.instar.frontend_android"
     private const val CHANNEL_NAME = "Instar"
 
-    fun showNotification(context: Context, title: String, message: String, id: Int, data: Map<String, String> = HashMap()) {
+    fun showNotification(context: Context, title: String, message: String, id: Int, data: Map<String, String> = HashMap(), user: User? = null) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT).apply {
             importance = NotificationManager.IMPORTANCE_DEFAULT
         }
+
         notificationManager.createNotificationChannel(channel)
-        val bitmap = BitmapFactory.decodeResource(context.resources, R.mipmap.no1)
+
+        var bitmap: Bitmap? = null
+        try {
+            user?.profilePicture?.url?.let {
+                val futureTarget: FutureTarget<Bitmap> = Glide.with(context)
+                    .asBitmap()
+                    .load(it)
+                    .submit()
+                bitmap = futureTarget.get()
+            }
+        } catch (e: Exception) {
+            Log.e("NotificationHelper", "Failed to load image from URL: ${user?.profilePicture?.url}", e)
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_instagram_icon_black_white)
             .setContentTitle(title)
             .setContentText(message)
             .setLargeIcon(bitmap)
-//                .setStyle(NotificationCompat.BigPictureStyle()
-//                          .bigPicture(bitmap)
-//                          .bigLargeIcon(null))
             .setColor(ContextCompat.getColor(context, R.color.white))
             .setColorized(true)
             .setAutoCancel(true)

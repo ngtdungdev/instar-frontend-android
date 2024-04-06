@@ -275,9 +275,9 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                             likes.add(id)
                             postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
 
-                            val notificationRequest = NotificationRequest(post.id, null, id, post.userId, "like-post")
+                            val notificationRequest = NotificationRequest(post.id, null, id, post.userId, "${user.username} đã thích bài viết của bạn", "like-post")
 
-                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                            notificationService.createNotification(post.userId, notificationRequest).handleResponse(
                                 onSuccess = { println("Successfully sent the user notification.") },
                                 onError = { println("Error while sending user notification.") }
                             )

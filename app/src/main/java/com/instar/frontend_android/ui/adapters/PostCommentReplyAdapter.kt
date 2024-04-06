@@ -138,7 +138,7 @@ class PostCommentReplyAdapter(private val context: Context, private val data: Mu
                             comment.likes.add(userId)
                             holder.like.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
 
-                            val notificationRequest = NotificationRequest(postId, it1, userId, comment.userId, "like-comment")
+                            val notificationRequest = NotificationRequest(postId, it1, userId, comment.userId, "${user?.username} đã thích bình luận của bạn", "like-comment")
 
                             notificationService.createNotification(userId, notificationRequest).handleResponse(
                                 onSuccess = { println("Successfully sent the comment notification.") },

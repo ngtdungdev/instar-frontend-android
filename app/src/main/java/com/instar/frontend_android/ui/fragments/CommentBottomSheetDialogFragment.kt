@@ -208,9 +208,9 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
                         if (comment?.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
                             val notificationRequest = NotificationRequest(post.id,
-                                comment.id, user.id, post.userId, "add-comment")
+                                comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
 
-                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                            notificationService.createNotification(post.userId, notificationRequest).handleResponse(
                                 onSuccess = { println("Successfully sent the comment notification.") },
                                 onError = { println("Error while sending comment notification.") }
                             )
@@ -220,10 +220,27 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                                 onError = { println("Error while sending add comment notification.") }
                             )
                         } else {
-                            val notificationRequest = NotificationRequest(post.id,
-                                comment?.id, user.id, post.userId, "reply-comment")
+                            val commentParent = post.comments.find { it.id.equals(comment?.parentId) }
 
-                            notificationService.createNotification(user.id, notificationRequest).handleResponse(
+                            val notificationReplyRequest = NotificationRequest(post.id,
+                                commentParent?.id, user.id, commentParent?.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+
+                            commentParent?.userId?.let {
+                                notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                    onSuccess = { println("Successfully sent the reply comment notification.") },
+                                    onError = { println("Error while sending reply comment notification.") }
+                                )
+                            }
+
+                            fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
+                                onSuccess = { println("Successfully sent the reply comment notification.") },
+                                onError = { println("Error while sending reply comment notification.") }
+                            )
+
+                            val notificationRequest = NotificationRequest(post.id,
+                                comment?.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
+
+                            notificationService.createNotification(post.userId, notificationRequest).handleResponse(
                                 onSuccess = { println("Successfully sent the comment notification.") },
                                 onError = { println("Error while sending comment notification.") }
                             )

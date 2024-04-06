@@ -96,7 +96,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/btnfollow2"
+        android:id="@+id/btnUnfollow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/button_background_while"
@@ -107,12 +107,12 @@
         android:paddingEnd="20dp"
         android:paddingBottom="8dp"
         android:paddingStart="20dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="10dp"
         android:layout_marginTop="10dp"
-        android:text="Theo dõi"
+        android:text="Huy Theo dõi"
         android:textSize="12sp"
         android:textStyle="bold" />
 

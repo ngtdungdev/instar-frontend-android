@@ -31,6 +31,7 @@ import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
+import com.instar.frontend_android.ui.activities.NotificationActivity
 import com.instar.frontend_android.ui.activities.ProfileActivity
 import com.instar.frontend_android.ui.activities.SearchActivity
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
@@ -67,7 +68,7 @@ class HomeFragment : Fragment() {
     private lateinit var authService: AuthService
     private lateinit var postService: PostService
     private lateinit var storyService: StoryService
-    private lateinit var user: UserResponse
+    private lateinit var userResponse: UserResponse
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
     private lateinit var url: ImageView
@@ -113,7 +114,7 @@ class HomeFragment : Fragment() {
         initView()
         authService.profile().handleResponse(
             onSuccess = { response ->
-                user = response.data!!
+                userResponse = response.data!!
                 val avatarUrl = response.data.user?.profilePicture?.url
                 CoroutineScope(Dispatchers.Main).launch {
                     imageList = getStorys()
@@ -174,7 +175,9 @@ class HomeFragment : Fragment() {
             }
         }
         iconHeart.setOnClickListener {
-            CommentBottomSheetDialogFragment().show(childFragmentManager , CommentBottomSheetDialogFragment.TAG)
+            val intent = Intent(context, NotificationActivity::class.java)
+            intent.putExtra("user", userResponse.user)
+            startActivity(intent)
         }
         widthLayout = (getScreenWidth(requireContext()) - dpToPx(30 * 4 + 10 * 2 + 37)) / 4
         setMargin(btnSearch)
@@ -227,7 +230,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        postAdapter = user.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
+        postAdapter = userResponse.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }

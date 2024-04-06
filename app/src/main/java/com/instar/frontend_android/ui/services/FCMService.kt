@@ -137,7 +137,6 @@ class FCMService : FirebaseMessagingService {
             if (task.isSuccessful) {
                 val token = task.result
 
-                println(token)
                 val userId: String? = Helpers.getUserId(applicationContext)
                 if (userId != null) {
                     NotificationService.createNewToken(userId, token)

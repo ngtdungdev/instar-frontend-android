@@ -97,12 +97,14 @@ class EditProfileActivity : AppCompatActivity() {
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
 
+                    Toast.makeText(this, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
                     if (imageAvatarUrl != null) {
                         userService.updateUser(id, user!!, Helpers.convertToMultipartPart(imageAvatarUrl)).handleResponse(
                             onSuccess = {
                                 val intent = Intent(this, ProfileActivity::class.java)
                                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                                 startActivity(intent)
+                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
                                 finish()
                             },
                             onError = {
@@ -110,11 +112,12 @@ class EditProfileActivity : AppCompatActivity() {
                             }
                         )
                     } else {
-                        userService.updateUser(id, user!!, null).handleResponse(
+                        userService.updateUserV2(id, user!!).handleResponse(
                             onSuccess = {
                                 val intent = Intent(this, ProfileActivity::class.java)
                                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                                 startActivity(intent)
+                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
                                 finish()
                             },
                             onError = {

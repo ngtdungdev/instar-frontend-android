@@ -31,8 +31,8 @@ class ImageAndVideoAdapter(
     }
     private var saveImage: ImageView? = null
     interface OnItemClickListener {
-        fun onItemClick(position: Int?)
-        fun onDeleteClick(position: Int?, savePosition: Int)
+        fun onItemClick(position: Int)
+        fun onDeleteClick(position: Int, savePosition: Int)
     }
 
     fun getListSelectorItem(): MutableList<Int> {

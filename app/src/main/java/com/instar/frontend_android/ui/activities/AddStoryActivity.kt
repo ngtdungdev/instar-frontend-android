@@ -121,20 +121,18 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
         }
     }
 
+
     private fun loadRecyclerView() {
         adapter = ImageAndVideoAdapter(this, dataList, isListPost = false, savePosition = 0)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         adapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
-            override fun onItemClick(position: Int?) {
-                if (!isIntentCalled) { // Kiểm tra xem Intent đã được gọi trước đó chưa
-                    if (position != null) {
-                        this@AddStoryActivity.pos = position
-                    }
+            override fun onItemClick(position: Int) {
+                if (!isIntentCalled) {
+                    this@AddStoryActivity.pos = position
                 }
             }
-            override fun onDeleteClick(position: Int?, savePosition: Int) {}
+            override fun onDeleteClick(position: Int, savePosition: Int) {}
         })
-
     }
 }

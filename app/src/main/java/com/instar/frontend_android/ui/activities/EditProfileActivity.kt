@@ -51,7 +51,8 @@ class EditProfileActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
-        val user = intent.getSerializableExtra("user") as User
+        val user = intent.getSerializableExtra("user") as? User
+        Toast.makeText(this, intent.getStringExtra("newurl"), Toast.LENGTH_SHORT).show()
         if (user != null) {
             updateUserInformation(user)
         } else {
@@ -73,37 +74,41 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         btnBack.setOnClickListener {
-            // Xử lý cập nhật lại thông tin người dùng nếu như có chỉnh sửa
             val newPage = Intent(this@EditProfileActivity, ProfileActivity::class.java)
             startActivity(newPage)
             finish()
         }
 
         btnEditAvatar.setOnClickListener {
-
+            val newPage = Intent(this@EditProfileActivity, UpdateAvatarActivity::class.java)
+            startActivity(newPage)
+            finish()
         }
 
         btnSaveProfile.setOnClickListener {
-            // xử lý sự kiện lưu thay đổiuse
+            // xử lý sự kiện lưu thay đổi use
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
 
-                user.username = edtUsername.text.toString();
-                user.fullname = edtFullname.text.toString();
-                user.desc = edtIntroduction.text.toString();
+                user?.username = edtUsername.text.toString();
+                user?.fullname = edtFullname.text.toString();
+                user?.desc = edtIntroduction.text.toString();
+                user?.profilePicture?.url = intent.getStringExtra("newurl")
 
-                userService.updateUser(id, user, null).handleResponse(
-                    onSuccess = {
-                        val intent = Intent(this, HomeFragment::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
-                        finish()
-                    },
-                    onError = {
-                        Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                    }
-                );
+                if (user != null) {
+                    userService.updateUser(id, user, null).handleResponse(
+                        onSuccess = {
+                            val intent = Intent(this, ProfileActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
+                            finish()
+                        },
+                        onError = {
+                            Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                };
             }
 
         }
@@ -113,11 +118,20 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
-        Glide.with(this@EditProfileActivity)
-            .load(user.profilePicture?.url)
-            .placeholder(R.drawable.default_image)
-            .error(R.drawable.default_image)
-            .into(imageAvatar)
+        if(intent.getStringExtra("newurl") == null){
+            Glide.with(this@EditProfileActivity)
+                .load(user.profilePicture?.url)
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(imageAvatar)
+        }
+        else{
+            Glide.with(this@EditProfileActivity)
+                .load(intent.getStringExtra("newurl"))
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(imageAvatar)
+        }
     }
 
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {

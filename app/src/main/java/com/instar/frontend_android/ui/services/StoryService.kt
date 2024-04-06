@@ -9,6 +9,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
@@ -21,6 +22,7 @@ interface StoryService {
     @DELETE("$AUTH_PREFIX/{userId}/{storyId}")
     fun deleteStory(@Path("userId") userId: String, @Path("storyId") storyId: String): Call<ApiResponse<Any>>
 
+    @Multipart
     @POST("$AUTH_PREFIX/{userId}")
     fun createStory(@Path("userId") userId: String, @Part file: MultipartBody.Part): Call<ApiResponse<Any>>
 

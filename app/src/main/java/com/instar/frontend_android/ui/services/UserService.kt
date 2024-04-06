@@ -7,6 +7,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
@@ -20,6 +21,7 @@ interface UserService {
     @POST(AUTH_PREFIX)
     fun createUser(@Body userRequestDTO: Any): Call<ApiResponse<Any>>
 
+    @Multipart
     @POST("$AUTH_PREFIX/{userId}")
     fun updateUser(@Path("userId") userId: String, @Part user: Any, @Part files: MultipartBody.Part?): Call<ApiResponse<Any>>
 

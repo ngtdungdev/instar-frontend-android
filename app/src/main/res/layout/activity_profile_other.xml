@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:id="@+id/main"
     tools:context=".ui.activities.ProfileActivity"
     tools:layout_editor_absoluteX="-9dp"
     tools:layout_editor_absoluteY="0dp">
@@ -204,7 +205,23 @@
                 android:maxLines="1"
                 android:padding="8dp"
                 android:text="Theo dõi"
+                android:visibility="gone"
                 android:textColor="@color/white"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/btnIsFollow"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="20dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:visibility="gone"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:text="Đang theo dõi"
+                android:textColor="@color/black"
+                android:background="@drawable/button_background_black_border"
                 android:textStyle="bold" />
             <TextView
                 android:id="@+id/btnChat"

@@ -257,20 +257,20 @@ class HomeFragment : Fragment() {
 
                 val userIdSet = HashSet<String>()
 
-                for (story in storyResponse) {
-                    if (!userIdSet.contains(story.userId)) {
-                        val userInfoResponse = getUserData(story.userId)
-                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-                        imageList.add(
-                            Images(
-                                Images.TYPE_FRIEND_AVATAR,
-                                story.userId,
-                                avatarUrl
-                            )
-                        )
-                        userIdSet.add(story.userId)
-                    }
-                }
+//                for (story in storyResponse) {
+//                    if (!userIdSet.contains(story.userId)) {
+//                        val userInfoResponse = getUserData(story.userId)
+//                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+//                        imageList.add(
+//                            Images(
+//                                Images.TYPE_FRIEND_AVATAR,
+//                                story.userId,
+//                                avatarUrl
+//                            )
+//                        )
+//                        userIdSet.add(story.userId)
+//                    }
+//                }
             } else {
                 // Handle the case where the response is null
                 Log.e("Error", "Failed to get timeline stories")

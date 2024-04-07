@@ -83,8 +83,7 @@ class ProfileActivity : AppCompatActivity() {
         initView()
 
         // Khởi tạo adapter và gán nó cho ViewPager2
-        myViewPagerAdapter = MyViewPagerAdapter(this@ProfileActivity)
-        viewPager2.adapter = myViewPagerAdapter
+
 
         userService = ServiceBuilder.buildService(UserService::class.java, this)
         postService = ServiceBuilder.buildService(PostService::class.java, this)
@@ -97,11 +96,14 @@ class ProfileActivity : AppCompatActivity() {
 
         if (user != null) {
             updateUserInformation(user)
+            myViewPagerAdapter = MyViewPagerAdapter(this@ProfileActivity,user.id)
+            viewPager2.adapter = myViewPagerAdapter
         } else {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
-
+                myViewPagerAdapter = MyViewPagerAdapter(this@ProfileActivity,id)
+                viewPager2.adapter = myViewPagerAdapter
                 lifecycleScope.launch {
                     try {
                         val response = getUserData(id)
@@ -113,6 +115,7 @@ class ProfileActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     private fun updateUserInformation(user: User) {

@@ -9,8 +9,13 @@ import com.instar.frontend_android.R
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.instar.frontend_android.ui.DTO.Post
 
-class CustomAdapter(private val context: Context, private val dataList: List<Post>) :
+class CustomAdapter(private val context: Context, private var dataList: List<Post>) :
     RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+
+    fun setData(dataList: List<Post>) {
+        this.dataList = dataList
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -20,13 +25,16 @@ class CustomAdapter(private val context: Context, private val dataList: List<Pos
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val data: Post = dataList[position]
-        val firstMedia = data.fileUploads[0]
+        val firstMedia = data.fileUploads?.firstOrNull()
 
-        Glide.with(context)
-            .load(firstMedia.url)
-            .diskCacheStrategy(DiskCacheStrategy.DATA)
-            .into(holder.imageView)
+        firstMedia?.let {
+            Glide.with(context)
+                .load(it.url)
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                .into(holder.imageView)
+        }
     }
+
 
     override fun getItemCount(): Int {
         return dataList.size

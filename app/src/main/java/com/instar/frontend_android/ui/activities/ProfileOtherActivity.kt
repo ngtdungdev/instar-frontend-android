@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -13,6 +14,7 @@ import android.view.WindowMetrics
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +26,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityProfileBinding
+import com.instar.frontend_android.databinding.ActivityProfileOtherBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
@@ -38,13 +41,13 @@ import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 class ProfileOtherActivity : AppCompatActivity() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
-    private lateinit var binding: ActivityProfileBinding
+    private lateinit var binding: ActivityProfileOtherBinding
     private lateinit var url: ImageView
-    private lateinit var btn_editProfile : TextView
     private lateinit var btnHome : ImageButton
     private lateinit var btnSearch : ImageButton
     private lateinit var btnFollow : TextView
@@ -67,8 +70,9 @@ class ProfileOtherActivity : AppCompatActivity() {
     public var userOther: User? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityProfileOtherBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_profile_other)
+        setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -76,7 +80,11 @@ class ProfileOtherActivity : AppCompatActivity() {
         }
 
         initView()
-        myViewPagerAdapter = MyViewPagerAdapter(this@ProfileOtherActivity)
+        var userOther: User? = intent.getSerializableExtra("userOther") as? User
+
+        var user: User? = intent.getSerializableExtra("user") as? User
+
+        myViewPagerAdapter = MyViewPagerAdapter(this@ProfileOtherActivity,userOther?.id)
         viewPager2.adapter = myViewPagerAdapter
 
         userService = ServiceBuilder.buildService(UserService::class.java, this)
@@ -85,11 +93,27 @@ class ProfileOtherActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
+        userOther?.id?.let { Log.i("User ID ", it) }
+        user?.id?.let { Log.i("User now ID ", it) }
 
-        userOther = intent.getSerializableExtra("user") as? User
-        userOther?.let { updateUserInformation(it) }
-        var user: User? = intent.getSerializableExtra("user") as? User
+        if (userOther != null) {
+            updateUserOtherInformation(userOther)
+        } else {
+            if (accessToken != null) {
+                val decodedTokenJson = Helpers.decodeJwt(accessToken)
+                val id = decodedTokenJson.getString("id")
 
+                lifecycleScope.launch {
+                    try {
+                        val response = getUserData(id)
+                        userOther = response.data?.user
+                        userOther?.let { updateUserOtherInformation(it) }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
         if (user != null) {
             updateUserInformation(user)
         } else {
@@ -112,7 +136,6 @@ class ProfileOtherActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
         binding.apply {
-            btn_editProfile = btnEditProfile
             this@ProfileOtherActivity.tvTenNguoiDung = tvTenNguoiDung
             this@ProfileOtherActivity.tvNickname = tvNickname
             this@ProfileOtherActivity.tvDescription = tvDescription
@@ -189,32 +212,33 @@ class ProfileOtherActivity : AppCompatActivity() {
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
-    private fun updateUserInformation(user: User) {
-        tvTenNguoiDung.text = userOther?.username
-        tvNickname.text = userOther?.fullname
-        tvDescription.text = userOther?.desc
-        tvSoLuongNguoiTheoDoi.text = userOther?.followers?.size.toString()
-        tvSoLuongDangTheoDoi.text = userOther?.followings?.size.toString()
+    private fun updateUserOtherInformation(userOther: User) {
+        tvTenNguoiDung.text = userOther.username
+        tvNickname.text = userOther.fullname
+        tvDescription.text = userOther.desc
+        tvSoLuongNguoiTheoDoi.text = userOther.followers.size.toString()
+        tvSoLuongDangTheoDoi.text = userOther.followings.size.toString()
 
         Glide.with(this@ProfileOtherActivity)
-            .load(userOther?.profilePicture?.url)
+            .load(userOther.profilePicture?.url)
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(imgAvatar)
+        lifecycleScope.launch {
+            try {
+                val response1 = getMyPostsData(userOther.id)
+                tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    private fun updateUserInformation(user: User) {
         Glide.with(this@ProfileOtherActivity)
             .load(user.profilePicture?.url)
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(url)
-        lifecycleScope.launch {
-            try {
-                val response1 = getMyPostsData(userOther.id)
-                tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {

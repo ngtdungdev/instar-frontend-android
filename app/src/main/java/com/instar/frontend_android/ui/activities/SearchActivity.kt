@@ -165,10 +165,9 @@ class SearchActivity : AppCompatActivity() {
             override fun onItemClick(user: User) {
                 hideKeyboard()
                 val intent = Intent(this@SearchActivity, ProfileOtherActivity::class.java)
-                intent.putExtra("user", user)
+                intent.putExtra("userOther", user)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
-                finish()
             }
             override fun onItemCloseClick(user: User) {
             }

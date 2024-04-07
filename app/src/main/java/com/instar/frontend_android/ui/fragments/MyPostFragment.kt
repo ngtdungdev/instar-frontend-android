@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class MyPostFragment : Fragment() {
+class MyPostFragment(private val userId: String) : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
@@ -64,13 +64,13 @@ class MyPostFragment : Fragment() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
         if (accessToken != null) {
-            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-            val id = decodedTokenJson.getString("id")
+//            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+//            val id = decodedTokenJson.getString("id")
 
             // gọi để lấy bài viết và saved bài viết
             lifecycleScope.launch {
                 try {
-                    val response1 = getMyPostsData(id)
+                    val response1 = getMyPostsData(userId)
                     myPostList = response1.data?.posts!!
 
                     val adapter = CustomAdapter(requireContext(), myPostList)
@@ -99,12 +99,8 @@ class MyPostFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MyPostFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance(userId: String): MyPostFragment {
+            return MyPostFragment(userId)
+        }
     }
 }

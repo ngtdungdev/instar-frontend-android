@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.instar.frontend_android.R;
 import com.instar.frontend_android.ui.DTO.Images;
 import com.instar.frontend_android.ui.activities.AddStoryActivity;
+import com.instar.frontend_android.ui.activities.StoryActivity;
 
 import java.util.List;
 
@@ -67,6 +69,8 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.default_image)
                     .into(data.imageButton);
         } else {
             data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
@@ -85,6 +89,8 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (item.getUrl() != null) {
             Glide.with(context)
                     .load(item.getUrl())
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.default_image)
                     .into(data.imageButton);
         } else {
             data.imageButton.setBackgroundResource(R.drawable.baseline_account_circle_24);
@@ -94,10 +100,10 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         data.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (listener != null) {
-                    listener.onFriendClick(position);
-                }
-                Log.i("commeo", "onClick: ");
+                Intent intent = new Intent(context, StoryActivity.class);
+                intent.putExtra("user", item.getId());
+
+                context.startActivity(intent);
             }
         });
     }

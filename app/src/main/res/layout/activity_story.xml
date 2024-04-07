@@ -7,11 +7,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@null"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="75dp" />
+        android:scaleType="centerCrop" />
     <LinearLayout
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" android:layout_marginTop="15dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="15dp"
     android:orientation="horizontal"
     android:layout_margin="20dp">
     <include layout="@layout/recycler_view_item_avatar"
@@ -45,8 +45,7 @@
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:layout_marginBottom="75dp">
+    android:orientation="horizontal">
         <View
             android:id="@+id/reverse"
             android:layout_width="0dp"
@@ -75,42 +74,4 @@
         android:layout_height="3dp"
         android:layout_gravity="top"
         android:layout_marginTop="8dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_alignParentBottom="true">
-
-        <EditText
-            android:id="@+id/editTextText"
-            android:layout_width="250dp"
-            android:layout_height="48dp"
-            android:layout_weight="2"
-            android:layout_marginLeft="20dp"
-            android:padding="8dp"
-            android:background="@drawable/border_10dp_white"
-            android:ems="10"
-            android:inputType="text"
-            android:hint="Gửi tin nhắn" />
-
-        <ImageButton
-            android:id="@+id/heart"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="15dp"
-            android:background="@drawable/ic_instagram_icon_heart"
-            android:contentDescription="Heart button"/>
-
-        <ImageButton
-            android:id="@+id/share"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="15dp"
-            android:background="@drawable/icon_paperplane"
-            android:contentDescription="Share button"/>
-    </LinearLayout>
 </RelativeLayout>

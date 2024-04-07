@@ -116,8 +116,19 @@ class HomeFragment : Fragment() {
             onSuccess = { response ->
                 userResponse = response.data!!
                 val avatarUrl = response.data.user?.profilePicture?.url
+                val idUser = response.data.user?.id
                 CoroutineScope(Dispatchers.Main).launch {
                     imageList = getStorys()
+                    val image0 = Images(
+                        Images.TYPE_PERSONAL_AVATAR,
+                        idUser.toString(),
+                        "Tin của bạn",
+                        avatarUrl
+                    )
+
+                    imageList.add(0, image0)
+                    newsFollowAdapter = NewsFollowAdapter(context,imageList)
+                    avatarRecyclerView.adapter = newsFollowAdapter
                 }
 
                 Glide.with(requireContext())
@@ -125,16 +136,6 @@ class HomeFragment : Fragment() {
                     .placeholder(R.drawable.default_image) // Placeholder image
                     .error(R.drawable.default_image) // Image to display if load fails
                     .into(url)
-
-                val image0 = Images(
-                    Images.TYPE_PERSONAL_AVATAR,
-                    "Tin của bạn",
-                    avatarUrl
-                )
-
-                imageList.add(0, image0)
-                newsFollowAdapter = NewsFollowAdapter(context,imageList)
-                avatarRecyclerView.adapter = newsFollowAdapter
 
                 lifecycleScope.launch {
                     loadRecyclerView() // Call the suspend function within the coroutine
@@ -244,33 +245,33 @@ class HomeFragment : Fragment() {
             val decodedTokenJson = Helpers.decodeJwt(accessToken)
             val id = decodedTokenJson.getString("id")
             val response = try {
-                val response = storyService.getStoriesByUserId(id).awaitResponse()
+                val response = storyService.getStoriesTimelineByUserId(id).awaitResponse()
                 response
             } catch (error: Throwable) {
-                // Handle error
-                error.printStackTrace() // Print stack trace for debugging purposes
-                null // Return null to indicate that an error occurred
+                error.printStackTrace()
+                null
             }
             if (response != null) {
                 val storyResponse = response.data?.timelineStories ?: ArrayList()
-                Toast.makeText(context, storyResponse.toString(), Toast.LENGTH_LONG).show()
 
                 val userIdSet = HashSet<String>()
 
-//                for (story in storyResponse) {
-//                    if (!userIdSet.contains(story.userId)) {
-//                        val userInfoResponse = getUserData(story.userId)
-//                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-//                        imageList.add(
-//                            Images(
-//                                Images.TYPE_FRIEND_AVATAR,
-//                                story.userId,
-//                                avatarUrl
-//                            )
-//                        )
-//                        userIdSet.add(story.userId)
-//                    }
-//                }
+                for (story in storyResponse) {
+                    if (!userIdSet.contains(story.userId)) {
+                        val userInfoResponse = getUserData(story.userId.toString())
+                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                        val userName = userInfoResponse.data?.user?.username
+                        imageList.add(
+                            Images(
+                                Images.TYPE_FRIEND_AVATAR,
+                                story.userId.toString(),
+                                userName.toString(),
+                                avatarUrl
+                            )
+                        )
+                        userIdSet.add(story.userId.toString())
+                    }
+                }
             } else {
                 // Handle the case where the response is null
                 Log.e("Error", "Failed to get timeline stories")

@@ -143,8 +143,8 @@ class SearchActivity : AppCompatActivity() {
             }
 
             runOnUiThread {
-                if (response != null && response.data?.followingUsers != null) {
-                    userList = response.data.followingUsers as MutableList<User>
+                if (response != null && response.data?.users != null) {
+                    userList = response.data.users as MutableList<User>
                     Toast.makeText(this@SearchActivity, userList.toString(), Toast.LENGTH_LONG).show()
                     updateUserList() // Cập nhật dữ liệu sau khi nhận kết quả
                 } else {

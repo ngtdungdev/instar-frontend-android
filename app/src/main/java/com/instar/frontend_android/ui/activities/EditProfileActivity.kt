@@ -109,8 +109,7 @@ class EditProfileActivity : AppCompatActivity() {
                             },
                             onError = {
                                 Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                            }
-                        )
+                            })
                     } else {
                         userService.updateUserV2(id, user!!).handleResponse(
                             onSuccess = {

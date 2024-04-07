@@ -45,6 +45,13 @@ interface UserService {
     @GET("$AUTH_PREFIX/saved-posts/{userId}")
     fun getSavedPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<Any>>
 
+    @GET("$AUTH_PREFIX/timeline-my-saved-posts/{userId}")
+    fun getTimelineMySavedPosts(@Path("userId") userId: String): Call<ApiResponse<UserResponse>>
+
+    @GET("$AUTH_PREFIX/timeline-my-posts/{userId}")
+    fun getTimelineMyPosts(@Path("userId") userId: String): Call<ApiResponse<UserResponse>>
+
+
     @GET("$AUTH_PREFIX/following")
     fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<UserResponse>>
 

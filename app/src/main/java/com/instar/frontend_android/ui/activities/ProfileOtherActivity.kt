@@ -98,22 +98,8 @@ class ProfileOtherActivity : AppCompatActivity() {
         Toast.makeText(this, user?.id , Toast.LENGTH_SHORT).show()
         if (userOther != null) {
             updateUserOtherInformation(userOther)
-        } else {
-            if (accessToken != null) {
-                val decodedTokenJson = Helpers.decodeJwt(accessToken)
-                val id = decodedTokenJson.getString("id")
-
-                lifecycleScope.launch {
-                    try {
-                        val response = getUserData(id)
-                        userOther = response.data?.user
-                        userOther?.let { updateUserOtherInformation(it) }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
         }
+
         if (user != null) {
             updateUserInformation(user)
         } else {

@@ -135,7 +135,7 @@ class SearchActivity : AppCompatActivity() {
     fun search() {
         lifecycleScope.launch {
             val response = try {
-                val response = userService.searchFollowingUser(query.text.toString()).awaitResponse()
+                val response = userService.searchUsers(query.text.toString()).awaitResponse()
                 response
             } catch (error: Throwable) {
                 error.printStackTrace()

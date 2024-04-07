@@ -48,5 +48,10 @@ interface UserService {
     @GET("$AUTH_PREFIX/following")
     fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<UserResponse>>
 
+    @GET("$AUTH_PREFIX/search")
+    fun searchUsers(@Query("q") q: String): Call<ApiResponse<UserResponse>>
+
+    @GET("$AUTH_PREFIX/follow/{toUserId}")
+    fun follow(@Path("toUserId") toUserId: String): Call<ApiResponse<UserResponse>>
 }
 

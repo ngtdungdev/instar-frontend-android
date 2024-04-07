@@ -30,6 +30,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageView
     private lateinit var edtFullname: EditText
     private lateinit var edtUsername: EditText
+    private lateinit var edtPassword: EditText
     private lateinit var edtIntroduction: EditText
     private lateinit var imageAvatar: ImageView
     private lateinit var btnEditAvatar: TextView
@@ -47,6 +48,7 @@ class EditProfileActivity : AppCompatActivity() {
         edtIntroduction = findViewById(R.id.edtIntroduction)
         imageAvatar = findViewById(R.id.imageAvatar)
         btnEditAvatar = findViewById(R.id.customButton)
+        edtPassword = findViewById(R.id.edtPassword)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
@@ -93,7 +95,7 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.username = edtUsername.text.toString();
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
-
+                user?.password = edtPassword.text.toString();
 
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
@@ -141,6 +143,7 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
+        edtPassword.setText(user.password)
 
         val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
 

@@ -135,7 +135,7 @@ class SearchActivity : AppCompatActivity() {
     fun search() {
         lifecycleScope.launch {
             val response = try {
-                val response = userService.searchFollowingUser(query.text.toString()).awaitResponse()
+                val response = userService.searchUsers(query.text.toString()).awaitResponse()
                 response
             } catch (error: Throwable) {
                 error.printStackTrace()
@@ -164,11 +164,10 @@ class SearchActivity : AppCompatActivity() {
         userAdapter = SearchAdapter(this, userList, object : InterfaceUtils.OnItemClickListener {
             override fun onItemClick(user: User) {
                 hideKeyboard()
-                val intent = Intent(this@SearchActivity, ProfileActivity::class.java)
-                intent.putExtra("user", user)
+                val intent = Intent(this@SearchActivity, ProfileOtherActivity::class.java)
+                intent.putExtra("userOther", user)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
-                finish()
             }
             override fun onItemCloseClick(user: User) {
             }

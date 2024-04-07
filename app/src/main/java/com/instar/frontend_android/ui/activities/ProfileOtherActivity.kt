@@ -36,6 +36,7 @@ import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,8 @@ class ProfileOtherActivity : AppCompatActivity() {
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
     public var userOther: User? = null
+
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileOtherBinding.inflate(layoutInflater)
@@ -80,9 +83,9 @@ class ProfileOtherActivity : AppCompatActivity() {
         }
 
         initView()
-        var userOther: User? = intent.getSerializableExtra("userOther") as? User
+        userOther = intent.getSerializableExtra("userOther") as? User
 
-        var user: User? = intent.getSerializableExtra("user") as? User
+        user = intent.getSerializableExtra("user") as? User
 
         myViewPagerAdapter = MyViewPagerAdapter(this@ProfileOtherActivity,userOther?.id)
         viewPager2.adapter = myViewPagerAdapter
@@ -93,15 +96,12 @@ class ProfileOtherActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
-        userOther?.id?.let { Log.i("User ID ", it) }
-        user?.id?.let { Log.i("User now ID ", it) }
-
         if (userOther != null) {
-            updateUserOtherInformation(userOther)
+            updateUserOtherInformation(userOther!!)
         }
 
         if (user != null) {
-            updateUserInformation(user)
+            updateUserInformation(user!!)
         } else {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
@@ -118,6 +118,8 @@ class ProfileOtherActivity : AppCompatActivity() {
                 }
             }
         }
+
+
     }
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
@@ -150,10 +152,68 @@ class ProfileOtherActivity : AppCompatActivity() {
             finish()
         }
         btnFollow.setOnClickListener {
-            finish()
+            userOther?.id?.let { it1 ->
+                userService.follow(it1).handleResponse(
+                    onSuccess = {
+                        user?.followings = it.data?.user?.followings!!
+
+                        lifecycleScope.launch {
+                            try {
+                                val response = getUserData(it1)
+                                userOther = response.data?.user
+                                userOther?.let { it3 -> updateUserOtherInformation(it3) }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+
+                        if (it.data.user?.followings?.contains(userOther?.id) == true) {
+                            btnFollow.visibility = View.GONE
+                            btnIsFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.VISIBLE
+                        } else {
+                            btnIsFollow.visibility = View.GONE
+                            btnFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.GONE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
         }
         btnIsFollow.setOnClickListener {
-            finish()
+            userOther?.id?.let { it1 ->
+                userService.follow(it1).handleResponse(
+                    onSuccess = {
+                        user?.followings = it.data?.user?.followings!!
+
+                        lifecycleScope.launch {
+                            try {
+                                val response = getUserData(it1)
+                                userOther = response.data?.user
+                                userOther?.let { it3 -> updateUserOtherInformation(it3) }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+
+                        if (it.data.user?.followings?.contains(userOther?.id) == true) {
+                            btnFollow.visibility = View.GONE
+                            btnIsFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.VISIBLE
+                        } else {
+                            btnIsFollow.visibility = View.GONE
+                            btnFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.GONE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
         }
         btnChat.setOnClickListener {
             finish()
@@ -210,6 +270,7 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(imgAvatar)
+
         lifecycleScope.launch {
             try {
                 val response1 = getMyPostsData(userOther.id)
@@ -225,6 +286,14 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(url)
+        if (user.followings.contains(userOther?.id) == true) {
+            btnFollow.visibility = View.GONE
+            btnIsFollow.visibility = View.VISIBLE
+        } else {
+            btnIsFollow.visibility = View.GONE
+            btnFollow.visibility = View.VISIBLE
+            btnChat.visibility = View.GONE
+        }
     }
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {

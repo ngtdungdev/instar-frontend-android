@@ -5,12 +5,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.instar.frontend_android.R
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Post
 
-class CustomAdapter(private val context: Context, private var dataList: List<Post>) :
-    RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+class CustomAdapter(
+    private val context: Context,
+    private var dataList: List<Post>,
+    private val onItemClick: (Post) -> Unit
+) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
     fun setData(dataList: List<Post>) {
         this.dataList = dataList
@@ -33,8 +36,12 @@ class CustomAdapter(private val context: Context, private var dataList: List<Pos
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .into(holder.imageView)
         }
-    }
 
+        // Xử lý sự kiện click
+        holder.itemView.setOnClickListener {
+            onItemClick(data)
+        }
+    }
 
     override fun getItemCount(): Int {
         return dataList.size

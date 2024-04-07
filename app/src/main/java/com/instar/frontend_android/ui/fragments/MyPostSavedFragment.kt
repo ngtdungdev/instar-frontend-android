@@ -1,14 +1,13 @@
 package com.instar.frontend_android.ui.fragments
 
 import CustomAdapter
-import android.R
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -16,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.activities.DetailMySavedPostActivity
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
-import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,7 +79,12 @@ class MyPostSavedFragment(private val userId: String) : Fragment() {
                     val response2 = getMySavedPostsData(userId)
                     mySavedPostList = response2.data?.posts!!
 
-                    val adapter = CustomAdapter(requireContext(), mySavedPostList)
+                    val adapter = CustomAdapter(requireContext(), mySavedPostList) { post ->
+                        val intent = Intent(requireContext(), DetailMySavedPostActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        intent.putExtra("userId", userId)
+                        startActivity(intent)
+                    }
                     recyclerView.adapter = adapter
                     if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
                         linearViewNoItems.setVisibility(View.VISIBLE);

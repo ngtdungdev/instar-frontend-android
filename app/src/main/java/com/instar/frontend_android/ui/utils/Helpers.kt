@@ -29,9 +29,8 @@ object Helpers {
         val parts = token.split(".")
         if (parts.size == 3) {
             val body = parts[1]
-            val decodedBytes = Base64.getDecoder().decode(body)
-            val jsonObject = JSONObject(String(decodedBytes))
-            return jsonObject
+            val decodedBytes = Base64.getUrlDecoder().decode(body)
+            return JSONObject(String(decodedBytes))
         } else {
             throw IllegalArgumentException("Invalid token format")
         }

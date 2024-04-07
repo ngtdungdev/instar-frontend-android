@@ -23,7 +23,12 @@ interface UserService {
 
     @Multipart
     @POST("$AUTH_PREFIX/{userId}")
-    fun updateUser(@Path("userId") userId: String, @Part user: Any, @Part files: MultipartBody.Part?): Call<ApiResponse<Any>>
+    fun updateUser(@Path("userId") userId: String, @Part("user") user: Any, @Part files: MultipartBody.Part): Call<ApiResponse<Any>>
+
+    @Multipart
+    @POST("$AUTH_PREFIX/{userId}")
+    fun updateUserV2(@Path("userId") userId: String, @Part("user") user: Any): Call<ApiResponse<Any>>
+
 
     @DELETE("$AUTH_PREFIX/{userId}")
     fun deleteUser(@Path("userId") userId: String): Call<ApiResponse<Any>>
@@ -43,5 +48,10 @@ interface UserService {
     @GET("$AUTH_PREFIX/following")
     fun searchFollowingUser(@Query("q") q: String): Call<ApiResponse<UserResponse>>
 
+    @GET("$AUTH_PREFIX/search")
+    fun searchUsers(@Query("q") q: String): Call<ApiResponse<UserResponse>>
+
+    @GET("$AUTH_PREFIX/follow/{toUserId}")
+    fun follow(@Path("toUserId") toUserId: String): Call<ApiResponse<UserResponse>>
 }
 

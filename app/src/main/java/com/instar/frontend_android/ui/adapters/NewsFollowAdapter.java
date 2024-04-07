@@ -97,7 +97,7 @@ public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
         data.nameAvatar.setText(item.getName());
 
-        data.itemView.setOnClickListener(new View.OnClickListener() {
+        data.imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, StoryActivity.class);

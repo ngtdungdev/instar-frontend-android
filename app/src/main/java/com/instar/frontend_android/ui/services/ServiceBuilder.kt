@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.services
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.instar.frontend_android.types.responses.ApiResponse
@@ -19,7 +20,7 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("StaticFieldLeak")
 object ServiceBuilder {
     private lateinit var context: Context
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"
+    private const val BASE_URL = "http://192.168.1.4:8080/api/"
     private lateinit var authService: AuthService
 
     // OkHttpClient setup with custom settings
@@ -143,6 +144,7 @@ object ServiceBuilder {
                     continuation.resumeWith(Result.success(response))
                 },
                 onError = { error ->
+                    Log.e("Call API ERROR: ", error.toString())
                     continuation.resume(ApiResponse(error = "Failed to execute request"))
                 }
             )

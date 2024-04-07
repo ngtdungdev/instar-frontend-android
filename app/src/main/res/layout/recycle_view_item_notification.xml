@@ -99,7 +99,7 @@
         android:id="@+id/btnUnfollow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_background_while"
+        android:background="@drawable/button_background_black_border"
         android:textColor="@color/black"
         android:fontFamily="@font/inter_medium"
         android:gravity="center"

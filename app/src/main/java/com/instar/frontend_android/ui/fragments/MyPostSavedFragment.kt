@@ -35,7 +35,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [MyPostSavedFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MyPostSavedFragment : Fragment() {
+class MyPostSavedFragment(private val userId: String) : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mySavedPostList: MutableList<Post>
@@ -71,13 +71,13 @@ class MyPostSavedFragment : Fragment() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
         if (accessToken != null) {
-            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-            val id = decodedTokenJson.getString("id")
+//            val decodedTokenJson = Helpers.decodeJwt(accessToken)
+//            val id = decodedTokenJson.getString("id")
 
             // gọi để lấy bài viết và saved bài viết
             lifecycleScope.launch {
                 try {
-                    val response2 = getMySavedPostsData(id)
+                    val response2 = getMySavedPostsData(userId)
                     mySavedPostList = response2.data?.posts!!
 
                     val adapter = CustomAdapter(requireContext(), mySavedPostList)
@@ -105,12 +105,8 @@ class MyPostSavedFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MyPostFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance(userId: String): MyPostFragment {
+            return MyPostFragment(userId)
+        }
     }
 }

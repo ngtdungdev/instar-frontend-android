@@ -9,8 +9,10 @@ import com.instar.frontend_android.ui.fragments.MyPostFragment;
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment;
 
 public class MyViewPagerAdapter extends FragmentStateAdapter {
-    public MyViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    private String userId;
+    public MyViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, String userId) {
         super(fragmentActivity);
+        this.userId = userId;
     }
 
     @NonNull
@@ -18,11 +20,11 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position){
             case 0:
-                return new MyPostFragment();
+                return new MyPostFragment(userId);
             case 1:
-                return new MyPostSavedFragment();
+                return new MyPostSavedFragment(userId);
             default:
-                return new MyPostFragment();
+                return new MyPostFragment(userId);
         }
     }
 

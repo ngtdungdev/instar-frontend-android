@@ -16,8 +16,10 @@ import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.databinding.ActivityStoryBinding
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.StoryResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Images
+import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -44,7 +46,8 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
 
     private val PROGRESS_COUNT = 6
     private lateinit var storiesProgressView: StoriesProgressView
-    private var resources: ArrayList<Images> = ArrayList<Images>()
+    private var resources: MutableList<Images> = mutableListOf()
+    private var myStories: MutableList<Story> = mutableListOf()
     private var counter = 0
 
     private val durations = longArrayOf(
@@ -62,15 +65,20 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
 
         id = intent.getSerializableExtra("user").toString()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            resources = getStorys()
-
-        }
         lifecycleScope.launch {
             try {
                 val response = getUserData(id.toString())
                 user = response.data?.user
                 user?.let { updateUserInformation(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = getStories()
+                myStories = response.data?.myStories!!
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -112,18 +120,10 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
             .into(avatar)
     }
 
-    private suspend fun getStorys(): ArrayList<Images> {
-        val imageList = ArrayList<Images>()
-        val response = try {
-            val response = storyService.getStoriesByUserId(id.toString()).awaitResponse()
-            response
-        } catch (error: Throwable) {
-            error.printStackTrace()
-            null
+    private suspend fun getStories(): ApiResponse<StoryResponse> {
+        return withContext(Dispatchers.IO) {
+            storyService.getStoriesByUserId(id.toString()).awaitResponse()
         }
-        Toast.makeText(this, response?.data?.stories.toString(), Toast.LENGTH_LONG).show()
-
-        return imageList
     }
 
 

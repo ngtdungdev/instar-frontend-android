@@ -7,6 +7,10 @@ import com.instar.frontend_android.ui.DTO.StoryTimeline
 class StoryResponse {
     @SerializedName("timelineStories")
     var timelineStories: ArrayList<StoryTimeline>? = null
+
     @SerializedName("stories")
     var stories: ArrayList<StoryTimeline>? = null
+
+    @SerializedName("myStories")
+    var myStories: ArrayList<Story>? = null
 }

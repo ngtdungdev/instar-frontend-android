@@ -36,6 +36,7 @@ import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +101,6 @@ class ProfileOtherActivity : AppCompatActivity() {
         }
 
         if (user != null) {
-            Log.i("RES", user?.followings?.contains(userOther?.id).toString() )
             updateUserInformation(user!!)
         } else {
             if (accessToken != null) {
@@ -152,10 +152,68 @@ class ProfileOtherActivity : AppCompatActivity() {
             finish()
         }
         btnFollow.setOnClickListener {
-            finish()
+            userOther?.id?.let { it1 ->
+                userService.follow(it1).handleResponse(
+                    onSuccess = {
+                        user?.followings = it.data?.user?.followings!!
+
+                        lifecycleScope.launch {
+                            try {
+                                val response = getUserData(it1)
+                                userOther = response.data?.user
+                                userOther?.let { it3 -> updateUserOtherInformation(it3) }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+
+                        if (it.data.user?.followings?.contains(userOther?.id) == true) {
+                            btnFollow.visibility = View.GONE
+                            btnIsFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.VISIBLE
+                        } else {
+                            btnIsFollow.visibility = View.GONE
+                            btnFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.GONE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
         }
         btnIsFollow.setOnClickListener {
-            finish()
+            userOther?.id?.let { it1 ->
+                userService.follow(it1).handleResponse(
+                    onSuccess = {
+                        user?.followings = it.data?.user?.followings!!
+
+                        lifecycleScope.launch {
+                            try {
+                                val response = getUserData(it1)
+                                userOther = response.data?.user
+                                userOther?.let { it3 -> updateUserOtherInformation(it3) }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+
+                        if (it.data.user?.followings?.contains(userOther?.id) == true) {
+                            btnFollow.visibility = View.GONE
+                            btnIsFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.VISIBLE
+                        } else {
+                            btnIsFollow.visibility = View.GONE
+                            btnFollow.visibility = View.VISIBLE
+                            btnChat.visibility = View.GONE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
         }
         btnChat.setOnClickListener {
             finish()
@@ -228,7 +286,6 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(url)
-        Log.i("UserOther", userOther?.id.toString())
         if (user.followings.contains(userOther?.id) == true) {
             btnFollow.visibility = View.GONE
             btnIsFollow.visibility = View.VISIBLE

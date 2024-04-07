@@ -22,6 +22,7 @@ import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
+import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.StoryService
@@ -63,11 +64,14 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         setContentView(R.layout.activity_story)
         initView()
 
-        id = intent.getSerializableExtra("user").toString()
+        userService = ServiceBuilder.buildService(UserService::class.java, this)
+        storyService = ServiceBuilder.buildService(StoryService::class.java, this)
+
+        id = intent.getStringExtra("user");
 
         lifecycleScope.launch {
             try {
-                val response = getUserData(id.toString())
+                val response = getUserData(id!!)
                 user = response.data?.user
                 user?.let { updateUserInformation(it) }
             } catch (e: Exception) {
@@ -75,10 +79,13 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
             }
         }
 
+
+
         lifecycleScope.launch {
             try {
                 val response = getStories()
                 myStories = response.data?.myStories!!
+                println(myStories.size)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -122,7 +129,7 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
 
     private suspend fun getStories(): ApiResponse<StoryResponse> {
         return withContext(Dispatchers.IO) {
-            storyService.getStoriesByUserId(id.toString()).awaitResponse()
+            storyService.getStoriesByUserId(id!!).awaitResponse()
         }
     }
 

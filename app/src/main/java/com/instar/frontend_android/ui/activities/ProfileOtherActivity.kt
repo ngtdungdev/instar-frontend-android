@@ -82,9 +82,9 @@ class ProfileOtherActivity : AppCompatActivity() {
         }
 
         initView()
-        var userOther: User? = intent.getSerializableExtra("userOther") as? User
+        userOther = intent.getSerializableExtra("userOther") as? User
 
-        var user: User? = intent.getSerializableExtra("user") as? User
+        user = intent.getSerializableExtra("user") as? User
 
         myViewPagerAdapter = MyViewPagerAdapter(this@ProfileOtherActivity,userOther?.id)
         viewPager2.adapter = myViewPagerAdapter
@@ -96,11 +96,12 @@ class ProfileOtherActivity : AppCompatActivity() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
         if (userOther != null) {
-            updateUserOtherInformation(userOther)
+            updateUserOtherInformation(userOther!!)
         }
 
         if (user != null) {
-            updateUserInformation(user)
+            Log.i("RES", user?.followings?.contains(userOther?.id).toString() )
+            updateUserInformation(user!!)
         } else {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
@@ -117,6 +118,8 @@ class ProfileOtherActivity : AppCompatActivity() {
                 }
             }
         }
+
+
     }
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
@@ -225,6 +228,15 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(url)
+        Log.i("UserOther", userOther?.id.toString())
+        if (user.followings.contains(userOther?.id) == true) {
+            btnFollow.visibility = View.GONE
+            btnIsFollow.visibility = View.VISIBLE
+        } else {
+            btnIsFollow.visibility = View.GONE
+            btnFollow.visibility = View.VISIBLE
+            btnChat.visibility = View.GONE
+        }
     }
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {

@@ -205,7 +205,6 @@
                 android:maxLines="1"
                 android:padding="8dp"
                 android:text="Theo dõi"
-                android:visibility="gone"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
             <TextView
@@ -215,7 +214,6 @@
                 android:layout_marginEnd="20dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:visibility="gone"
                 android:gravity="center"
                 android:maxLines="1"
                 android:padding="8dp"

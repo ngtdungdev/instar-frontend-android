@@ -1,9 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
-import android.content.Context
-import android.media.audiofx.LoudnessEnhancer
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
@@ -13,23 +10,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.databinding.ActivityStoryBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.StoryResponse
 import com.instar.frontend_android.types.responses.UserResponse
-import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.DTO.User
-import com.instar.frontend_android.ui.adapters.NewsFollowAdapter
-import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.StoryService
 import com.instar.frontend_android.ui.services.UserService
-import com.instar.frontend_android.ui.utils.Helpers
 import jp.shts.android.storiesprogressview.StoriesProgressView
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,22 +29,19 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     private lateinit var storyService: StoryService
     private lateinit var userService: UserService
     private lateinit var binding: ActivityStoryBinding
+    private lateinit var storiesProgressView: StoriesProgressView
     private lateinit var tvName : TextView
     private lateinit var tvTime : TextView
     private lateinit var image : ImageView
+    private lateinit var imageBack : ImageView
     private lateinit var avatar : ImageView
-    public var user: User? = null
+    private lateinit var reverse : View
+    private lateinit var skip : View
+    private var myStories: MutableList<Story> = mutableListOf()
+    var user: User? = null
     var id: String? = null
 
-    private val PROGRESS_COUNT = 6
-    private lateinit var storiesProgressView: StoriesProgressView
-    private var resources: MutableList<Images> = mutableListOf()
-    private var myStories: MutableList<Story> = mutableListOf()
     private var counter = 0
-
-    private val durations = longArrayOf(
-        500L, 1000L, 1500L, 4000L, 5000L, 1000
-    )
     private var pressTime: Long = 0L
     private val limit = 500L
 
@@ -61,69 +49,44 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStoryBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_story)
-        initView()
+        setContentView(binding.root)
 
         userService = ServiceBuilder.buildService(UserService::class.java, this)
         storyService = ServiceBuilder.buildService(StoryService::class.java, this)
+        initView()
 
-        id = intent.getStringExtra("user");
+        id = intent.getStringExtra("user")
 
         lifecycleScope.launch {
             try {
                 val response = getUserData(id!!)
                 user = response.data?.user
-                user?.let { updateUserInformation(it) }
+                updateUserInformation(user!!)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-
-
 
         lifecycleScope.launch {
             try {
                 val response = getStories()
                 myStories = response.data?.myStories!!
-                println(myStories.size)
+                storiesProgressView.setStoriesCount(myStories.size)
+                storiesProgressView.setStoryDuration(500L)
+                storiesProgressView.setStoriesListener(this@StoryActivity)
+                storiesProgressView.startStories(counter)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-
-        storiesProgressView = findViewById(R.id.stories)
-        storiesProgressView.setStoriesCount(PROGRESS_COUNT)
-        storiesProgressView.setStoryDuration(3000L)
-        // or
-        storiesProgressView.setStoriesCountWithDurations(durations)
-        storiesProgressView.setStoriesListener(this)
-        counter = 0
-        storiesProgressView.startStories(counter)
-
-        image = findViewById(R.id.image)
-//        image.setImageResource(resources[counter])
-
-        // bind reverse view
-        val reverse = findViewById<View>(R.id.reverse)
-        reverse.setOnClickListener {
-            storiesProgressView.reverse()
-        }
-        reverse.setOnTouchListener(onTouchListener)
-
-        val skip = findViewById<View>(R.id.skip)
-        skip.setOnClickListener {
-            storiesProgressView.skip()
-        }
-        skip.setOnTouchListener(onTouchListener)
     }
 
     private fun updateUserInformation(user: User) {
         tvName.text = user.username
-
         Glide.with(this@StoryActivity)
             .load(user.profilePicture?.url)
-            .placeholder(R.drawable.default_image) // Placeholder image
-            .error(R.drawable.default_image) // Image to display if load fails
+            .placeholder(R.drawable.default_image)
+            .error(R.drawable.default_image)
             .into(avatar)
     }
 
@@ -133,6 +96,29 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         }
     }
 
+    private fun initView() {
+        binding.apply {
+            this@StoryActivity.tvName = tvName
+            this@StoryActivity.tvTime = tvTime
+            this@StoryActivity.avatar = avatar
+            this@StoryActivity.image = image
+            this@StoryActivity.imageBack = imageBack
+            this@StoryActivity.reverse = reverse
+            this@StoryActivity.skip = skip
+            this@StoryActivity.storiesProgressView = stories
+        }
+        reverse.setOnClickListener {
+            this.reverse()
+        }
+
+        skip.setOnClickListener {
+            this.skip()
+        }
+
+        imageBack.setOnClickListener {
+            finish()
+        }
+    }
 
     private val onTouchListener = View.OnTouchListener { view, event ->
         when (event.action) {
@@ -155,14 +141,6 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         }
     }
 
-    private fun initView() {
-        binding.apply {
-            this@StoryActivity.tvName = tvName
-            this@StoryActivity.tvTime = tvTime
-            this@StoryActivity.image = image
-        }
-
-    }
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()
@@ -170,12 +148,50 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     }
 
     override fun onNext() {
-//        image.setImageResource(resources[++counter])
+        if (counter < myStories.size - 1) {
+            counter++
+            tvTime.text = myStories[counter].createdAt
+            loadImage(myStories[counter].fileUploads.url.toString())
+        } else return
     }
 
     override fun onPrev() {
-        if ((counter - 1) < 0) return
-//        image.setImageResource(resources[--counter])
+        if (counter > 0) {
+            counter--
+            tvTime.text = myStories[counter].createdAt
+            loadImage(myStories[counter].fileUploads.url.toString())
+        } else return
+    }
+
+    private fun reverse() {
+        Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
+        if (counter > 0){
+            counter--
+            tvTime.text = myStories[counter].createdAt
+            Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
+            loadImage(myStories[counter].fileUploads.url.toString())
+        }
+        else return
+    }
+
+    private fun skip() {
+        Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
+        if (counter < myStories.size -1) {
+            counter++
+            tvTime.text = myStories[counter].createdAt
+            Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
+            loadImage(myStories[counter].fileUploads.url.toString())
+        }
+        else return
+    }
+
+    private fun loadImage(imageUrl: String) {
+        println(imageUrl)
+        Glide.with(this@StoryActivity)
+            .load(imageUrl)
+            .placeholder(R.drawable.default_image)
+            .error(R.drawable.default_image)
+            .into(image)
     }
 
     override fun onComplete() {}

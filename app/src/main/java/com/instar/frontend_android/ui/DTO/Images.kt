@@ -2,7 +2,7 @@ package com.instar.frontend_android.ui.DTO
 
 import java.io.Serializable
 
-class Images(var type: Int, var name: String, var url: String?) : Serializable{
+class Images(var type: Int, var id: String , var name: String, var url: String?) : Serializable{
 
     companion object {
         const val TYPE_PERSONAL_AVATAR = 0

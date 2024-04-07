@@ -95,7 +95,7 @@ class ProfileOtherActivity : AppCompatActivity() {
 
         userOther?.id?.let { Log.i("User ID ", it) }
         user?.id?.let { Log.i("User now ID ", it) }
-
+        Toast.makeText(this, user?.id , Toast.LENGTH_SHORT).show()
         if (userOther != null) {
             updateUserOtherInformation(userOther)
         } else {
@@ -132,6 +132,8 @@ class ProfileOtherActivity : AppCompatActivity() {
                 }
             }
         }
+
+        user?.followers
     }
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
@@ -239,6 +241,14 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(url)
+        if (user.followings.contains(userOther?.id)) {
+            btnFollow.visibility = View.GONE
+            btnIsFollow.visibility = View.VISIBLE
+        } else {
+            btnIsFollow.visibility = View.GONE
+            btnFollow.visibility = View.VISIBLE
+            btnChat.visibility = View.GONE
+        }
     }
     @RequiresApi(Build.VERSION_CODES.R)
     fun getScreenWidth(context: Context): Int {

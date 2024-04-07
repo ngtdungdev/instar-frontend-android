@@ -68,6 +68,8 @@ class ProfileOtherActivity : AppCompatActivity() {
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
     public var user: User? = null
     public var userOther: User? = null
+
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileOtherBinding.inflate(layoutInflater)
@@ -92,9 +94,6 @@ class ProfileOtherActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
-
-        userOther?.id?.let { Log.i("User ID ", it) }
-        user?.id?.let { Log.i("User now ID ", it) }
 
         if (userOther != null) {
             updateUserOtherInformation(userOther)
@@ -210,6 +209,7 @@ class ProfileOtherActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(imgAvatar)
+
         lifecycleScope.launch {
             try {
                 val response1 = getMyPostsData(userOther.id)

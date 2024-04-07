@@ -95,7 +95,10 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.username = edtUsername.text.toString();
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
-                user?.password = edtPassword.text.toString();
+
+                if (edtPassword.text.toString().isEmpty() || edtPassword.text.toString().isBlank()) {
+                    user?.password = edtPassword.text.toString();
+                }
 
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
@@ -103,8 +106,6 @@ class EditProfileActivity : AppCompatActivity() {
                         update(id, user!!, imageAvatarUrl!!)
                         Toast.makeText(applicationContext, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
                     }
-
-
                 };
             }
         }
@@ -143,7 +144,7 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
-        edtPassword.setText(user.password)
+        edtPassword.setText("")
 
         val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
 

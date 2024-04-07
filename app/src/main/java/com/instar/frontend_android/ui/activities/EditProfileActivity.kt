@@ -94,38 +94,46 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
 
+
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
-
-                    Toast.makeText(this, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
-                    if (imageAvatarUrl != null) {
-                        userService.updateUser(id, user!!, Helpers.convertToMultipartPart(imageAvatarUrl)).handleResponse(
-                            onSuccess = {
-                                val intent = Intent(this, ProfileActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
-                                finish()
-                            },
-                            onError = {
-                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                            })
-                    } else {
-                        userService.updateUserV2(id, user!!).handleResponse(
-                            onSuccess = {
-                                val intent = Intent(this, ProfileActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
-                                finish()
-                            },
-                            onError = {
-                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                            }
-                        )
+                    lifecycleScope.launch {
+                        update(id, user!!, imageAvatarUrl!!)
+                        Toast.makeText(applicationContext, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
                     }
+
+
                 };
             }
+        }
+    }
+
+    suspend fun update(id: String, user: User?, imageAvatarUrl: ImageAndVideo?) {
+        if (imageAvatarUrl != null) {
+            userService.updateUser(id, user!!, Helpers.convertToMultipartPart(applicationContext, imageAvatarUrl)).handleResponse(
+                onSuccess = {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
+                    finish()
+                },
+                onError = {
+                    Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                })
+        } else {
+            userService.updateUserV2(id, user!!).handleResponse(
+                onSuccess = {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
+                    finish()
+                },
+                onError = {
+                    Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                }
+            )
         }
     }
 

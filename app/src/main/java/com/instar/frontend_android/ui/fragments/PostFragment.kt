@@ -166,7 +166,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
 
 
     private suspend fun checkImages(filterEditing: MutableList<ImageAndVideo>): ApiResponse<Any> {
-        return uploadFileService.checkVision(Helpers.convertToMultipartParts(filterEditing, "files")).awaitResponse()
+        return uploadFileService.checkVision(Helpers.convertToMultipartParts(requireContext(), filterEditing)).awaitResponse()
     }
 
     private fun addFilterEditing(filterEditing: MutableList<ImageAndVideo>, fragmentManager: FragmentManager, isList: Boolean, position: Int, positionList: Int) {

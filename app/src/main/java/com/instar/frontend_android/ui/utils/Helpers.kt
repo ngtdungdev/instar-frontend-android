@@ -1,6 +1,8 @@
 package com.instar.frontend_android.ui.utils
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
 import okhttp3.MultipartBody
@@ -13,6 +15,13 @@ import java.util.Base64
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.google.protobuf.ByteString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import okio.BufferedSink
+import okio.source
+import java.io.IOException
 import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
@@ -114,26 +123,125 @@ object Helpers {
     }
 
     @JvmStatic
-    fun convertToMultipartParts(imageAndVideoList: List<ImageAndVideo>, name: String = "files"): List<MultipartBody.Part> {
+    suspend fun convertToMultipartParts(context: Context, imageAndVideoList: List<ImageAndVideo>, name: String = "files"): List<MultipartBody.Part> {
         val parts = mutableListOf<MultipartBody.Part>()
 
-        for (imageAndVideo in imageAndVideoList) {
-            val file = File(imageAndVideo.filePath)
-            val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData(name, file.name, requestFile)
-            parts.add(part)
+        withContext(Dispatchers.IO) {
+            val contentResolver: ContentResolver = context.contentResolver
+
+            for (imageAndVideo in imageAndVideoList) {
+                val uri = Uri.parse(imageAndVideo.uri)
+                val inputStream = contentResolver.openInputStream(uri)
+                inputStream.use { input ->
+                    input?.let {
+                        val fileName = getFileName(context, uri)
+                        // Mở một bản sao mới của inputStream để sử dụng trong writeTo
+                        val inputStreamCopy = contentResolver.openInputStream(uri)
+                        val requestBody = object : RequestBody() {
+                            override fun contentType(): MediaType? {
+                                return contentResolver.getType(uri)?.toMediaTypeOrNull()
+                            }
+
+                            override fun writeTo(sink: BufferedSink) {
+                                inputStreamCopy?.use { inputStream ->
+                                    try {
+                                        sink.writeAll(inputStream.source())
+                                    } catch (e: IOException) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            }
+                        }
+                        val part = MultipartBody.Part.createFormData(name, fileName, requestBody)
+                        parts.add(part)
+                    }
+                }
+            }
         }
 
         return parts
     }
 
     @JvmStatic
-    fun convertToMultipartPart(imageAndVideo: ImageAndVideo, name: String = "files"): MultipartBody.Part {
-        val file = File(imageAndVideo.filePath)
-        val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-        return MultipartBody.Part.createFormData(name, file.name, requestFile)
+    public fun getFileName(context: Context, uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    result = it.getString(it.getColumnIndexOrThrow("_display_name"))
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result?.lastIndexOf('/')
+            if (cut != -1) {
+                result = result?.substring(cut!! + 1)
+            }
+        }
+        return result ?: "unknown"
     }
 
+    @JvmStatic
+    suspend fun convertToMultipartPart(context: Context, imageAndVideo: ImageAndVideo, name: String = "files"): MultipartBody.Part {
+        val uri = Uri.parse(imageAndVideo.uri)
+        val contentResolver: ContentResolver = context.contentResolver
+
+        return withContext(Dispatchers.IO) {
+            val inputStream = contentResolver.openInputStream(uri)
+            inputStream.use { input ->
+                input?.let {
+                    val fileName = getFileName(context, uri)
+                    // Create a copy of inputStream to use for writing to sink
+                    val inputStreamCopy = contentResolver.openInputStream(uri)
+                    val requestBody = object : RequestBody() {
+                        override fun contentType(): MediaType? {
+                            return contentResolver.getType(uri)?.toMediaTypeOrNull()
+                        }
+
+                        override fun writeTo(sink: BufferedSink) {
+                            inputStreamCopy?.use { inputStream ->
+                                try {
+                                    sink.writeAll(inputStream.source())
+                                } catch (e: IOException) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    }
+                    MultipartBody.Part.createFormData(name, fileName, requestBody)
+                } ?: throw IOException("Failed to open InputStream")
+            }
+        }
+    }
+
+    @JvmStatic
+    suspend fun convertToMultipartPartURI(context: Context, uriString: String, name: String = "files"): MultipartBody.Part {
+        return withContext(Dispatchers.IO) {
+            val uri = Uri.parse(uriString)
+            val contentResolver: ContentResolver = context.contentResolver
+            val inputStream = contentResolver.openInputStream(uri)
+            inputStream.use { input ->
+                input?.let {
+                    val fileName = getFileName(context, uri)
+                    val requestBody = object : RequestBody() {
+                        override fun contentType(): MediaType? {
+                            return contentResolver.getType(uri)?.toMediaTypeOrNull()
+                        }
+
+                        override fun writeTo(sink: BufferedSink) {
+                            val inputStreamCopy = contentResolver.openInputStream(uri)
+                            inputStreamCopy.use { inputStream ->
+                                sink.writeAll(inputStream!!.source())
+                            }
+                        }
+                    }
+                    MultipartBody.Part.createFormData(name, fileName ?: "unknown", requestBody)
+                } ?: throw IOException("Failed to open InputStream")
+            }
+        }
+    }
 
     @JvmStatic
     fun getImageBytesFromImageAndVideo(imageAndVideo: ImageAndVideo): ByteString? {

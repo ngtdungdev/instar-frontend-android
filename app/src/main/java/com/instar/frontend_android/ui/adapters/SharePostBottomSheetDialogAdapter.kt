@@ -12,13 +12,14 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
+import com.instar.frontend_android.ui.DTO.SelectedUser
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.UserService
 
 class SharePostBottomSheetDialogAdapter(
     private val context: Context,
-    private val dataList: List<User>,
+    private val dataList: List<SelectedUser>,
     private val lifecycleScope: LifecycleCoroutineScope
 ) : RecyclerView.Adapter<SharePostBottomSheetDialogAdapter.ViewHolder>() {
 
@@ -40,23 +41,30 @@ class SharePostBottomSheetDialogAdapter(
         // Làm bất kỳ xử lý nào bạn cần cho mỗi mục trong danh sách ở đây
         val dataItem = dataList[position]
 
-        holder.txtName.text = dataItem.fullname
+        holder.txtName.text = dataItem.user?.fullname
 
         // Gắn dữ liệu và xử lý sự kiện cho các thành phần khác trong ViewHolder
         // Ví dụ:
         holder.imageButton.setOnClickListener {
             // Xử lý sự kiện khi ImageButton được nhấp vào
+            dataItem.selected = !dataItem.selected;
+
+            if (dataItem.selected) {
+                holder.imgCheck.visibility = View.VISIBLE
+            } else {
+                holder.imgCheck.visibility = View.GONE
+            }
         }
 
         Glide.with(context)
-            .load(dataItem.profilePicture?.url)
+            .load(dataItem.user?.profilePicture?.url)
             .placeholder(R.drawable.default_image) // Placeholder image
             .error(R.drawable.default_image) // Image to display if load fails
             .into(holder.imgAvt)
 
         // Hiển thị hoặc ẩn imgCheck tùy thuộc vào điều kiện của bạn
         // Ví dụ:
-        if (position == 0) {
+        if (dataItem.selected) {
             holder.imgCheck.visibility = View.VISIBLE
         } else {
             holder.imgCheck.visibility = View.GONE
@@ -65,7 +73,14 @@ class SharePostBottomSheetDialogAdapter(
         // Gắn CardView vào lớp CardView của ViewHolder để tùy chỉnh
         // Ví dụ:
         holder.cardView.setOnClickListener {
-            // Xử lý sự kiện khi CardView được nhấp vào
+            // Xử lý sự kiện khi ImageButton được nhấp vào
+            dataItem.selected = !dataItem.selected;
+
+            if (dataItem.selected) {
+                holder.imgCheck.visibility = View.VISIBLE
+            } else {
+                holder.imgCheck.visibility = View.GONE
+            }
         }
     }
 

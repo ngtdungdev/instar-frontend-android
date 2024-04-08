@@ -14,7 +14,10 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -23,8 +26,19 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.instar.frontend_android.databinding.FragmentCommentBottomSheetDialogBinding
 import com.instar.frontend_android.databinding.FragmentSharePostBottomSheetDialogBinding
+import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.CommentWithReply
+import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostCommentAdapter
+import com.instar.frontend_android.ui.adapters.SharePostBottomSheetDialogAdapter
+import com.instar.frontend_android.ui.adapters.VerticalSpaceItemDecoration
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UserService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
     companion object {
@@ -37,7 +51,10 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private lateinit var userService: UserService
     private lateinit var binding: FragmentSharePostBottomSheetDialogBinding
+    private lateinit var userList: MutableList<User>
+    private lateinit var shareAdapter: SharePostBottomSheetDialogAdapter
     private lateinit var avatarRecyclerView: RecyclerView
     private lateinit var textInputLayout: TextInputLayout
     private lateinit var message: TextInputEditText
@@ -47,6 +64,7 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var layoutShareHeight = 0
     private var expandedHeight = 0
     private var peekHeightFragment = 0
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentSharePostBottomSheetDialogBinding.inflate(layoutInflater)
@@ -54,7 +72,10 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         textInputLayout = binding.textInputLayout
         message = binding.message
         layoutBtn = binding.layoutBtn
+        userService = ServiceBuilder.buildService(UserService::class.java, requireContext())
+
         initView()
+        loadAdapter()
         return binding.root
     }
 
@@ -62,6 +83,28 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
     fun initView() {
         textInputLayout.isHintEnabled = false
     }
+
+    private fun loadAdapter() {
+        userList = getUserList()
+        shareAdapter = SharePostBottomSheetDialogAdapter(requireContext(), userList, lifecycleScope)
+        val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        avatarRecyclerView.layoutManager = layoutManager
+        val scale = resources.displayMetrics.density
+        val spacingInPixels = (10 * scale + 0.5f).toInt()
+        avatarRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(spacingInPixels))
+        avatarRecyclerView.adapter = shareAdapter
+    }
+
+    private fun getUserList(): MutableList<User> {
+        val users: MutableList<User> = mutableListOf()
+
+        lifecycleScope.launch {
+
+        }
+
+        return users
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         dialog.setOnShowListener { dialogInterface ->
@@ -115,7 +158,7 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         avatarRecyclerView.layoutParams = recyclerLayoutParams
 
         message.setOnClickListener {
-            message.hint = "Bình luận về ..."
+            message.hint = "Soạn tin nhắn..."
             val inputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             if (!inputMethodManager.isAcceptingText) {
                 inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
@@ -133,39 +176,14 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 false -> {false}
             }
         }
-
-//        message.setOnClickListener {
-//            message.hint = "Bình luận về ..."
-//            val inputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            if (!inputMethodManager.isAcceptingText) {
-//                inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
-//                setBottomSheetPeekHeight(bottomSheet,(expandedHeight))
-//            }
-//        }
-//        message.setOnEditorActionListener { view, actionId, _ ->
-//            when(actionId == EditorInfo.IME_ACTION_DONE) {
-//                true -> {
-//                    val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-//                    setBottomSheetPeekHeight(bottomSheet, expandedHeight)
-//                    true
-//                }
-//                false -> {false}
-//            }
-//        }
-
-
-//        commentRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//                val inputMethodManager = requireView().context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                if (inputMethodManager.isAcceptingText) {
-//                    inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
-//                    setBottomSheetPeekHeight(bottomSheet,expandedHeight)
-//                }
-//            }
-//        })
     }
+
+    private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
+        return withContext(Dispatchers.IO) {
+            userService.searchUsers(userId).awaitResponse()
+        }
+    }
+
     private fun setBottomSheetPeekHeight(bottomSheet: FrameLayout, height: Int) {
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = height

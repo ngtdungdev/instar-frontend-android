@@ -1,9 +1,9 @@
 package com.instar.frontend_android.ui.services
 
+import com.instar.frontend_android.types.requests.PostRequest
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Comment
-import com.instar.frontend_android.ui.DTO.Post
 import okhttp3.MultipartBody
 import retrofit2.http.DELETE
 import retrofit2.http.Path
@@ -21,8 +21,8 @@ interface PostService {
     }
 
     @Multipart
-    @POST(AUTH_PREFIX)
-    fun createPost(@Part post: Any, @Part files: List<MultipartBody.Part>): Call<ApiResponse<Any>>
+    @POST("$AUTH_PREFIX")
+    fun createPost(@Part("post") post: String, @Part files: List<MultipartBody.Part>): Call<ApiResponse<PostResponse>>
 
     @GET("$AUTH_PREFIX/user/{userId}")
     fun getAllPostsByUserId(@Path("userId") userId: String): Call<ApiResponse<PostResponse>>

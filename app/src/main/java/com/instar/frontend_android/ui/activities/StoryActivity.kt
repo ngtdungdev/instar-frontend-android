@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.activities
 
 import android.os.Bundle
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
@@ -20,6 +21,7 @@ import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.StoryService
 import com.instar.frontend_android.ui.services.UserService
+import com.instar.frontend_android.ui.utils.Helpers
 import jp.shts.android.storiesprogressview.StoriesProgressView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,8 +74,13 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
                 val response = getStories()
                 myStories = response.data?.myStories!!
                 storiesProgressView.setStoriesCount(myStories.size)
-                storiesProgressView.setStoryDuration(500L)
+                storiesProgressView.setStoryDuration(16000L)
                 storiesProgressView.setStoriesListener(this@StoryActivity)
+
+                // Bắt đầu từ phần tử đầu tiên
+                tvTime.text = Helpers.convertToTimeAgo(myStories[counter].createdAt)
+                loadImage(myStories[counter].fileUploads.url.toString())
+
                 storiesProgressView.startStories(counter)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -120,27 +127,6 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
         }
     }
 
-    private val onTouchListener = View.OnTouchListener { view, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                pressTime = System.currentTimeMillis()
-                storiesProgressView.pause()
-                false
-            }
-            MotionEvent.ACTION_UP -> {
-                val now = System.currentTimeMillis()
-                storiesProgressView.resume()
-                if (limit < now - pressTime) {
-                    view.performClick()
-                    true
-                } else {
-                    false
-                }
-            }
-            else -> false
-        }
-    }
-
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()
@@ -150,25 +136,28 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     override fun onNext() {
         if (counter < myStories.size - 1) {
             counter++
-            tvTime.text = myStories[counter].createdAt
+            tvTime.text = Helpers.convertToTimeAgo(myStories[counter].createdAt)
             loadImage(myStories[counter].fileUploads.url.toString())
-        } else return
+            storiesProgressView.skip() // Chuyển slide tới slide tiếp theo
+        }
     }
 
     override fun onPrev() {
         if (counter > 0) {
             counter--
-            tvTime.text = myStories[counter].createdAt
+            tvTime.text = Helpers.convertToTimeAgo(myStories[counter].createdAt)
             loadImage(myStories[counter].fileUploads.url.toString())
-        } else return
+            storiesProgressView.reverse() // Chuyển slide tới slide tiếp theo
+        }
     }
 
     private fun reverse() {
         if (counter > 0){
             counter--
-            tvTime.text = myStories[counter].createdAt
+            tvTime.text = Helpers.convertToTimeAgo(myStories[counter].createdAt)
             Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
             loadImage(myStories[counter].fileUploads.url.toString())
+            storiesProgressView.reverse() // Chuyển slide về slide trước đó
         }
         else return
     }
@@ -176,15 +165,15 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     private fun skip() {
         if (counter < myStories.size -1) {
             counter++
-            tvTime.text = myStories[counter].createdAt
+            tvTime.text = Helpers.convertToTimeAgo(myStories[counter].createdAt)
             Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
             loadImage(myStories[counter].fileUploads.url.toString())
+            storiesProgressView.skip()
         }
         else return
     }
 
     private fun loadImage(imageUrl: String) {
-        println(imageUrl)
         Glide.with(this@StoryActivity)
             .load(imageUrl)
             .placeholder(R.drawable.default_image)

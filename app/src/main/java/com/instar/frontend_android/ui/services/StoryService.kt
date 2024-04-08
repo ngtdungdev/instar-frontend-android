@@ -24,7 +24,7 @@ interface StoryService {
 
     @Multipart
     @POST("$AUTH_PREFIX/{userId}")
-    fun createStory(@Path("userId") userId: String, @Part file: MultipartBody.Part): Call<ApiResponse<Any>>
+    fun createStory(@Path("userId") userId: String, @Part file: MultipartBody.Part): Call<ApiResponse<StoryResponse>>
 
     @GET("$AUTH_PREFIX/{userId}/{storyId}")
     fun getStoryByStoryId(@Path("userId") userId: String, @Path("storyId") storyId: String): Call<ApiResponse<StoryResponse>>

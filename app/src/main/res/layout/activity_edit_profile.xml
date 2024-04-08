@@ -125,6 +125,17 @@
         android:layout_height="wrap_content"
         android:textAlignment="textStart"
         android:text="Tiểu sử"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mật khẩu"
+        android:textColor="#737373"/>
+    <EditText
+        android:id="@+id/edtPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="textStart"
+        android:text="123123"/>
   </LinearLayout>
   <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"

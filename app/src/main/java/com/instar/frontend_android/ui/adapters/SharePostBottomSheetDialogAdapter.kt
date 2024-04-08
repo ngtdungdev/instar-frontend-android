@@ -8,13 +8,20 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
+import com.instar.frontend_android.ui.DTO.User
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.UserService
 
 class SharePostBottomSheetDialogAdapter(
     private val context: Context,
-    private val dataList: List<String>
+    private val dataList: List<User>,
+    private val lifecycleScope: LifecycleCoroutineScope
 ) : RecyclerView.Adapter<SharePostBottomSheetDialogAdapter.ViewHolder>() {
+
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgAvt: ImageView = itemView.findViewById(R.id.imgAvt)
@@ -32,14 +39,20 @@ class SharePostBottomSheetDialogAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // Làm bất kỳ xử lý nào bạn cần cho mỗi mục trong danh sách ở đây
         val dataItem = dataList[position]
-        holder.txtName.text = dataItem
+
+        holder.txtName.text = dataItem.fullname
 
         // Gắn dữ liệu và xử lý sự kiện cho các thành phần khác trong ViewHolder
         // Ví dụ:
-        holder.imgAvt.setImageResource(R.mipmap.no1)
         holder.imageButton.setOnClickListener {
             // Xử lý sự kiện khi ImageButton được nhấp vào
         }
+
+        Glide.with(context)
+            .load(dataItem.profilePicture?.url)
+            .placeholder(R.drawable.default_image) // Placeholder image
+            .error(R.drawable.default_image) // Image to display if load fails
+            .into(holder.imgAvt)
 
         // Hiển thị hoặc ẩn imgCheck tùy thuộc vào điều kiện của bạn
         // Ví dụ:

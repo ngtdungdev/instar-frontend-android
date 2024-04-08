@@ -164,7 +164,6 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     }
 
     private fun reverse() {
-        Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
         if (counter > 0){
             counter--
             tvTime.text = myStories[counter].createdAt
@@ -175,7 +174,6 @@ class StoryActivity: AppCompatActivity(), StoriesProgressView.StoriesListener {
     }
 
     private fun skip() {
-        Toast.makeText(this, myStories[counter].fileUploads.url.toString(), Toast.LENGTH_SHORT).show()
         if (counter < myStories.size -1) {
             counter++
             tvTime.text = myStories[counter].createdAt

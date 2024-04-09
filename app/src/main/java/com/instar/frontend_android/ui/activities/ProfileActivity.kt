@@ -112,8 +112,8 @@ class ProfileActivity : AppCompatActivity() {
         tvTenNguoiDung.text = user.username
         tvNickname.text = user.fullname
         tvDescription.text = user.desc
-        tvSoLuongNguoiTheoDoi.text = user.followers?.size.toString()
-        tvSoLuongDangTheoDoi.text = user.followings?.size.toString()
+        tvSoLuongNguoiTheoDoi.text = user.followers.size.toString()
+        tvSoLuongDangTheoDoi.text = user.followings.size.toString()
 
         Glide.with(this@ProfileActivity)
             .load(user.profilePicture?.url)

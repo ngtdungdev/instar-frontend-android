@@ -14,6 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.instar.frontend_android.databinding.ActivityPostPreupLoadingBinding
 import com.instar.frontend_android.types.requests.PostRequest
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
@@ -66,9 +70,23 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
                 val tagUserList = tagList.map { it.id }
                 val post = PostRequest(id, contentText.text.toString(), "", tagUserList)
 
+                val gson = GsonBuilder().disableHtmlEscaping().create()
+
                 lifecycleScope.launch {
                     val response = try {
-                        val response = postService.createPost(post, Helpers.convertToMultipartParts(imageAndVideo)).awaitResponse()
+                        // Tạo một JsonObject để chỉ lấy các trường cần thiết từ đối tượng post
+                        val jsonObject = JsonObject().apply {
+                            addProperty("userId", post.userId)
+                            addProperty("desc", post.desc)
+                            addProperty("feeling", post.feeling)
+                            add("tagUsers", JsonArray().apply {
+                                post.tagUsers?.forEach { add(it) }
+                            })
+                        }
+                        val json = gson.toJson(jsonObject)
+
+                        // Tiếp tục xử lý response như trước
+                        val response = postService.createPost(json, Helpers.convertToMultipartParts(applicationContext, imageAndVideo)).awaitResponse()
                         response
                     } catch (error: Throwable) {
                         // Handle error
@@ -76,12 +94,11 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
                         null // Return null to indicate that an error occurred
                     }
 
-                    if (response != null && response.status == "200") {
+                    if (response != null) {
                         Toast.makeText(applicationContext, "Post created", Toast.LENGTH_LONG).show()
-                        finish()
                     } else {
                         // Handle the case where the response is null
-                        Log.e("Error", "Failed to get timeline posts")
+                        Log.e("Error", "Failed to create post")
                     }
                 }
             }

@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -42,6 +43,8 @@ import kotlinx.coroutines.withContext
 class FollowListActivity : AppCompatActivity() {
     private lateinit var userService: UserService
     private lateinit var binding: ActivityFollowListBinding
+    private lateinit var tvTenNguoiDung: TextView
+    private lateinit var btnBack: ImageButton
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var detailFollowAdapter: DetailFollowAdapter
@@ -63,6 +66,8 @@ class FollowListActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
+        tvTenNguoiDung = findViewById(R.id.tvTenNguoiDung)
+        btnBack = findViewById(R.id.btnBack)
         tabLayout = findViewById(R.id.tabLayout)
         viewPager2 = findViewById(R.id.viewPager2)
 
@@ -71,7 +76,20 @@ class FollowListActivity : AppCompatActivity() {
         detailFollowAdapter = DetailFollowAdapter(this@FollowListActivity,userId)
         viewPager2.adapter = detailFollowAdapter
 
+        lifecycleScope.launch {
+            try {
+                val response = userId?.let { getUserData(it) }
+                user = response?.data?.user
+                tvTenNguoiDung.setText(user?.username)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
+
+        btnBack.setOnClickListener{
+            onBackPressed()
+        }
         viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -92,6 +110,11 @@ class FollowListActivity : AppCompatActivity() {
             }
         })
 
+    }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this, ProfileActivity::class.java))
+        finish()
     }
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {

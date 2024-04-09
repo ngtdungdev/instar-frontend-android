@@ -15,6 +15,7 @@ import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +52,24 @@ class CustomFollowerAdapter(private val context: Context, private var userList: 
             .into(holder.imageAvatar)
         holder.tvUsername.text = user?.username
         holder.tvFullname.text = user?.fullname
+        holder.btnRemove.setOnClickListener{
+            user?.let { it1 ->
+                userService.removeFollower(it1.id).handleResponse(
+                    onSuccess = {
+
+                        val position = userList.indexOf(user.id)
+                        if (position != -1) { // Đảm bảo mục tồn tại trong danh sách
+                            // Loại bỏ mục khỏi danh sách
+                            userList = userList.filterIndexed { index, _ -> index != position }
+                            notifyItemRemoved(position)
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
+        }
     }
 
 
@@ -59,7 +78,7 @@ class CustomFollowerAdapter(private val context: Context, private var userList: 
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageAvatar: ImageView = itemView.findViewById(R.id.imageAvatar)
+        val imageAvatar: ImageView = itemView.findViewById(R.id.imgAvatar)
         val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
         val tvFullname: TextView = itemView.findViewById(R.id.tvFullname)
         val btnRemove: TextView = itemView.findViewById(R.id.btnRemove)

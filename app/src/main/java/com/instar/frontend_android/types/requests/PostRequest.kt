@@ -1,16 +1,20 @@
 package com.instar.frontend_android.types.requests
 
 class PostRequest {
-    private val userId: String? = null
+    var userId: String? = null
+    var desc: String? = null
+    var feeling: String? = null
+    var tagUsers: List<String>? = null
 
-    private val desc: String? = null
+    constructor(userId: String, desc: String, feeling: String, tagUsers: List<String>) {
+        this.userId = userId
+        this.desc = desc
+        this.feeling = feeling
+        this.tagUsers = tagUsers
+    }
 
-    private val feeling: String? = null
-
-    private val tagUser: List<String>? = null
-
-
-
-    constructor(userId: String, desc: String, feeling: String, tagUser: List<String>)
-    constructor(userId: String, desc: String)
+    constructor(userId: String, desc: String) {
+        this.userId = userId
+        this.desc = desc
+    }
 }

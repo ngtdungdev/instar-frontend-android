@@ -67,10 +67,9 @@
                 tools:layout_editor_absoluteY="160dp" />
         </LinearLayout>
     </LinearLayout>
-
     <TextView
-        android:id="@+id/btnFollow"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnFollowing"
+        android:layout_width="110dp"
         android:layout_height="36dp"
         android:layout_marginEnd="25dp"
         android:background="@drawable/button_background_black_border"
@@ -78,6 +77,21 @@
         android:padding="8dp"
         android:text="Đang theo dõi"
         android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/box"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/box" />
+    <TextView
+        android:id="@+id/btnFollow"
+        android:layout_width="110dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/button_background_blue"
+        android:gravity="center"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:text="Theo dõi"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/box"
         app:layout_constraintEnd_toEndOf="parent"

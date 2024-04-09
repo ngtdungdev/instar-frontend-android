@@ -10,12 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.StoryService
 import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -45,9 +48,6 @@ class EditAddStoryActivity : AppCompatActivity() {
 
         val imageUri = intent.getStringExtra("imageUri")
 
-        val file = File(imageUri)
-        val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val part = MultipartBody.Part.createFormData("files", file.name, requestFile)
         Glide.with(this).load(imageUri).into(imageStory)
 
         imgBack.setOnClickListener {
@@ -57,23 +57,27 @@ class EditAddStoryActivity : AppCompatActivity() {
             // xử lý để đăng story
             val sharedPreferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
             val accessToken = sharedPreferences.getString("accessToken", null)
-            if (accessToken != null) {
+            if (accessToken != null && imageUri != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
 
-                storyService.createStory(id, part).handleResponse(
-                    onSuccess = {
-                        val intent = Intent(this, MainScreenActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
-                        finish()
-                    },
-                    onError = {
-                        println(it)
-                        println(it.status)
-                        Toast.makeText(this, "Đăng lỗi", Toast.LENGTH_LONG).show()
-                    }
-                );
+                lifecycleScope.launch {
+                    storyService.createStory(id, Helpers.convertToMultipartPartURI(applicationContext, imageUri!!, "file")).handleResponse(
+                        onSuccess = {
+                            val intent = Intent(applicationContext, MainScreenActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
+                            Toast.makeText(applicationContext, "Đăng thành công", Toast.LENGTH_LONG).show()
+                            finish()
+                        },
+                        onError = {
+                            println(it)
+                            Toast.makeText(applicationContext, "Đăng lỗi", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                }
+            } else {
+                Toast.makeText(this, "Đăng lỗi", Toast.LENGTH_LONG).show()
             }
         }
     }

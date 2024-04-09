@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
@@ -17,6 +18,7 @@ import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,10 +54,10 @@ class CustomFollowingAdapter(private val context: Context, private var userList:
         val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
         val tvFullname: TextView = itemView.findViewById(R.id.tvFullname)
         val btnFollow: TextView = itemView.findViewById(R.id.btnFollow)
+        val btnFollowing: TextView = itemView.findViewById(R.id.btnFollowing)
     }
     private fun updateUserInformation(holder: CustomFollowingAdapter.ViewHolder, user: User?) {
         if (user != null) {
-            Log.d("UserFollowing", "User ID: ${user.id}, Username: ${user.username}, Fullname: ${user.fullname}")
             Glide.with(context)
                 .load(user.profilePicture?.url)
                 .placeholder(R.drawable.default_image)
@@ -66,10 +68,43 @@ class CustomFollowingAdapter(private val context: Context, private var userList:
         } else {
             // Xử lý trường hợp userFollowing là null ở đây (nếu cần)
         }
+//        holder.btnFollow.visibility = View.GONE
+        holder.btnFollowing.setOnClickListener{
+            user?.let { it1 ->
+                userService.follow(it1.id).handleResponse(
+                    onSuccess = {
+                        if (it.data?.user?.followings?.contains(user.id) != true) {
+                            holder.btnFollow.visibility = View.VISIBLE
+                            holder.btnFollowing.visibility = View.GONE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
+        }
+        holder.btnFollow.setOnClickListener{
+            user?.let { it1 ->
+                userService.follow(it1.id).handleResponse(
+                    onSuccess = {
+                        if (it.data?.user?.followings?.contains(user.id) == true) {
+                            holder.btnFollow.visibility = View.GONE
+                            holder.btnFollowing.visibility = View.VISIBLE
+                        }
+                    },
+                    onError = {
+
+                    }
+                )
+            }
+        }
+
     }
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
         return withContext(Dispatchers.IO) {
             userService.getUser(userId).awaitResponse()
         }
     }
+
 }

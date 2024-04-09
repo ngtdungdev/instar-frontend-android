@@ -60,8 +60,6 @@ class ListFollowingFragment(private val userId: String) : Fragment() {
                 recyclerFollowing.adapter =
                     dataList?.let { CustomFollowingAdapter(requireContext(), it, lifecycleScope) }
 
-                Log.d("ListFollowingFragment", "User list: $dataList")
-
                 if (recyclerFollowing.adapter != null && recyclerFollowing.adapter?.itemCount == 0) {
                     linearViewNoItems.visibility = View.VISIBLE
                     recyclerFollowing.visibility = View.GONE

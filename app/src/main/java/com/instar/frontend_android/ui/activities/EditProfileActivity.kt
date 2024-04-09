@@ -30,8 +30,8 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageView
     private lateinit var edtFullname: EditText
     private lateinit var edtUsername: EditText
-    private lateinit var edtIntroduction: EditText
     private lateinit var edtPassword: EditText
+    private lateinit var edtIntroduction: EditText
     private lateinit var imageAvatar: ImageView
     private lateinit var btnEditAvatar: TextView
     private lateinit var btnSaveProfile: TextView
@@ -47,9 +47,9 @@ class EditProfileActivity : AppCompatActivity() {
         edtFullname = findViewById(R.id.edtFullname)
         edtUsername = findViewById(R.id.edtUsername)
         edtIntroduction = findViewById(R.id.edtIntroduction)
-        edtPassword = findViewById(R.id.edtPassword)
         imageAvatar = findViewById(R.id.imageAvatar)
         btnEditAvatar = findViewById(R.id.customButton)
+        edtPassword = findViewById(R.id.edtPassword)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
 
 
@@ -97,39 +97,48 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.username = edtUsername.text.toString();
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
-                user?.password = edtPassword.text.toString();
+
+                if (edtPassword.text.toString().isEmpty() || edtPassword.text.toString().isBlank()) {
+                    user?.password = edtPassword.text.toString();
+                }
+
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
-
-                    Toast.makeText(this, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
-                    if (imageAvatarUrl != null) {
-                        userService.updateUser(id, user!!, Helpers.convertToMultipartPart(imageAvatarUrl)).handleResponse(
-                            onSuccess = {
-                                val intent = Intent(this, ProfileActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
-                                finish()
-                            },
-                            onError = {
-                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                            })
-                    } else {
-                        userService.updateUserV2(id, user!!).handleResponse(
-                            onSuccess = {
-                                val intent = Intent(this, ProfileActivity::class.java)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
-                                finish()
-                            },
-                            onError = {
-                                Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
-                            }
-                        )
+                    lifecycleScope.launch {
+                        update(id, user!!, imageAvatarUrl!!)
+                        Toast.makeText(applicationContext, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
                     }
                 };
             }
+        }
+    }
+
+    suspend fun update(id: String, user: User?, imageAvatarUrl: ImageAndVideo?) {
+        if (imageAvatarUrl != null) {
+            userService.updateUser(id, user!!, Helpers.convertToMultipartPart(applicationContext, imageAvatarUrl)).handleResponse(
+                onSuccess = {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
+                    finish()
+                },
+                onError = {
+                    Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                })
+        } else {
+            userService.updateUserV2(id, user!!).handleResponse(
+                onSuccess = {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    Toast.makeText(this, "Sửa thông tin thành công", Toast.LENGTH_LONG).show()
+                    finish()
+                },
+                onError = {
+                    Toast.makeText(this, "Sửa thông tin lỗi hoặc tên trùng với tài khoản khác", Toast.LENGTH_LONG).show()
+                }
+            )
         }
     }
 
@@ -137,7 +146,8 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
-        edtPassword.setText(user.password)
+        edtPassword.setText("")
+
         val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
 
         if(imageAvatarUrl == null) {

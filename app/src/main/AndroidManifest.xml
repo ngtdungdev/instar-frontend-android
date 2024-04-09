@@ -29,16 +29,44 @@
         tools:targetApi="30">
         <activity
             android:name=".ui.activities.FollowListActivity"
-            android:exported="false" />
+            android:exported="false">
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
+            android:name=".ui.activities.DetailMyPostActivity"
+            android:exported="false" >
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
         <activity
             android:name=".ui.activities.ProfileOtherActivity"
-            android:exported="false" />
+            android:exported="false" >
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
         <activity
             android:name=".ui.activities.UpdateAvatarActivity"
-            android:exported="false" />
+            android:exported="false" >
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+    </activity>
         <activity
             android:name=".ui.activities.EditAddStoryActivity"
-            android:exported="false" />
+            android:exported="false" >
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+    </activity>
         <activity
             android:name=".ui.activities.AddStoryActivity"
             android:exported="false">

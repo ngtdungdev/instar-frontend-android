@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.services
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.instar.frontend_android.types.responses.ApiResponse
@@ -143,6 +144,7 @@ object ServiceBuilder {
                     continuation.resumeWith(Result.success(response))
                 },
                 onError = { error ->
+                    Log.e("Call API ERROR: ", error.toString())
                     continuation.resume(ApiResponse(error = "Failed to execute request"))
                 }
             )

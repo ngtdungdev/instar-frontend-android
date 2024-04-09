@@ -42,7 +42,8 @@ class LoginOtherActivity : AppCompatActivity() {
     private lateinit var layoutLogin: View
     private lateinit var emailLayout: EdittextLoginBinding
     private lateinit var passwordLayout: EdittextLoginBinding
-
+    private lateinit var btnLoginWithFacebook: ImageButton
+    private lateinit var textLoginWithFacebook: TextView
     private lateinit var authService: AuthService;
 
 
@@ -65,6 +66,10 @@ class LoginOtherActivity : AppCompatActivity() {
         btnNewPassWord = binding.btnNewPassWord
         btnNewAccount = binding.loginAccount.imageButton
         textNewAccount = binding.loginAccount.textNote
+
+        btnLoginWithFacebook = binding.btnLoginWithFacebook.imageButton
+        textLoginWithFacebook = binding.btnLoginWithFacebook.textNote
+
         btnLogin = binding.btnLoginFacebook
 
         loadActivity()
@@ -80,7 +85,9 @@ class LoginOtherActivity : AppCompatActivity() {
         btnNewPassWord.text = "Bạn quên mật khẩu ư?"
         textNewAccount.text = "Tạo tài khoản mới"
         btnNewAccount.setBackgroundResource(R.drawable.selector_btn_color_login)
+        btnLoginWithFacebook.setBackgroundResource(R.drawable.selector_btn_color_login)
         textNewAccount.setTextColor(Color.parseColor("#4558FF"))
+        textLoginWithFacebook.setTextColor(Color.parseColor("#4558FF"))
         passwordText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         btnEyes.setBackgroundResource(R.drawable.ic_instagram_eyes_off)
     }
@@ -115,6 +122,10 @@ class LoginOtherActivity : AppCompatActivity() {
         btnNewAccount.setOnClickListener {
             val intent = Intent(this@LoginOtherActivity, RegisterActivity::class.java)
             startActivity(intent)
+        }
+
+        btnLoginWithFacebook.setOnClickListener {
+            // TODO: Login with google
         }
 
         btnLogin.setOnClickListener {

@@ -2,6 +2,7 @@ package com.instar.frontend_android.ui.fragments
 
 import CustomAdapter
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Post
+import com.instar.frontend_android.ui.activities.DetailMyPostActivity
+import com.instar.frontend_android.ui.activities.EditProfileActivity
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -70,7 +73,12 @@ class MyPostFragment(private val userId: String) : Fragment() {
                     val response1 = getMyPostsData(userId)
                     myPostList = response1.data?.posts!!
 
-                    val adapter = CustomAdapter(requireContext(), myPostList)
+                    val adapter = CustomAdapter(requireContext(), myPostList) { post ->
+                        val intent = Intent(requireContext(), DetailMyPostActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        intent.putExtra("userId", userId)
+                        startActivity(intent)
+                    }
                     recyclerView.adapter = adapter
                     if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
                         linearViewNoItems.setVisibility(View.VISIBLE);

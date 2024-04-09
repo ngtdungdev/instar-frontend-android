@@ -60,5 +60,8 @@ interface UserService {
 
     @GET("$AUTH_PREFIX/follow/{toUserId}")
     fun follow(@Path("toUserId") toUserId: String): Call<ApiResponse<UserResponse>>
+
+    @GET("$AUTH_PREFIX/remove-follower/{removeUserId}")
+    fun removeFollower(@Path("removeUserId") removeUserId: String): Call<ApiResponse<UserResponse>>
 }
 

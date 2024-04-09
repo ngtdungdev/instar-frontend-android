@@ -35,7 +35,6 @@ class CustomAdapter(private val context: Context, private var dataList: List<Pos
         }
     }
 
-
     override fun getItemCount(): Int {
         return dataList.size
     }

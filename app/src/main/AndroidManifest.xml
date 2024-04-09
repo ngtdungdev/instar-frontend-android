@@ -28,6 +28,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="30">
         <activity
+            android:name=".ui.activities.FollowListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.ProfileOtherActivity"
             android:exported="false" />
         <activity

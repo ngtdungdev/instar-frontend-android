@@ -28,13 +28,9 @@ import com.instar.frontend_android.ui.services.ChatService
 import com.instar.frontend_android.ui.services.FCMNotificationService
 import com.instar.frontend_android.ui.services.MessageService
 import com.instar.frontend_android.ui.services.ServiceBuilder
-import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 class DirectMessageActivity : AppCompatActivity() {

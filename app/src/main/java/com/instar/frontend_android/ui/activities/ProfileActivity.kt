@@ -2,42 +2,30 @@ package com.instar.frontend_android.ui.activities
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Point
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.ContactsContract.CommonDataKinds.Nickname
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityProfileBinding
-import com.instar.frontend_android.databinding.RecyclerViewItemAvatarBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
-import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
-import com.instar.frontend_android.ui.fragments.HomeFragment
-import com.instar.frontend_android.ui.fragments.MyPostFragment
-import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -47,7 +35,6 @@ import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.log
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var userService: UserService
@@ -65,6 +52,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvSoLuongBaiViet: TextView
     private lateinit var tvSoLuongDangTheoDoi: TextView
     private lateinit var tvSoLuongNguoiTheoDoi: TextView
+    private lateinit var tvNguoiTheoDoi : TextView
+    private lateinit var tvDangTheoDoi : TextView
     private lateinit var imgAvatar : ImageView
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
@@ -72,6 +61,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
+    private lateinit var id : String
     public var user: User? = null
 
 
@@ -101,7 +91,7 @@ class ProfileActivity : AppCompatActivity() {
         } else {
             if (accessToken != null) {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
-                val id = decodedTokenJson.getString("id")
+                id = decodedTokenJson.getString("id")
                 myViewPagerAdapter = MyViewPagerAdapter(this@ProfileActivity,id)
                 viewPager2.adapter = myViewPagerAdapter
                 lifecycleScope.launch {
@@ -159,6 +149,8 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.tvSoLuongBaiViet = tvSoLuongBaiViet
             this@ProfileActivity.tvSoLuongNguoiTheoDoi = tvSoLuongNguoiTheoDoi
             this@ProfileActivity.tvSoLuongDangTheoDoi = tvSoLuongDangTheoDoi
+            this@ProfileActivity.tvNguoiTheoDoi = tvNguoiTheoDoi
+            this@ProfileActivity.tvDangTheoDoi = tvDangTheoDoi
             this@ProfileActivity.imgAvatar = imgAvatar
             this@ProfileActivity.tabLayout = tabLayout
             this@ProfileActivity.viewPager2 = viewPager2
@@ -195,6 +187,31 @@ class ProfileActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()
+        }
+
+        tvNguoiTheoDoi.setOnClickListener {
+            val intent = Intent(this, FollowListActivity::class.java);
+            intent.putExtra("userId",id)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+        tvDangTheoDoi.setOnClickListener {
+            val intent = Intent(this, FollowListActivity::class.java);
+            intent.putExtra("userId",id)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+        tvSoLuongDangTheoDoi.setOnClickListener {
+            val intent = Intent(this, FollowListActivity::class.java);
+            intent.putExtra("userId",id)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+        tvSoLuongNguoiTheoDoi.setOnClickListener {
+            val intent = Intent(this, FollowListActivity::class.java);
+            intent.putExtra("userId",id)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
 
         viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

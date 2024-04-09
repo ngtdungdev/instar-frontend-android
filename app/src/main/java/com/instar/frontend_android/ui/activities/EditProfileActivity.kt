@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,6 @@ import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.User
-import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
@@ -31,10 +31,12 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var edtFullname: EditText
     private lateinit var edtUsername: EditText
     private lateinit var edtIntroduction: EditText
+    private lateinit var edtPassword: EditText
     private lateinit var imageAvatar: ImageView
     private lateinit var btnEditAvatar: TextView
     private lateinit var btnSaveProfile: TextView
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
@@ -45,9 +47,11 @@ class EditProfileActivity : AppCompatActivity() {
         edtFullname = findViewById(R.id.edtFullname)
         edtUsername = findViewById(R.id.edtUsername)
         edtIntroduction = findViewById(R.id.edtIntroduction)
+        edtPassword = findViewById(R.id.edtPassword)
         imageAvatar = findViewById(R.id.imageAvatar)
         btnEditAvatar = findViewById(R.id.customButton)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
+
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
@@ -93,7 +97,7 @@ class EditProfileActivity : AppCompatActivity() {
                 user?.username = edtUsername.text.toString();
                 user?.fullname = edtFullname.text.toString();
                 user?.desc = edtIntroduction.text.toString();
-
+                user?.password = edtPassword.text.toString();
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
 
@@ -133,7 +137,7 @@ class EditProfileActivity : AppCompatActivity() {
         edtUsername.setText(user.username)
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
-
+        edtPassword.setText(user.password)
         val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
 
         if(imageAvatarUrl == null) {

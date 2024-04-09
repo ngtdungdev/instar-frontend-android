@@ -2,16 +2,13 @@ package com.instar.frontend_android.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,22 +20,14 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityAddStoryBinding
-import com.instar.frontend_android.databinding.ActivityUpdateAvatarBinding
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
-import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
-import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.ImagePostFragment
 import com.instar.frontend_android.ui.fragments.PostFragment
-import com.instar.frontend_android.ui.fragments.VideoPostFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
-import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
-import com.instar.frontend_android.ui.utils.Helpers
-import java.io.Serializable
 
 
 class UpdateAvatarActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor> {

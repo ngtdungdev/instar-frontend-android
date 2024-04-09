@@ -23,6 +23,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -119,7 +120,7 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun loadAdapter() {
         shareAdapter = SharePostBottomSheetDialogAdapter(requireContext(), userList, lifecycleScope)
-        val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        val layoutManager = GridLayoutManager(requireContext(), 3)
         avatarRecyclerView.layoutManager = layoutManager
         val scale = resources.displayMetrics.density
         val spacingInPixels = (10 * scale + 0.5f).toInt()

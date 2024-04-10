@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginStart="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:id="@+id/box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        tools:ignore="MissingConstraints">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <FrameLayout
+                android:id="@+id/frameLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                tools:layout_editor_absoluteX="30dp"
+                tools:layout_editor_absoluteY="70dp">
+            </FrameLayout>
+            <androidx.cardview.widget.CardView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                app:cardCornerRadius="50dp">
+                <ImageView
+                    android:id="@+id/imgAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="2dp"
+                    android:src="@drawable/backgroud_radius_grey" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingStart="20dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:text="Username"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="30dp"
+                tools:layout_editor_absoluteY="160dp" />
+            <TextView
+                android:id="@+id/tvFullname"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:text="Fullname"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="30dp"
+                tools:layout_editor_absoluteY="160dp" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/btnFollowing"
+        android:layout_width="110dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/button_background_black_border"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Đang theo dõi"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/box"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/box" />
+    <TextView
+        android:id="@+id/btnFollow"
+        android:layout_width="110dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/button_background_blue"
+        android:gravity="center"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:text="Theo dõi"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/box"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/box" />
+</androidx.constraintlayout.widget.ConstraintLayout>

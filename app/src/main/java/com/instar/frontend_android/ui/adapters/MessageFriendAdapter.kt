@@ -10,8 +10,6 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
-import com.instar.frontend_android.types.responses.ApiResponse
-import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.DTO.User

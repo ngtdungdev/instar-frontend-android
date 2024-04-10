@@ -14,7 +14,6 @@ import android.view.WindowMetrics
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -25,14 +24,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityProfileBinding
 import com.instar.frontend_android.databinding.ActivityProfileOtherBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
-import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -42,7 +39,6 @@ import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.log
 
 class ProfileOtherActivity : AppCompatActivity() {
     private lateinit var userService: UserService

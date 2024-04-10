@@ -2,10 +2,7 @@ package com.instar.frontend_android.ui.activities
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -16,8 +13,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
-import com.instar.frontend_android.ui.fragments.HomeFragment
-import com.instar.frontend_android.ui.services.AuthService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.StoryService
@@ -26,9 +21,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.awaitResponse
 import java.io.File
 
 class EditAddStoryActivity : AppCompatActivity() {

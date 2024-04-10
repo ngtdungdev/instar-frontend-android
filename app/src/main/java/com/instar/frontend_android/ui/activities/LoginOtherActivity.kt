@@ -15,6 +15,13 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.google.gson.Gson
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginOtherBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
@@ -22,9 +29,11 @@ import com.instar.frontend_android.types.requests.LoginRequest
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
 import com.instar.frontend_android.ui.services.AuthService
+import com.instar.frontend_android.ui.services.FacebookService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.utils.Helpers
+
 
 class LoginOtherActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginOtherBinding
@@ -44,13 +53,15 @@ class LoginOtherActivity : AppCompatActivity() {
     private lateinit var passwordLayout: EdittextLoginBinding
     private lateinit var btnLoginWithFacebook: ImageButton
     private lateinit var textLoginWithFacebook: TextView
-    private lateinit var authService: AuthService;
+    private lateinit var authService: AuthService
+    private lateinit var facebookService: FacebookService
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         authService = ServiceBuilder.buildService(AuthService::class.java, this)
+        facebookService = FacebookService(this@LoginOtherActivity)
         binding = ActivityLoginOtherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -84,6 +95,7 @@ class LoginOtherActivity : AppCompatActivity() {
         btnLogin.text = "Đăng nhập"
         btnNewPassWord.text = "Bạn quên mật khẩu ư?"
         textNewAccount.text = "Tạo tài khoản mới"
+        textLoginWithFacebook.text = "Đăng nhập bằng Facebook"
         btnNewAccount.setBackgroundResource(R.drawable.selector_btn_color_login)
         btnLoginWithFacebook.setBackgroundResource(R.drawable.selector_btn_color_login)
         textNewAccount.setTextColor(Color.parseColor("#4558FF"))
@@ -124,8 +136,23 @@ class LoginOtherActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        facebookService.addListeners(
+            onSuccess = { token ->
+                println("Successfully logged into Facebook")
+                println(Gson().toJson(token))
+                println(token.token)
+            },
+            onCancel = {
+                println("Cancelled logging into Facebook")
+            },
+            onError = { error ->
+                println("Error while logging into Facebook")
+                println(error)
+            })
+
         btnLoginWithFacebook.setOnClickListener {
-            // TODO: Login with google
+            println("Facebook login clicked")
+            facebookService.login()
         }
 
         btnLogin.setOnClickListener {
@@ -159,7 +186,7 @@ class LoginOtherActivity : AppCompatActivity() {
                     val intent = Intent(this@LoginOtherActivity, MainScreenActivity::class.java)
                     startActivity(intent)
 
-                    Toast.makeText(this@LoginOtherActivity, "Login successfull", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this@LoginOtherActivity, "Login successful", Toast.LENGTH_LONG).show();
                 },
                 onError = { error ->
                     // Handle error
@@ -196,5 +223,11 @@ class LoginOtherActivity : AppCompatActivity() {
         labelPassword.visibility = View.GONE
         passwordLayout.Layout.background = getDrawable(R.drawable.border_component_login_dow)
         passwordText.hint = "Mật khẩu"
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        facebookService.onActivityResult(requestCode, resultCode, data)
     }
 }

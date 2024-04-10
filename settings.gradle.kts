@@ -14,6 +14,7 @@ dependencyResolutionManagement {
         }
         mavenCentral()
     }
+
 }
 
 rootProject.name = "instar-frontend-android"

@@ -22,7 +22,7 @@ interface AuthService {
     fun login(@Body loginRequest: LoginRequest): Call<ApiResponse<AuthResponse>>
 
     @POST("$AUTH_PREFIX/register")
-    fun register(@Body registerRequest: RegisterRequest): Call<ApiResponse<Any>>
+    fun register(@Body registerRequest: RegisterRequest): Call<ApiResponse<AuthResponse>>
 
     @POST("$AUTH_PREFIX/refresh-token")
     fun refreshToken(@Header("Authorization") refreshToken: String): Call<ApiResponse<Any>>

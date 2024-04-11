@@ -101,4 +101,6 @@ dependencies {
     // Vision API check sensitive images
     implementation("com.google.cloud:google-cloud-vision:3.37.0")
 
+    // Facebook login
+    implementation("com.facebook.android:facebook-login:latest.release")
 }

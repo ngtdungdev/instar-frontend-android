@@ -102,4 +102,7 @@ dependencies {
 
     // ZEGOCLOUD & Video Call
     implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+
+    // Facebook login
+    implementation("com.facebook.android:facebook-login:latest.release")
 }

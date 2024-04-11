@@ -8,8 +8,10 @@ import android.os.Handler
 import com.instar.frontend_android.ui.activities.DirectMessageActivity
 import com.instar.frontend_android.ui.activities.LoadingScreenActivity
 import com.instar.frontend_android.ui.activities.LoginActivity
+import com.instar.frontend_android.ui.activities.LoginOtherActivity
 import com.instar.frontend_android.ui.activities.MainScreenActivity
 import com.instar.frontend_android.ui.activities.NotificationActivity
+import com.instar.frontend_android.ui.services.FacebookService
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         // If user is not logged in
         if (accessToken.isNullOrEmpty()) {
-            startIntentAfterMilliseconds(LoginActivity::class.java, 3000)
+            if (FacebookService.isLoggedIn())
+                startIntentAfterMilliseconds(LoginActivity::class.java, 3000)
+            else
+                startIntentAfterMilliseconds(LoginOtherActivity::class.java, 3000)
             return
         }
 

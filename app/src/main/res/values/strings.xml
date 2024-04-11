@@ -6,4 +6,6 @@
     <string name="facebook_app_id">1221631112146796</string>
     <string name="fb_login_protocol_scheme">85d0088a753a4babd39cbfd394889e7e</string>
     <string name="facebook_client_token">hMK5FajqfYmvL27fNXh7n8ddEo0=</string>
+    <string name="call_cancel">Cancel</string>
+    <string name="call_ok">Ok</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
-import android.Manifest
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -33,22 +32,6 @@ import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
-import com.permissionx.guolindev.PermissionX
-import com.permissionx.guolindev.callback.ExplainReasonCallback
-import com.permissionx.guolindev.callback.RequestCallback
-import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
-import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
-import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
-import com.zegocloud.uikit.prebuilt.call.event.CallEndListener
-import com.zegocloud.uikit.prebuilt.call.event.ErrorEventsListener
-import com.zegocloud.uikit.prebuilt.call.event.SignalPluginConnectListener
-import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
-import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData
-import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider
-import com.zegocloud.uikit.service.express.IExpressEngineEventHandler
-import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason
-import org.json.JSONObject
-import timber.log.Timber
 import kotlin.math.max
 
 
@@ -59,6 +42,8 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var directMessageUsername: TextView
     private lateinit var message: EditText
     private lateinit var btnSend: TextView
+    private lateinit var btnVideoCall: ImageButton
+    private lateinit var btnCall: ImageButton
     private lateinit var iconAvatar : ImageButton
     private lateinit var iconLibrary: ImageButton
     private lateinit var iconMicro: ImageButton
@@ -71,6 +56,7 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var fcmNotificationService: FCMNotificationService
     private lateinit var userID: String
     private lateinit var chatID: String
+    private var user: User? = null
     private lateinit var messagesRef: DatabaseReference
     private val currentChat = Chat()
 
@@ -89,15 +75,10 @@ class DirectMessageActivity : AppCompatActivity() {
         iconAvatar = binding.iconAvatar
         iconLibrary = binding.iconLibrary
         iconMicro = binding.iconMicro
+        btnVideoCall = binding.btnVideoCall
+        btnCall = binding.btnCall
 
         initServices()
-
-        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
-            .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
-                val message =
-                    "We need your consent for the following permissions in order to use the offline call function properly"
-                scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny")
-            }).request(RequestCallback { allGranted, grantedList, deniedList -> })
     }
 
     private fun initServices() {
@@ -125,7 +106,7 @@ class DirectMessageActivity : AppCompatActivity() {
             var chatUsername = "${currentChat.members.size} thành viên"
             var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
             if (currentChat.members.size == 2) {
-                val user = if (currentChat.members[0] == userID)
+                user = if (currentChat.members[0] == userID)
                     getUserData(currentChat.members[1])
                 else
                     getUserData(currentChat.members[0])
@@ -165,7 +146,7 @@ class DirectMessageActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(-1)) {
-                    loadMoreData()
+//                    loadMoreData()
                 }
             }
         })
@@ -197,16 +178,18 @@ class DirectMessageActivity : AppCompatActivity() {
             sendMessage(messageText)
             message.text.clear();
         }
+
+        btnVideoCall.setOnClickListener {
+            val intent = Intent(this@DirectMessageActivity, CallActivity::class.java)
+            intent.putExtra("user", user)
+            startActivity(intent)
+        }
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
-    }
-
-    fun loadMoreData() {
-
     }
 
     private fun sendMessage(messageText: String) {
@@ -224,10 +207,6 @@ class DirectMessageActivity : AppCompatActivity() {
     }
 
     private fun getUserData(userId: String): User? {
-//        val response = withContext(Dispatchers.IO) {
-//            return@withContext userService.getUser(userId).awaitResponse()
-//        }
-//        return response.data?.user
         var user: User? = null
         userService.getUser(userId).handleResponse(
             onSuccess = { response -> user = response.data?.user },
@@ -236,65 +215,5 @@ class DirectMessageActivity : AppCompatActivity() {
         return user
     }
 
-    fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {
-        val isVideoCall = invitationData.type == ZegoInvitationType.VIDEO_CALL.value
-        val isGroupCall = invitationData.invitees.size > 1
-        val callConfig: ZegoUIKitPrebuiltCallConfig
-        callConfig = if (isVideoCall && isGroupCall) {
-            ZegoUIKitPrebuiltCallConfig.groupVideoCall()
-        } else if (!isVideoCall && isGroupCall) {
-            ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
-        } else if (!isVideoCall) {
-            ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
-        } else {
-            ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
-        }
-        return callConfig
-    }
 
-    @SuppressLint("BinaryOperationInTimber")
-    private fun videoCallServices(userID: String, username: String) {
-        val appID: Long = 1574470634 // your App ID of Zoge Cloud
-        val appSign = "a5d41bb837834dd85b9c4b7bb00f15e20d11f2f2d77012957dc7839b76a30331"
-        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
-
-        callInvitationConfig.provider =
-            ZegoUIKitPrebuiltCallConfigProvider { invitationData -> getConfig(invitationData) }
-
-        ZegoUIKitPrebuiltCallService.events.errorEventsListener =
-            ErrorEventsListener { errorCode, message -> Timber.d("onError() called with: errorCode = [$errorCode], message = [$message]") }
-        ZegoUIKitPrebuiltCallService.events.invitationEvents.pluginConnectListener =
-            SignalPluginConnectListener { state, event, extendedData ->
-                Timber.d(
-                    "onSignalPluginConnectionStateChanged() called with: state = [" + state + "], event = [" + event
-                            + "], extendedData = [" + extendedData + "]"
-                )
-            }
-
-        ZegoUIKitPrebuiltCallService.init(
-            getApplication(), appID, appSign, userID, username,
-            callInvitationConfig
-        )
-
-        ZegoUIKitPrebuiltCallService.events.callEvents.callEndListener =
-            CallEndListener { callEndReason, jsonObject ->
-                Timber.d(
-                    "onCallEnd() called with: callEndReason = [" + callEndReason + "], jsonObject = [" + jsonObject
-                            + "]"
-                )
-            }
-
-        ZegoUIKitPrebuiltCallService.events.callEvents.setExpressEngineEventHandler(
-            object : IExpressEngineEventHandler() {
-                override fun onRoomStateChanged(
-                    roomID: String, reason: ZegoRoomStateChangedReason, errorCode: Int,
-                    extendedData: JSONObject
-                ) {
-                    Timber.d(
-                        "onRoomStateChanged() called with: roomID = [" + roomID + "], reason = [" + reason
-                                + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]"
-                    )
-                }
-            })
-    }
 }

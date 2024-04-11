@@ -4,7 +4,6 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -20,7 +19,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
 
     buildTypes {
         release {
@@ -102,9 +100,6 @@ dependencies {
     // Vision API check sensitive images
     implementation("com.google.cloud:google-cloud-vision:3.37.0")
 
-    // WebRTC & Video Call
-    implementation("com.mesibo.api:webrtc:1.0.5")
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-compiler:2.44")
-    implementation("com.guolindev.permissionx:permissionx:1.6.1")
+    // ZEGOCLOUD & Video Call
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
 }

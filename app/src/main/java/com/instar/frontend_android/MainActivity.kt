@@ -1,21 +1,15 @@
 package com.instar.frontend_android
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.instar.frontend_android.ui.activities.DirectMessageActivity
 import com.instar.frontend_android.ui.activities.LoadingScreenActivity
 import com.instar.frontend_android.ui.activities.LoginActivity
 import com.instar.frontend_android.ui.activities.MainScreenActivity
-import com.instar.frontend_android.ui.services.FCMService
+import com.instar.frontend_android.ui.activities.NotificationActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,21 +49,56 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             "follow" -> {
-                TODO("Not yet implemented.")
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                mainIntent.putExtra("position", 1)
+                startActivity(mainIntent)
+
+                val intent = Intent(this@MainActivity, NotificationActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
             "like-post" -> {
                 val post: String = intent.extras!!.getString("postId", "")
-                TODO("Not yet implemented.")
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                mainIntent.putExtra("position", 1)
+                startActivity(mainIntent)
+
+                val intent = Intent(this@MainActivity, NotificationActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
             "like-comment" -> {
-                TODO("Not yet implemented.")
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                mainIntent.putExtra("position", 1)
+                startActivity(mainIntent)
+
+                val intent = Intent(this@MainActivity, NotificationActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
             "add-comment" -> {
                 val post: String = intent.extras!!.getString("postId", "")
-                TODO("Not yet implemented.")
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                mainIntent.putExtra("position", 1)
+                startActivity(mainIntent)
+
+                val intent = Intent(this@MainActivity, NotificationActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
             "reply-comment" -> {
-                TODO("Not yet implemented.")
+                val mainIntent = Intent(this@MainActivity, MainScreenActivity::class.java)
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                mainIntent.putExtra("position", 1)
+                startActivity(mainIntent)
+
+                val intent = Intent(this@MainActivity, NotificationActivity::class.java)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
             else -> {
 

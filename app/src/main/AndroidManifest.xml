@@ -14,9 +14,10 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission
+        android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
         tools:ignore="ProtectedPermissions" />
 
     <application
@@ -32,8 +33,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="30">
         <activity
+            android:name=".ui.activities.TestActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.FollowListActivity"
             android:exported="false">
+
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
@@ -41,7 +46,8 @@
         </activity>
         <activity
             android:name=".ui.activities.DetailMyPostActivity"
-            android:exported="false" >
+            android:exported="false">
+
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
@@ -49,7 +55,8 @@
         </activity>
         <activity
             android:name=".ui.activities.ProfileOtherActivity"
-            android:exported="false" >
+            android:exported="false">
+
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
@@ -57,20 +64,22 @@
         </activity>
         <activity
             android:name=".ui.activities.UpdateAvatarActivity"
-            android:exported="false" >
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-    </activity>
+            android:exported="false">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
         <activity
             android:name=".ui.activities.EditAddStoryActivity"
-            android:exported="false" >
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-    </activity>
+            android:exported="false">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
         <activity
             android:name=".ui.activities.AddStoryActivity"
             android:exported="false">
@@ -260,12 +269,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
-        </service>
-
-<!--        <receiver android:name=".service.MainServiceReceiver"/>-->
-<!--        <service android:name=".service.MainService"-->
-<!--            android:foregroundServiceType="mediaProjection"/>-->
-
+        </service> <!-- <receiver android:name=".service.MainServiceReceiver"/> -->
+        <!-- <service android:name=".service.MainService" -->
+        <!-- android:foregroundServiceType="mediaProjection"/> -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

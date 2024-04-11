@@ -1,5 +1,7 @@
 package com.instar.frontend_android.ui.activities
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -31,7 +33,24 @@ import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import com.permissionx.guolindev.PermissionX
+import com.permissionx.guolindev.callback.ExplainReasonCallback
+import com.permissionx.guolindev.callback.RequestCallback
+import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.event.CallEndListener
+import com.zegocloud.uikit.prebuilt.call.event.ErrorEventsListener
+import com.zegocloud.uikit.prebuilt.call.event.SignalPluginConnectListener
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider
+import com.zegocloud.uikit.service.express.IExpressEngineEventHandler
+import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason
+import org.json.JSONObject
+import timber.log.Timber
 import kotlin.math.max
+
 
 class DirectMessageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDirectMessageBinding
@@ -72,6 +91,13 @@ class DirectMessageActivity : AppCompatActivity() {
         iconMicro = binding.iconMicro
 
         initServices()
+
+        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
+            .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
+                val message =
+                    "We need your consent for the following permissions in order to use the offline call function properly"
+                scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny")
+            }).request(RequestCallback { allGranted, grantedList, deniedList -> })
     }
 
     private fun initServices() {
@@ -208,5 +234,67 @@ class DirectMessageActivity : AppCompatActivity() {
             onError = {}
         )
         return user
+    }
+
+    fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {
+        val isVideoCall = invitationData.type == ZegoInvitationType.VIDEO_CALL.value
+        val isGroupCall = invitationData.invitees.size > 1
+        val callConfig: ZegoUIKitPrebuiltCallConfig
+        callConfig = if (isVideoCall && isGroupCall) {
+            ZegoUIKitPrebuiltCallConfig.groupVideoCall()
+        } else if (!isVideoCall && isGroupCall) {
+            ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
+        } else if (!isVideoCall) {
+            ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
+        } else {
+            ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+        }
+        return callConfig
+    }
+
+    @SuppressLint("BinaryOperationInTimber")
+    private fun videoCallServices(userID: String, username: String) {
+        val appID: Long = 1574470634 // your App ID of Zoge Cloud
+        val appSign = "a5d41bb837834dd85b9c4b7bb00f15e20d11f2f2d77012957dc7839b76a30331"
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+
+        callInvitationConfig.provider =
+            ZegoUIKitPrebuiltCallConfigProvider { invitationData -> getConfig(invitationData) }
+
+        ZegoUIKitPrebuiltCallService.events.errorEventsListener =
+            ErrorEventsListener { errorCode, message -> Timber.d("onError() called with: errorCode = [$errorCode], message = [$message]") }
+        ZegoUIKitPrebuiltCallService.events.invitationEvents.pluginConnectListener =
+            SignalPluginConnectListener { state, event, extendedData ->
+                Timber.d(
+                    "onSignalPluginConnectionStateChanged() called with: state = [" + state + "], event = [" + event
+                            + "], extendedData = [" + extendedData + "]"
+                )
+            }
+
+        ZegoUIKitPrebuiltCallService.init(
+            getApplication(), appID, appSign, userID, username,
+            callInvitationConfig
+        )
+
+        ZegoUIKitPrebuiltCallService.events.callEvents.callEndListener =
+            CallEndListener { callEndReason, jsonObject ->
+                Timber.d(
+                    "onCallEnd() called with: callEndReason = [" + callEndReason + "], jsonObject = [" + jsonObject
+                            + "]"
+                )
+            }
+
+        ZegoUIKitPrebuiltCallService.events.callEvents.setExpressEngineEventHandler(
+            object : IExpressEngineEventHandler() {
+                override fun onRoomStateChanged(
+                    roomID: String, reason: ZegoRoomStateChangedReason, errorCode: Int,
+                    extendedData: JSONObject
+                ) {
+                    Timber.d(
+                        "onRoomStateChanged() called with: roomID = [" + roomID + "], reason = [" + reason
+                                + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]"
+                    )
+                }
+            })
     }
 }

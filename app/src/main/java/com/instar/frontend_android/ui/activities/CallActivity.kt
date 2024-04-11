@@ -24,6 +24,7 @@ class CallActivity : AppCompatActivity() {
     private var imgAvatar: ImageView? = null
     private var time: TextView? = null
     private var yourCamera: ImageView? = null
+    private var otherCamera: ImageView? = null
     private var btnCameraOn: ImageButton? = null
     private var btnCameraOff: ImageButton? = null
     private var btnMicOn: ImageButton? = null
@@ -50,6 +51,7 @@ class CallActivity : AppCompatActivity() {
         imgAvatar = findViewById(R.id.imgAvatar);
         time = findViewById(R.id.time);
         yourCamera = findViewById(R.id.yourCamera);
+        otherCamera = findViewById(R.id.otherCamera);
         btnCameraOn = findViewById(R.id.btnCameraOn);
         btnCameraOff = findViewById(R.id.btnCameraOff);
         btnMicOn = findViewById(R.id.btnMicOn);

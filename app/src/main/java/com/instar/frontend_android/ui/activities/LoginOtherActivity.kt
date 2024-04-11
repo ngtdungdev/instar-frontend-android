@@ -26,6 +26,9 @@ import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityLoginOtherBinding
 import com.instar.frontend_android.databinding.EdittextLoginBinding
 import com.instar.frontend_android.types.requests.LoginRequest
+import com.instar.frontend_android.types.requests.RegisterRequest
+import com.instar.frontend_android.types.responses.AuthResponse
+import com.instar.frontend_android.ui.DTO.ProfilePicture
 import com.instar.frontend_android.ui.customviews.ViewEditText
 import com.instar.frontend_android.ui.customviews.ViewEffect
 import com.instar.frontend_android.ui.services.AuthService
@@ -137,17 +140,56 @@ class LoginOtherActivity : AppCompatActivity() {
         }
 
         facebookService.addListeners(
-            onSuccess = { token ->
-                println("Successfully logged into Facebook")
-                println(Gson().toJson(token))
-                println(token.token)
+            onSuccess = { accessToken ->
+                val userId = accessToken.userId
+                val token = accessToken.token
+                facebookService.getUserPublicProfile(accessToken, callback = { jsonObject ->
+                    val registerRequest = RegisterRequest().apply {
+                        email = "fb_$userId"
+                        username = System.currentTimeMillis().toString()
+                        password = "facebook"
+                        fullname = jsonObject?.optString("name")
+                        profilePicture = ProfilePicture().apply {
+                            url = jsonObject
+                                ?.getJSONObject("picture")
+                                ?.getJSONObject("data")
+                                ?.optString("url")
+                            type = "image"
+                        }
+                    }
+                    authService.register(registerRequest).handleResponse(
+                        onSuccess = { response ->
+                            putTokens(response.data?.accessToken, response.data?.refreshToken)
+                            val intent = Intent(this@LoginOtherActivity, MainScreenActivity::class.java)
+                            startActivity(intent)
+                        },
+                        onError = { _ ->
+                            val loginRequest = LoginRequest().apply {
+                                email = "fb_$userId"
+                                password = "facebook"
+                            }
+                            authService.login(loginRequest).handleResponse(
+                                onSuccess = { response ->
+                                    putTokens(response.data?.accessToken, response.data?.refreshToken)
+                                    val intent = Intent(this@LoginOtherActivity, MainScreenActivity::class.java)
+                                    startActivity(intent)
+                                    Toast.makeText(this@LoginOtherActivity, "Đăng nhập thành công", Toast.LENGTH_LONG).show();
+                                },
+                                onError = { error ->
+                                    Log.e(this::class.java.name, "Error: $error")
+                                    Toast.makeText(this@LoginOtherActivity, "Đã xảy ra lỗi khi đăng nhập bằng Facebook.", Toast.LENGTH_LONG).show();
+                                }
+                            )
+                        }
+                    )
+                })
             },
             onCancel = {
-                println("Cancelled logging into Facebook")
+                Log.e(this::class.java.name, "Canceled logging into Facebook")
             },
             onError = { error ->
-                println("Error while logging into Facebook")
-                println(error)
+                Log.e(this::class.java.name, "Error: $error")
+                Toast.makeText(this@LoginOtherActivity, "Đã xảy ra lỗi khi đăng nhập bằng Facebook.", Toast.LENGTH_LONG).show();
             })
 
         btnLoginWithFacebook.setOnClickListener {
@@ -166,32 +208,15 @@ class LoginOtherActivity : AppCompatActivity() {
             }
 
             authService.login(loginRequest).handleResponse(
-                onSuccess = { authResponse ->
-                    // Khởi tạo SharedPreferences
-                    val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
-
-                    val accessToken = authResponse.data?.accessToken
-                    val refreshToken = authResponse.data?.refreshToken
-
-                    with(sharedPreferences.edit()) {
-                        putString("accessToken", accessToken)
-                        apply()
-                    }
-
-                    with(sharedPreferences.edit()) {
-                        putString("refreshToken", refreshToken)
-                        apply()
-                    }
-
+                onSuccess = { response ->
+                    putTokens(response.data?.accessToken, response.data?.refreshToken)
                     val intent = Intent(this@LoginOtherActivity, MainScreenActivity::class.java)
                     startActivity(intent)
-
-                    Toast.makeText(this@LoginOtherActivity, "Login successful", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this@LoginOtherActivity, "Đăng nhập thành công", Toast.LENGTH_LONG).show();
                 },
                 onError = { error ->
-                    // Handle error
-                    Log.e("ServiceBuilder", "Error: $error")
-                    Toast.makeText(this@LoginOtherActivity, "Login failure: Email hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
+                    Log.e(this::class.java.name, "Error: $error")
+                    Toast.makeText(this@LoginOtherActivity, "Email hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
                 }
             )
 
@@ -209,6 +234,15 @@ class LoginOtherActivity : AppCompatActivity() {
     private fun effectClick() {
         ViewEffect.ViewText(btnNewPassWord)
         ViewEffect.ViewButton(btnNewAccount, textNewAccount)
+    }
+
+    private fun putTokens(accessToken: String?, refreshToken: String?) {
+        val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("accessToken", accessToken)
+            putString("refreshToken", refreshToken)
+            apply()
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

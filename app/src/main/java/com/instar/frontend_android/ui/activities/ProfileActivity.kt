@@ -38,6 +38,7 @@ import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
+import com.instar.frontend_android.ui.services.FacebookService
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -191,7 +192,11 @@ class ProfileActivity : AppCompatActivity() {
             ServiceBuilder.setAccessToken(this, null)
             Helpers.getUserId(this)?.let { userId -> NotificationService.deleteToken(userId) }
 
-            val intent = Intent(this, LoginOtherActivity::class.java)
+            val intent = if (FacebookService.isLoggedIn()) {
+                Intent(this, LoginActivity::class.java)
+            } else {
+                Intent(this, LoginOtherActivity::class.java)
+            }
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()

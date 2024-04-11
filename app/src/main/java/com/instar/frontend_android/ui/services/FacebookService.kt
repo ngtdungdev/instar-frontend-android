@@ -2,12 +2,24 @@ package com.instar.frontend_android.ui.services
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
+import com.facebook.GraphRequest
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
+import com.google.gson.Gson
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 class FacebookService(context: Activity) {
     private val activity: Activity = context
@@ -27,13 +39,22 @@ class FacebookService(context: Activity) {
         loginManager.logInWithReadPermissions(activity, listOf("public_profile"))
     }
 
-    fun isLoggedIn(): Boolean {
-        val accessToken = AccessToken.getCurrentAccessToken()
-        return accessToken != null && !accessToken.isExpired
-    }
-
     fun logout() {
         loginManager.logOut()
+    }
+
+    fun getUserPublicProfile(accessToken: AccessToken? = AccessToken.getCurrentAccessToken(),
+                             fields: String = "id,name,email,picture.type(large)",
+                             callback: (JSONObject?) -> Unit) {
+        val request = GraphRequest.newMeRequest(accessToken) { jsonObject, _ ->
+            callback(jsonObject)
+        }
+
+        val parameters = Bundle()
+        parameters.putString("fields", fields)
+        request.parameters = parameters
+
+        request.executeAsync()
     }
 
     fun addListeners(onSuccess: (AccessToken) -> Unit,
@@ -61,5 +82,12 @@ class FacebookService(context: Activity) {
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         return callbackManager.onActivityResult(requestCode, resultCode, data)
+    }
+
+    companion object {
+        fun isLoggedIn(): Boolean {
+            val accessToken = AccessToken.getCurrentAccessToken()
+            return accessToken != null && !accessToken.isExpired
+        }
     }
 }

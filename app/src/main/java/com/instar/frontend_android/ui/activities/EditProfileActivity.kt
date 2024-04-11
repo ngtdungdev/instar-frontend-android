@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,6 @@ import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.User
-import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
@@ -36,6 +36,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var btnEditAvatar: TextView
     private lateinit var btnSaveProfile: TextView
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
@@ -50,6 +51,7 @@ class EditProfileActivity : AppCompatActivity() {
         btnEditAvatar = findViewById(R.id.customButton)
         edtPassword = findViewById(R.id.edtPassword)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
+
 
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)

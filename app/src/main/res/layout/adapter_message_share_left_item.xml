@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="right"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/timeOfSentMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:alpha="0.7"
+        android:gravity="center"
+        android:text="Hôm qua 12:30" />
+
+    <RelativeLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner2">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            app:cardCornerRadius="40dp">
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@mipmap/no1" />
+        </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/sentID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/cardView"
+            android:paddingStart="10dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="8dp"
+            android:text="quangduy"
+            android:textStyle="bold"
+            android:textColor="#272727"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:background="@mipmap/no1"
+        android:elevation="2dp"/>
+
+    <TextView
+        android:id="@+id/sentMessage"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/IDsent"
+        android:background="@drawable/rounded_corner3"
+        android:paddingStart="10dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp"
+        android:maxLines="2"
+        android:text="quangduy quá mợi mỏi !!!"
+        android:textColor="#272727"
+        android:textSize="16sp" />
+
+</LinearLayout>

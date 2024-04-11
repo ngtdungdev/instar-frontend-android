@@ -5,6 +5,10 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,11 +16,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -29,6 +36,7 @@ import com.instar.frontend_android.databinding.FragmentSharePostBottomSheetDialo
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.CommentWithReply
+import com.instar.frontend_android.ui.DTO.SelectedUser
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostCommentAdapter
 import com.instar.frontend_android.ui.adapters.SharePostBottomSheetDialogAdapter
@@ -53,11 +61,13 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private lateinit var userService: UserService
     private lateinit var binding: FragmentSharePostBottomSheetDialogBinding
-    private lateinit var userList: MutableList<User>
+    private lateinit var userList: MutableList<SelectedUser>
     private lateinit var shareAdapter: SharePostBottomSheetDialogAdapter
     private lateinit var avatarRecyclerView: RecyclerView
     private lateinit var textInputLayout: TextInputLayout
     private lateinit var message: TextInputEditText
+    private lateinit var search: EditText
+    private lateinit var button: TextView
     private lateinit var layoutBtn: View
     private lateinit var shareLayoutParams: ConstraintLayout.LayoutParams
     private var collapsedMargin = 0
@@ -71,11 +81,35 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         avatarRecyclerView = binding.avatarRecyclerView
         textInputLayout = binding.textInputLayout
         message = binding.message
+        search = binding.search
         layoutBtn = binding.layoutBtn
+        button = binding.button
         userService = ServiceBuilder.buildService(UserService::class.java, requireContext())
+        avatarRecyclerView.layoutManager = LinearLayoutManager(context)
 
         initView()
-        loadAdapter()
+        search()
+
+        val debounceHandler = Handler(Looper.getMainLooper())
+        var debounceRunnable: Runnable? = null
+        search.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                debounceRunnable?.let {
+                    debounceHandler.removeCallbacks(it)
+                }
+                debounceRunnable = Runnable {
+                    search()
+                }
+                debounceHandler.postDelayed(debounceRunnable!!, 500)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+
         return binding.root
     }
 
@@ -85,9 +119,8 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun loadAdapter() {
-        userList = getUserList()
         shareAdapter = SharePostBottomSheetDialogAdapter(requireContext(), userList, lifecycleScope)
-        val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        val layoutManager = GridLayoutManager(requireContext(), 3)
         avatarRecyclerView.layoutManager = layoutManager
         val scale = resources.displayMetrics.density
         val spacingInPixels = (10 * scale + 0.5f).toInt()
@@ -95,15 +128,7 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         avatarRecyclerView.adapter = shareAdapter
     }
 
-    private fun getUserList(): MutableList<User> {
-        val users: MutableList<User> = mutableListOf()
 
-        lifecycleScope.launch {
-
-        }
-
-        return users
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -157,6 +182,10 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         recyclerLayoutParams.bottomMargin = (k * layoutShareHeight).toInt()
         avatarRecyclerView.layoutParams = recyclerLayoutParams
 
+        button.setOnClickListener {
+            // TODO: Share bài viết ở đây nà
+        }
+
         message.setOnClickListener {
             message.hint = "Soạn tin nhắn..."
             val inputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -178,11 +207,30 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
-        return withContext(Dispatchers.IO) {
-            userService.searchUsers(userId).awaitResponse()
+    fun search() {
+        lifecycleScope.launch {
+            val response = try {
+                userService.searchUsers(search.text.toString()).awaitResponse()
+            } catch (error: Throwable) {
+                error.printStackTrace()
+                null
+            }
+
+            withContext(Dispatchers.Main) {
+                if (response != null) {
+                    val users = response.data?.users
+                    userList = mutableListOf();
+                    users?.forEach {
+                        userList.add(SelectedUser(it, false))
+                    }
+                    loadAdapter()
+                } else {
+                    Log.e("Error", "Failed to get following users")
+                }
+            }
         }
     }
+
 
     private fun setBottomSheetPeekHeight(bottomSheet: FrameLayout, height: Int) {
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)

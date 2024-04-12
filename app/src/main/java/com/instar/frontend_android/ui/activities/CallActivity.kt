@@ -132,6 +132,7 @@ class CallActivity : AppCompatActivity() {
 
     private fun signOut() {
         ZegoUIKitPrebuiltCallService.unInit()
+        finish()
     }
 
     @Deprecated("Deprecated in Java")

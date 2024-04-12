@@ -66,7 +66,7 @@
         </LinearLayout>
 
         <ImageButton
-            android:id="@+id/imageButton8"
+            android:id="@+id/btnVideoCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="false"
@@ -78,13 +78,13 @@
             app:srcCompat="@drawable/ic_video_call" />
 
         <ImageButton
-            android:id="@+id/imageButton9"
+            android:id="@+id/btnCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginEnd="10dp"
             android:background="#FFFFFF"
-            android:layout_toStartOf="@+id/imageButton8"
+            android:layout_toStartOf="@+id/btnVideoCall"
             app:srcCompat="@drawable/ic_phone_call" />
     </RelativeLayout>
 

@@ -36,6 +36,7 @@ import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
 import com.instar.frontend_android.ui.fragments.HomeFragment
 import com.instar.frontend_android.ui.fragments.MyPostFragment
 import com.instar.frontend_android.ui.fragments.MyPostSavedFragment
+import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -65,7 +66,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var btnPostUp: ImageButton
     private lateinit var btnPersonal: View
     private lateinit var btnReel:ImageView
-    //    private lateinit var frameAvatar : FrameLayout
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager2: ViewPager2
     private lateinit var myViewPagerAdapter: MyViewPagerAdapter
@@ -88,45 +88,52 @@ class ProfileActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
-        if (accessToken != null) {
-            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-            val id = decodedTokenJson.getString("id")
 
-            lifecycleScope.launch {
-                try {
-                    val response = getUserData(id)
-                    user = response.data?.user
-                    tvTenNguoiDung.text  = user?.username // Set username if available
-                    tvNickname.text  = user?.fullname
-                    tvDescription.text = user?.desc
-//                    tvSoLuongBaiViet
-                    tvSoLuongNguoiTheoDoi.text = user?.followers?.size.toString()
-                    tvSoLuongDangTheoDoi.text = user?.followings?.size.toString()
-                    Glide.with(this@ProfileActivity)
-                        .load(response.data?.user?.profilePicture?.url)
-                        .placeholder(R.drawable.default_image) // Placeholder image
-                        .error(R.drawable.default_image) // Image to display if load fails
-                        .into(imgAvatar)
+        val userintent: User? = intent.getSerializableExtra("user") as? User
 
-                } catch (e: Exception) {
-                    // Handle exceptions, e.g., log or show error to user
-                    e.printStackTrace()
-                }
-            }
-
-            // gọi để lấy bài viết và saved bài viết
-            lifecycleScope.launch {
-                try {
-                    val response1 = getMyPostsData(id)
-                    tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
-
-                } catch (e: Exception) {
-                    // Handle exceptions, e.g., log or show error to user
-                    e.printStackTrace()
+        if (userintent != null) {
+            updateUserInformation(userintent)
+        } else {
+            if (accessToken != null) {
+                val decodedTokenJson = Helpers.decodeJwt(accessToken)
+                val id = decodedTokenJson.getString("id")
+                lifecycleScope.launch {
+                    try {
+                        val response = getUserData(id)
+                        val user = response.data?.user
+                        if (user != null) {
+                            updateUserInformation(user)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
     }
+
+    private fun updateUserInformation(user: User) {
+        tvTenNguoiDung.text = user.username
+        tvNickname.text = user.fullname
+        tvDescription.text = user.desc
+        tvSoLuongNguoiTheoDoi.text = user.followers?.size.toString()
+        tvSoLuongDangTheoDoi.text = user.followings?.size.toString()
+        Glide.with(this@ProfileActivity)
+            .load(user.profilePicture?.url)
+            .placeholder(R.drawable.default_image) // Placeholder image
+            .error(R.drawable.default_image) // Image to display if load fails
+            .into(imgAvatar)
+        lifecycleScope.launch {
+            try {
+                val response1 = getMyPostsData(user.id)
+                tvSoLuongBaiViet.text = response1.data?.posts!!.size.toString();
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.R)
     private fun initView() {
@@ -139,10 +146,9 @@ class ProfileActivity : AppCompatActivity() {
             this@ProfileActivity.tvSoLuongNguoiTheoDoi = tvSoLuongNguoiTheoDoi
             this@ProfileActivity.tvSoLuongDangTheoDoi = tvSoLuongDangTheoDoi
             this@ProfileActivity.imgAvatar = imgAvatar
-//            this@ProfileActivity.frameAvatar = frameAvatar
             this@ProfileActivity.tabLayout = tabLayout
             this@ProfileActivity.viewPager2 = viewPager2
-            this@ProfileActivity.btnHome = btnSearch
+            this@ProfileActivity.btnHome = btnHome
             this@ProfileActivity.btnSearch = btnSearch
             this@ProfileActivity.btnPostUp1 = btnPostUp1
             this@ProfileActivity.btnLogout = btnLogout
@@ -153,12 +159,12 @@ class ProfileActivity : AppCompatActivity() {
         btnPersonal = binding.btnPersonal
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
+            newPage.putExtra("username", tvTenNguoiDung.text.toString())
+            newPage.putExtra("fullname", tvNickname.text.toString())
+            newPage.putExtra("description", tvDescription.text.toString())
+            newPage.putExtra("avatarUri", user?.profilePicture?.url)
             startActivity(newPage)
         }
-//        frameAvatar.setOnClickListener{
-//            val newPost = Intent(this@ProfileActivity, EditProfileActivity::class.java)
-//            startActivity(newPost)
-//        }
         btnHome.setOnClickListener {
             val intent = Intent(this, HomeFragment::class.java);
             startActivity(intent)
@@ -166,6 +172,7 @@ class ProfileActivity : AppCompatActivity() {
         btnLogout.setOnClickListener {
             ServiceBuilder.setRefreshToken(this, null)
             ServiceBuilder.setAccessToken(this, null)
+            Helpers.getUserId(this)?.let { userId -> NotificationService.deleteToken(userId) }
 
             val intent = Intent(this, LoginOtherActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK

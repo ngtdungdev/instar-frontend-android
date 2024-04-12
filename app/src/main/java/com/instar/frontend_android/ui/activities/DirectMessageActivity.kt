@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
 import com.instar.frontend_android.types.requests.MessageRequest
+import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.DTO.User
@@ -29,9 +32,13 @@ import com.instar.frontend_android.ui.services.ChatService
 import com.instar.frontend_android.ui.services.FCMNotificationService
 import com.instar.frontend_android.ui.services.MessageService
 import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 
@@ -101,27 +108,32 @@ class DirectMessageActivity : AppCompatActivity() {
 
     private fun initView() {
         // load the direct message details
-//        lifecycleScope.launch {
-            var chatName = currentChat.name
-            var chatUsername = "${currentChat.members.size} thành viên"
-            var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
-            if (currentChat.members.size == 2) {
-                user = if (currentChat.members[0] == userID)
+        var chatName = currentChat.name
+        var chatUsername = "${currentChat.members.size} thành viên"
+        var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+        if (currentChat.members.size == 2) {
+            lifecycleScope.launch {
+                val response = if (currentChat.members[0] == userID)
                     getUserData(currentChat.members[1])
                 else
                     getUserData(currentChat.members[0])
+
+                user = response.data?.user
+
                 chatName = "${user?.fullname}"
                 chatUsername = "${user?.username}"
                 chatAvatarUrl = user?.profilePicture?.url ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+
+                directMessageName.text = chatName
+                directMessageUsername.text = chatUsername
+
+                Glide.with(applicationContext)
+                    .load(chatAvatarUrl)
+                    .placeholder(R.drawable.default_image) // Placeholder image
+                    .error(R.drawable.default_image) // Image to display if load fails
+                    .into(directMessageAvatar as ImageView)
             }
-            Glide.with(applicationContext)
-                .load(chatAvatarUrl)
-                .placeholder(R.drawable.default_image) // Placeholder image
-                .error(R.drawable.default_image) // Image to display if load fails
-                .into(directMessageAvatar as ImageView)
-            directMessageName.text = chatName
-            directMessageUsername.text = chatUsername
-//        }
+        }
 
         // load all messages of the chat
         messageList = mutableListOf()
@@ -206,13 +218,10 @@ class DirectMessageActivity : AppCompatActivity() {
         )
     }
 
-    private fun getUserData(userId: String): User? {
-        var user: User? = null
-        userService.getUser(userId).handleResponse(
-            onSuccess = { response -> user = response.data?.user },
-            onError = {}
-        )
-        return user
+    private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {
+        return withContext(Dispatchers.IO) {
+            userService.getUser(userId).awaitResponse()
+        }
     }
 
 

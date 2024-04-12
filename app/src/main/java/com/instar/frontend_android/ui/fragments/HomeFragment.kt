@@ -335,7 +335,7 @@ class HomeFragment : Fragment() {
                 null // Return null to indicate that an error occurred
             }
             if (response != null) {
-                postsList = response.data?.timelinePosts ?: ArrayList()
+                postsList = response.data?.timelineYourPosts ?: ArrayList()
 
             } else {
                 // Handle the case where the response is null

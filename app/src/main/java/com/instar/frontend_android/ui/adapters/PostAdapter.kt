@@ -73,19 +73,6 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
         return data[position].type!!
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun handleLikePostRequest(data: Any?) {
-        // Check if the data is valid
-        if (data is Map<*, *>) {
-            val post = data["post"] as? Post
-            val sender = data["sender"] as? User
-            if (post != null && sender != null) {
-                post.likes.add(sender.id)
-                notifyDataSetChanged()
-            }
-        }
-    }
-
     override fun getItemId(position: Int): Long {
         return data[position].post?.id.hashCode().toLong()
     }

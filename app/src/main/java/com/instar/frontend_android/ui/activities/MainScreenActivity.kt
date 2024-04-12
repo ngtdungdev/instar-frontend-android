@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -23,6 +22,24 @@ import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
 import com.instar.frontend_android.ui.services.FCMService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
+import com.permissionx.guolindev.PermissionX
+import com.permissionx.guolindev.callback.ExplainReasonCallback
+import com.permissionx.guolindev.callback.RequestCallback
+import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.event.CallEndListener
+import com.zegocloud.uikit.prebuilt.call.event.ErrorEventsListener
+import com.zegocloud.uikit.prebuilt.call.event.SignalPluginConnectListener
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider
+import com.zegocloud.uikit.service.express.IExpressEngineEventHandler
+import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason
+import org.json.JSONObject
+import timber.log.Timber
+import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.launch
 
 class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     private lateinit var binding : ActivityMainScreenBinding
@@ -80,8 +97,24 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     }
 
     private fun initView() {
-//        val serviceIntent = Intent(this, MyService::class.java)
-//        startService(serviceIntent)
+        val appID: Long = 1574470634;
+        val appSign = "a5d41bb837834dd85b9c4b7bb00f15e20d11f2f2d77012957dc7839b76a30331";
+
+        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
+            .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
+                val message =
+                    "We need your consent for the following permissions in order to use the offline call function properly"
+                scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny")
+            }).request(RequestCallback { allGranted, grantedList, deniedList -> })
+
+
+        lifecycleScope.launch {
+            val userId = Helpers.getUserId(applicationContext)
+            if (userId != null) {
+                initCallInviteService(appID, appSign, userId, userId + "_name")
+            }
+        }
+
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when(savePosition) {
@@ -114,6 +147,60 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         touchSlopField.set(recyclerView, touchSlop * 2)
     }
 
+    fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {
+        val isVideoCall = invitationData.type == ZegoInvitationType.VIDEO_CALL.value
+        val isGroupCall = invitationData.invitees.size > 1
+        val callConfig: ZegoUIKitPrebuiltCallConfig
+        callConfig = if (isVideoCall && isGroupCall) {
+            ZegoUIKitPrebuiltCallConfig.groupVideoCall()
+        } else if (!isVideoCall && isGroupCall) {
+            ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
+        } else if (!isVideoCall) {
+            ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
+        } else {
+            ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+        }
+        return callConfig
+    }
+
+    fun initCallInviteService(appID: Long, appSign: String?, userID: String?, userName: String?) {
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        callInvitationConfig.provider =
+            ZegoUIKitPrebuiltCallConfigProvider { invitationData -> getConfig(invitationData) }
+        ZegoUIKitPrebuiltCallService.events.errorEventsListener =
+            ErrorEventsListener { errorCode, message -> Timber.d("onError() called with: errorCode = [$errorCode], message = [$message]") }
+        ZegoUIKitPrebuiltCallService.events.invitationEvents.pluginConnectListener =
+            SignalPluginConnectListener { state, event, extendedData ->
+                Timber.d(
+                    "onSignalPluginConnectionStateChanged() called with: state = [" + state + "], event = [" + event
+                            + "], extendedData = [" + extendedData + "]"
+                )
+            }
+        ZegoUIKitPrebuiltCallService.init(
+            application, appID, appSign, userID, userName,
+            callInvitationConfig
+        )
+        ZegoUIKitPrebuiltCallService.events.callEvents.callEndListener =
+            CallEndListener { callEndReason, jsonObject ->
+                Timber.d(
+                    "onCallEnd() called with: callEndReason = [" + callEndReason + "], jsonObject = [" + jsonObject
+                            + "]"
+                )
+            }
+        ZegoUIKitPrebuiltCallService.events.callEvents.setExpressEngineEventHandler(
+            object : IExpressEngineEventHandler() {
+                override fun onRoomStateChanged(
+                    roomID: String, reason: ZegoRoomStateChangedReason, errorCode: Int,
+                    extendedData: JSONObject
+                ) {
+                    Timber.d(
+                        "onRoomStateChanged() called with: roomID = [" + roomID + "], reason = [" + reason
+                                + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]"
+                    )
+                }
+            })
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -129,5 +216,12 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
 
     override fun onItemClick(position: Int, fragmentTag: String) {
         viewPager.setCurrentItem(position, true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // when use minimize feature,it you swipe close this activity,call endCall()
+        // to make sure call is ended and the float window is dismissed
+        ZegoUIKitPrebuiltCallService.endCall()
     }
 }

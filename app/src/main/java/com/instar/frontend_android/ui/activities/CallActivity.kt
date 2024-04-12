@@ -1,6 +1,5 @@
 package com.instar.frontend_android.ui.activities
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
@@ -16,26 +15,13 @@ import androidx.cardview.widget.CardView
 import com.google.android.material.textfield.TextInputLayout
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.User
-import com.permissionx.guolindev.PermissionX
-import com.permissionx.guolindev.callback.ExplainReasonCallback
-import com.permissionx.guolindev.callback.RequestCallback
 import androidx.appcompat.app.AlertDialog.Builder;
-import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
-import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
-import com.zegocloud.uikit.prebuilt.call.event.CallEndListener
-import com.zegocloud.uikit.prebuilt.call.event.ErrorEventsListener
-import com.zegocloud.uikit.prebuilt.call.event.SignalPluginConnectListener
-import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
-import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData
-import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider
 import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser
-import com.zegocloud.uikit.service.express.IExpressEngineEventHandler
-import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason
-import org.json.JSONObject
-import timber.log.Timber
 import android.content.DialogInterface.OnClickListener;
+import android.text.Editable
+import com.instar.frontend_android.ui.utils.Helpers
 
 class CallActivity : AppCompatActivity() {
     private var mainLayout: RelativeLayout? = null
@@ -59,41 +45,22 @@ class CallActivity : AppCompatActivity() {
         setContentView(R.layout.activity_call)
         val yourUserID = findViewById<TextView>(R.id.your_user_id)
         val yourUserName = findViewById<TextView>(R.id.your_user_name)
+        val textInputLayout = findViewById<TextInputLayout>(R.id.target_user_id)
         val user = intent.getSerializableExtra("user") as? User
-        val userID = user?.id
-        val userName = user?.username
+        val targetUserId = user?.id
 
         initView()
 
-        yourUserID.text = "Your User ID :" + userID;
-        yourUserName.text = "Your User Name :" + userName;
+        val userId = Helpers.getUserId(this)
+        yourUserID.text = "Your User ID :" + userId
+        yourUserName.text = "Your User Name :" + userId + "_name"
 
-        val appID: Long = 1574470634;
-        val appSign: String = "a5d41bb837834dd85b9c4b7bb00f15e20d11f2f2d77012957dc7839b76a30331";
-
-
-        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
-            .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
-                val message =
-                    "We need your consent for the following permissions in order to use the offline call function properly"
-                scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny")
-            }).request(RequestCallback { allGranted, grantedList, deniedList -> })
-
-
-        initCallInviteService(appID, appSign, userID, userName)
+        val editable: Editable = Editable.Factory.getInstance().newEditable(targetUserId)
+        textInputLayout.editText?.text = editable
 
         initVoiceButton()
 
         initVideoButton()
-
-        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
-            .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
-                val message =
-                    "We need your consent for the following permissions in order to use the offline call function properly"
-                scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny")
-            }).request(RequestCallback { allGranted, grantedList, deniedList -> })
-
-//        ZegoUIKitPrebuiltCallInvitationService.unInit()
     }
 
     private fun initView() {
@@ -128,8 +95,7 @@ class CallActivity : AppCompatActivity() {
             val split =
                 targetUserID.split(",".toRegex()).dropLastWhile { it.isEmpty() }
                     .toTypedArray()
-            val users: MutableList<ZegoUIKitUser> =
-                ArrayList()
+            val users: MutableList<ZegoUIKitUser> = ArrayList()
             for (userID: String in split) {
                 val userName = userID + "_name"
                 users.add(ZegoUIKitUser(userID, userName))
@@ -164,44 +130,6 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
-    fun initCallInviteService(appID: Long, appSign: String?, userID: String?, userName: String?) {
-        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
-        callInvitationConfig.provider =
-            ZegoUIKitPrebuiltCallConfigProvider { invitationData -> getConfig(invitationData) }
-        ZegoUIKitPrebuiltCallService.events.errorEventsListener =
-            ErrorEventsListener { errorCode, message -> Timber.d("onError() called with: errorCode = [$errorCode], message = [$message]") }
-        ZegoUIKitPrebuiltCallService.events.invitationEvents.pluginConnectListener =
-            SignalPluginConnectListener { state, event, extendedData ->
-                Timber.d(
-                    "onSignalPluginConnectionStateChanged() called with: state = [" + state + "], event = [" + event
-                            + "], extendedData = [" + extendedData + "]"
-                )
-            }
-        ZegoUIKitPrebuiltCallService.init(
-            application, appID, appSign, userID, userName,
-            callInvitationConfig
-        )
-        ZegoUIKitPrebuiltCallService.events.callEvents.callEndListener =
-            CallEndListener { callEndReason, jsonObject ->
-                Timber.d(
-                    "onCallEnd() called with: callEndReason = [" + callEndReason + "], jsonObject = [" + jsonObject
-                            + "]"
-                )
-            }
-        ZegoUIKitPrebuiltCallService.events.callEvents.setExpressEngineEventHandler(
-            object : IExpressEngineEventHandler() {
-                override fun onRoomStateChanged(
-                    roomID: String, reason: ZegoRoomStateChangedReason, errorCode: Int,
-                    extendedData: JSONObject
-                ) {
-                    Timber.d(
-                        "onRoomStateChanged() called with: roomID = [" + roomID + "], reason = [" + reason
-                                + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]"
-                    )
-                }
-            })
-    }
-
     private fun signOut() {
         ZegoUIKitPrebuiltCallService.unInit()
     }
@@ -225,28 +153,5 @@ class CallActivity : AppCompatActivity() {
             }
         })
         builder.create().show()
-    }
-
-    fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {
-        val isVideoCall = invitationData.type == ZegoInvitationType.VIDEO_CALL.value
-        val isGroupCall = invitationData.invitees.size > 1
-        val callConfig: ZegoUIKitPrebuiltCallConfig
-        callConfig = if (isVideoCall && isGroupCall) {
-            ZegoUIKitPrebuiltCallConfig.groupVideoCall()
-        } else if (!isVideoCall && isGroupCall) {
-            ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
-        } else if (!isVideoCall) {
-            ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
-        } else {
-            ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
-        }
-        return callConfig
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // when use minimize feature,it you swipe close this activity,call endCall()
-        // to make sure call is ended and the float window is dismissed
-        ZegoUIKitPrebuiltCallService.endCall()
     }
 }

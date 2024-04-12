@@ -8,6 +8,9 @@ class PostResponse {
     @SerializedName("timelinePosts")
     var timelinePosts: ArrayList<Post>? = null
 
+    @SerializedName("timelineYourPosts")
+    var timelineYourPosts: ArrayList<Post>? = null
+
     @SerializedName("posts")
     var posts: MutableList<Post>? = null
 

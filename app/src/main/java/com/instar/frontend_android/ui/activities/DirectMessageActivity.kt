@@ -1,6 +1,5 @@
 package com.instar.frontend_android.ui.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,7 +9,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +34,8 @@ import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,11 +49,10 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var directMessageUsername: TextView
     private lateinit var message: EditText
     private lateinit var btnSend: TextView
-    private lateinit var btnVideoCall: ImageButton
-    private lateinit var btnCall: ImageButton
     private lateinit var iconAvatar : ImageButton
     private lateinit var iconLibrary: ImageButton
     private lateinit var iconMicro: ImageButton
+    private lateinit var btnBack: ImageButton
     private lateinit var messageList: MutableList<Message>
     private lateinit var messageAdapter: DirectMessageAdapter
     private lateinit var messageRecyclerView: RecyclerView
@@ -82,10 +81,17 @@ class DirectMessageActivity : AppCompatActivity() {
         iconAvatar = binding.iconAvatar
         iconLibrary = binding.iconLibrary
         iconMicro = binding.iconMicro
-        btnVideoCall = binding.btnVideoCall
-        btnCall = binding.btnCall
+        btnBack = binding.back
 
         initServices()
+
+        initVoiceButton()
+
+        initVideoButton()
+
+        btnBack.setOnClickListener {
+            super.onBackPressed()
+        }
     }
 
     private fun initServices() {
@@ -190,12 +196,6 @@ class DirectMessageActivity : AppCompatActivity() {
             sendMessage(messageText)
             message.text.clear();
         }
-
-        btnVideoCall.setOnClickListener {
-            val intent = Intent(this@DirectMessageActivity, CallActivity::class.java)
-            intent.putExtra("user", user)
-            startActivity(intent)
-        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -216,6 +216,49 @@ class DirectMessageActivity : AppCompatActivity() {
             onSuccess = { println("Successfully sent the chat notification.") },
             onError = { println("Error while sending chat notification.") }
         )
+    }
+
+    private fun initVideoButton() {
+        val newVideoCall = findViewById<ZegoSendCallInvitationButton>(R.id.new_video_call)
+        newVideoCall.setIsVideoCall(true)
+
+        newVideoCall.resourceID = "zego_data"
+        newVideoCall.setOnClickListener { v: View? ->
+            if (user != null) {
+                val targetUserID = user!!.id
+                val split =
+                    targetUserID.split(",".toRegex()).dropLastWhile { it.isEmpty() }
+                        .toTypedArray()
+                val users: MutableList<ZegoUIKitUser> = ArrayList()
+                for (userID: String in split) {
+                    val userName = userID + "_name"
+                    users.add(ZegoUIKitUser(userID, userName))
+                }
+                newVideoCall.setInvitees(users)
+            }
+        }
+    }
+
+    private fun initVoiceButton() {
+        val newVoiceCall = findViewById<ZegoSendCallInvitationButton>(R.id.new_voice_call)
+        newVoiceCall.setIsVideoCall(false)
+
+        newVoiceCall.resourceID = "zego_data"
+        newVoiceCall.setOnClickListener { v: View? ->
+            if (user != null) {
+                val targetUserID = user!!.id
+                val split =
+                    targetUserID.split(",".toRegex()).dropLastWhile { it.isEmpty() }
+                        .toTypedArray()
+                val users: MutableList<ZegoUIKitUser> =
+                    ArrayList()
+                for (userID: String in split) {
+                    val userName = userID + "_name"
+                    users.add(ZegoUIKitUser(userID, userName))
+                }
+                newVoiceCall.setInvitees(users)
+            }
+        }
     }
 
     private suspend fun getUserData(userId: String): ApiResponse<UserResponse> {

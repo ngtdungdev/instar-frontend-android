@@ -342,7 +342,6 @@ class HomeFragment : Fragment() {
                 Log.e("Error", "Failed to get timeline posts")
             }
         }
-
         return postsList
     }
 }

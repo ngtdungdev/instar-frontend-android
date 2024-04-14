@@ -179,6 +179,10 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        btnSearch.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java);
+            startActivity(intent)
+        }
         btnLogout.setOnClickListener {
             ServiceBuilder.setRefreshToken(this, null)
             ServiceBuilder.setAccessToken(this, null)

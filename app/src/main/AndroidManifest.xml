@@ -40,14 +40,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="30" >
         <activity
-            android:name=".ui.activities.CallActivity"
-            android:exported="false" >
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
-        <activity
             android:name=".ui.activities.FollowListActivity"
             android:exported="false" >
             <!-- <intent-filter> -->

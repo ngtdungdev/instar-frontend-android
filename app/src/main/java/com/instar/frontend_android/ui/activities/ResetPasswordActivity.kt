@@ -187,8 +187,9 @@ class ResetPasswordActivity : AppCompatActivity() {
             }
         }
 
-        imageBack.setOnClickListener { finish() }
-        effectClick()
+        imageBack.setOnClickListener {
+            onBackPressed()
+        }
     }
     private fun setSms() {
         labelSms.visibility = View.GONE
@@ -208,6 +209,5 @@ class ResetPasswordActivity : AppCompatActivity() {
     }
     private fun effectClick() {
         ViewEffect.ViewText(btnConfirm)
-        ViewEffect.ImageBack(imageBack)
     }
 }

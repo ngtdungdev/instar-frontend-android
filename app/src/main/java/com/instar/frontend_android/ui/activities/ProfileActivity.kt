@@ -26,6 +26,7 @@ import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.MyViewPagerAdapter
+import com.instar.frontend_android.ui.fragments.PostFragment
 import com.instar.frontend_android.ui.services.FacebookService
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.PostService
@@ -73,9 +74,6 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(binding.root)
         initView()
 
-        // Khởi tạo adapter và gán nó cho ViewPager2
-
-
         userService = ServiceBuilder.buildService(UserService::class.java, this)
         postService = ServiceBuilder.buildService(PostService::class.java, this)
 
@@ -106,7 +104,6 @@ class ProfileActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
 
     private fun updateUserInformation(user: User) {
@@ -166,6 +163,18 @@ class ProfileActivity : AppCompatActivity() {
         btnPostUp = binding.btnPostUp
         btnPersonal = binding.btnPersonal
 
+        btnPostUp.setOnClickListener {
+            val intent = Intent(this@ProfileActivity, MainScreenActivity::class.java)
+            intent.putExtra("showPostFragment", true)
+            startActivity(intent)
+        }
+
+        btnPostUp1.setOnClickListener {
+            val intent = Intent(this@ProfileActivity, MainScreenActivity::class.java)
+            intent.putExtra("showPostFragment", true)
+            startActivity(intent)
+        }
+
         btn_editProfile.setOnClickListener {
             val newPage = Intent(this@ProfileActivity, EditProfileActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -197,25 +206,21 @@ class ProfileActivity : AppCompatActivity() {
         tvNguoiTheoDoi.setOnClickListener {
             val intent = Intent(this, FollowListActivity::class.java);
             intent.putExtra("userId",id)
-//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
         tvDangTheoDoi.setOnClickListener {
             val intent = Intent(this, FollowListActivity::class.java);
             intent.putExtra("userId",id)
-//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
         tvSoLuongDangTheoDoi.setOnClickListener {
             val intent = Intent(this, FollowListActivity::class.java);
             intent.putExtra("userId",id)
-//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
         tvSoLuongNguoiTheoDoi.setOnClickListener {
             val intent = Intent(this, FollowListActivity::class.java);
             intent.putExtra("userId",id)
-//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
 

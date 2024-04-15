@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
+import com.instar.frontend_android.ui.fragments.PostFragment
 import com.instar.frontend_android.ui.services.FCMService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import com.permissionx.guolindev.PermissionX
@@ -146,6 +147,10 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         touchSlopField.isAccessible = true
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * 2)
+
+        if (intent.getBooleanExtra("showPostFragment", false)) {
+            viewPager.setCurrentItem(0, true)
+        }
     }
 
     fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {

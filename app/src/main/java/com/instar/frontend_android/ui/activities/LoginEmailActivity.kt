@@ -42,8 +42,7 @@ class LoginEmailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        authService = ServiceBuilder.buildService(AuthService::class.java, this)
-
+        binding = ActivityLoginEmailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         imageBack = binding.imageBack
@@ -57,13 +56,15 @@ class LoginEmailActivity : AppCompatActivity() {
         btnText = binding.emailTitle.btnText
         btnFindAccount = binding.btnFindAccount
 
+        authService = ServiceBuilder.buildService(AuthService::class.java, this)
+
         loadActivity()
         initView()
     }
 
     private fun loadActivity() {
         title.text = "Tìm tài khoản"
-        textNote.text = "Nhập tên người dùng, email hoặc số di động của bạn"
+        textNote.text = "Nhập tên người dùng, email của bạn"
         btnText.text = "Bạn không thể đặt lại mật khẩu?"
         labelEmail.text = "Tên người dùng, email/số di động"
         emailText.hint = "Tên người dùng, email/số di động"
@@ -112,17 +113,12 @@ class LoginEmailActivity : AppCompatActivity() {
 
         imageBack.setOnClickListener { finish() }
 
-        effectClick()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setEmail() {
         labelEmail.visibility = View.GONE
         layoutEmail.Layout.background = getDrawable(R.drawable.border_component_login_dow)
-        emailText.hint = "Tên người dùng, email/số di động"
-    }
-
-    private fun effectClick() {
-        ViewEffect.ImageBack(imageBack)
+        emailText.hint = "Tên người dùng, email"
     }
 }

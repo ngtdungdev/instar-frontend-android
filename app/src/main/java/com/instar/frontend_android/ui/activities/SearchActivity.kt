@@ -49,7 +49,6 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var query: EditText
     private lateinit var userService: UserService
     private lateinit var userList: MutableList<User>
-    private lateinit var tagList: MutableList<User>
     private lateinit var userAdapter: SearchAdapter
     private lateinit var userRecyclerView: RecyclerView
 
@@ -80,13 +79,11 @@ class SearchActivity : AppCompatActivity() {
     private fun initView() {
         btnPersonal.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java);
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()
         }
         btnSearch.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java);
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             finish()
         }

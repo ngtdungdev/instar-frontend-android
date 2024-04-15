@@ -26,20 +26,9 @@ import java.util.List;
 public class NewsFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Images> images;
     private Context context;
-    private OnItemClickItem listener;
-
     public NewsFollowAdapter(Context context, List<Images> images) {
         this.context = context;
         this.images = images;
-    }
-
-    public void setOnItemClickItem(OnItemClickItem listener) {
-        this.listener = listener;
-    }
-
-    public interface OnItemClickItem {
-        void onPersonalClick(int position);
-        void onFriendClick(int position);
     }
 
     @NonNull

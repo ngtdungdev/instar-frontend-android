@@ -18,8 +18,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityMainScreenBinding
 import com.instar.frontend_android.ui.adapters.ScreenSlidePagerAdapter
+import com.instar.frontend_android.ui.fragments.PostFragment
 import com.instar.frontend_android.ui.services.FCMService
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import com.permissionx.guolindev.PermissionX
@@ -97,8 +99,8 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
     }
 
     private fun initView() {
-        val appID: Long = 1574470634;
-        val appSign = "a5d41bb837834dd85b9c4b7bb00f15e20d11f2f2d77012957dc7839b76a30331";
+        val appID: Long = getString(R.string.app_id).toLong();
+        val appSign = getString(R.string.app_sign_id);
 
         PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
             .onExplainRequestReason(ExplainReasonCallback { scope, deniedList ->
@@ -145,6 +147,10 @@ class MainScreenActivity: AppCompatActivity(), OnFragmentClickListener{
         touchSlopField.isAccessible = true
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * 2)
+
+        if (intent.getBooleanExtra("showPostFragment", false)) {
+            viewPager.setCurrentItem(0, true)
+        }
     }
 
     fun getConfig(invitationData: ZegoCallInvitationData): ZegoUIKitPrebuiltCallConfig {

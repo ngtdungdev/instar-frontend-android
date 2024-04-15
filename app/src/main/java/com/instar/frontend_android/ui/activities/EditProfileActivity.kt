@@ -52,7 +52,6 @@ class EditProfileActivity : AppCompatActivity() {
         edtPassword = findViewById(R.id.edtPassword)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
 
-
         val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("accessToken", null)
 
@@ -105,10 +104,9 @@ class EditProfileActivity : AppCompatActivity() {
                 if (user != null) {
                     val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo;
                     lifecycleScope.launch {
-                        update(id, user!!, imageAvatarUrl!!)
-                        Toast.makeText(applicationContext, imageAvatarUrl.toString(), Toast.LENGTH_LONG).show()
+                        update(id, user!!, imageAvatarUrl)
                     }
-                };
+                }
             }
         }
     }

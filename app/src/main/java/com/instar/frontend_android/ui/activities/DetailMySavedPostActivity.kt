@@ -12,14 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
-import com.instar.frontend_android.databinding.ActivityDetailMyPostBinding
 import com.instar.frontend_android.databinding.ActivityDetailMySavedPostBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostAdapter
-import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -55,8 +53,6 @@ class DetailMySavedPostActivity : AppCompatActivity() {
 
         btnBack = binding.btnBack
 
-
-
         recyclerView = binding.recyclerViewNotification
 
         val layoutManager = LinearLayoutManager(this)
@@ -64,6 +60,7 @@ class DetailMySavedPostActivity : AppCompatActivity() {
 
         val userId: String? = intent.getStringExtra("userId")
         var user: User? = null;
+        val fragmentManager = supportFragmentManager
 
         btnBack.setOnClickListener {
             val intent = Intent(this, MainScreenActivity::class.java)
@@ -76,6 +73,10 @@ class DetailMySavedPostActivity : AppCompatActivity() {
             val response = userId?.let { getUserData(userId) }
             if (response != null) {
                 user = response.data?.user
+
+                postAdapter = user?.let { PostAdapter(postList, lifecycleScope, it, fragmentManager) }!!;
+                recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+                recyclerView.adapter = postAdapter
             };
         }
 
@@ -88,13 +89,6 @@ class DetailMySavedPostActivity : AppCompatActivity() {
                 }
             }
         }
-
-
-        val fragmentManager = supportFragmentManager
-
-        postAdapter = user?.let { PostAdapter(postList, lifecycleScope, it, fragmentManager) }!!;
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = postAdapter
     }
 
     private suspend fun getPosts(id: String): ArrayList<Post> {

@@ -17,7 +17,6 @@ import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.PostResponse
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.activities.DetailMyPostActivity
-import com.instar.frontend_android.ui.activities.EditProfileActivity
 import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
@@ -55,7 +54,7 @@ class MyPostFragment(private val userId: String) : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
-        val linearViewNoItems: LinearLayout = view.findViewById(com.instar.frontend_android.R.id.linearNoItems)
+        val linearViewNoItems: LinearLayout = view.findViewById(R.id.linearNoItems)
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPost) // Sử dụng id recyclerViewPost
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
@@ -64,9 +63,6 @@ class MyPostFragment(private val userId: String) : Fragment() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
         if (accessToken != null) {
-//            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-//            val id = decodedTokenJson.getString("id")
-
             // gọi để lấy bài viết và saved bài viết
             lifecycleScope.launch {
                 try {
@@ -75,17 +71,16 @@ class MyPostFragment(private val userId: String) : Fragment() {
 
                     val adapter = CustomAdapter(requireContext(), myPostList) { post ->
                         val intent = Intent(requireContext(), DetailMyPostActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         intent.putExtra("userId", userId)
                         startActivity(intent)
                     }
                     recyclerView.adapter = adapter
                     if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
-                        linearViewNoItems.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE)
+                        linearViewNoItems.visibility = View.VISIBLE;
+                        recyclerView.visibility = View.GONE
                     } else {
-                        linearViewNoItems.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE)
+                        linearViewNoItems.visibility = View.GONE;
+                        recyclerView.visibility = View.VISIBLE
                     }
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user

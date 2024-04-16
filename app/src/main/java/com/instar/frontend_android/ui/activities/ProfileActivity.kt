@@ -167,12 +167,14 @@ class ProfileActivity : AppCompatActivity() {
             val intent = Intent(this@ProfileActivity, MainScreenActivity::class.java)
             intent.putExtra("showPostFragment", true)
             startActivity(intent)
+            finish()
         }
 
         btnPostUp1.setOnClickListener {
             val intent = Intent(this@ProfileActivity, MainScreenActivity::class.java)
             intent.putExtra("showPostFragment", true)
             startActivity(intent)
+            finish()
         }
 
         btn_editProfile.setOnClickListener {

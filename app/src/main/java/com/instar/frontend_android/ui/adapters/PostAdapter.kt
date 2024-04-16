@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
@@ -40,7 +41,7 @@ import com.instar.frontend_android.ui.services.FCMNotificationService
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.utils.PostAdapterType
 
-class PostAdapter(private val data: List<PostAdapterType>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+class PostAdapter(private val data: MutableList<PostAdapterType>, private val lifecycleScope: LifecycleCoroutineScope, private val user: User, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     private lateinit var userService: UserService
     private lateinit var postService: PostService
     private lateinit var notificationService: NotificationService
@@ -80,9 +81,8 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = data[position]
         when (item.type) {
-            PostAdapterType.VIEW_TYPE_STORY -> holder.bindStory(item.story!!)
             PostAdapterType.VIEW_TYPE_SUGGEST -> holder.bindText(item.text!!)
-            else -> holder.bind(item.post!!)
+            else -> holder.bind(item.post!!, position)
         }
     }
 
@@ -109,8 +109,8 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
             }
         }
 
-        @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
-        fun bind(post: Post) {
+        @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "LogNotTimber")
+        fun bind(post: Post, position: Int) {
             if (!::postBinding.isInitialized) {
                 postBinding = RecyclerViewItemNewsfeedBinding.bind(itemView)
             }
@@ -161,7 +161,7 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                         val urls: List<String> = post.fileUploads.mapNotNull { it.url }
 
                         if (urls.isEmpty() || post.fileUploads.isEmpty()) {
-                            postBinding.carousel?.visibility = View.GONE
+                            postBinding.carousel.visibility = View.GONE
                             postBinding.carouselParent.visibility = View.GONE
                             postBinding.carouselParent.layoutParams.height = 0
                             postBinding.carouselDot.visibility = View.GONE
@@ -192,7 +192,7 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
                                     }
                                 }
 
-                                postBinding.carousel?.registerOnPageChangeCallback(pageChangeListener)
+                                postBinding.carousel.registerOnPageChangeCallback(pageChangeListener)
                             } else {
                                 postBinding.carouselDot.visibility = View.GONE
                                 postBinding.imageCounter.visibility = View.GONE
@@ -325,14 +325,51 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
             postBinding.viewMore.setOnClickListener {
 
             }
+
+            val userId = Helpers.getUserId(context);
+
+            if (userId === post.userId) {
+                postBinding.action.visibility = View.VISIBLE;
+            } else {
+                postBinding.action.visibility = View.GONE
+            }
+
+            postBinding.action.setOnClickListener {
+                val popupMenu = PopupMenu(context, it)
+                popupMenu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_delete -> {
+                            lifecycleScope.launch {
+                                if (userId != null) {
+                                    withContext(Dispatchers.IO) {
+                                        postService.deletePost(userId, post.id).awaitResponse()
+                                    }
+
+                                    (itemView.context as? RecyclerView)?.adapter?.let { adapter ->
+                                        if (adapter is PostAdapter) {
+                                                adapter.removeItem(position)
+                                        }
+                                    }
+                                };
+                            }
+                            true
+                        }
+                        R.id.action_hide -> {
+                            // Todo: sẽ làm thêm trong tương lai xa
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                popupMenu.inflate(R.menu.post_actions)
+                popupMenu.show()
+            }
         }
+
+
 
         fun clearViewPagerCallback() {
             postBinding.carousel.unregisterOnPageChangeCallback(pageChangeListener)
-        }
-
-        fun bindStory(story: List<Story>) {
-            // Not yet implemented
         }
 
         fun bindText(text: String) {
@@ -345,7 +382,13 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
 
     override fun getItemCount(): Int = data.size
 
-    fun clearPageChangeListeners() {
+    fun removeItem(position: Int) {
+        data.removeAt(position)
+        notifyItemRemoved(position)
+        notifyItemRangeChanged(position, itemCount)
+    }
+
+    private fun clearPageChangeListeners() {
         for (holder in viewHolders) {
             holder.clearViewPagerCallback()
         }

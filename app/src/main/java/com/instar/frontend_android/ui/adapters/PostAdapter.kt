@@ -299,6 +299,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
             postBinding.share.setOnClickListener {
                 val fragment = ShareFragment()
                 fragment.show(fragmentManager, "ShareFragment - ${post.id}")
+                SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
             }
 
             postBinding.saved.setOnClickListener {
@@ -318,17 +319,13 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
                 )
             }
 
-            postBinding.share.setOnClickListener {
-                SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
-            }
-
             postBinding.viewMore.setOnClickListener {
 
             }
 
             val userId = Helpers.getUserId(context);
 
-            if (userId === post.userId) {
+            if (userId.equals(post.userId)) {
                 postBinding.action.visibility = View.VISIBLE;
             } else {
                 postBinding.action.visibility = View.GONE

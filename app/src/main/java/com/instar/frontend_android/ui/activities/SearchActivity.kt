@@ -82,8 +82,14 @@ class SearchActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-        btnSearch.setOnClickListener {
-            val intent = Intent(this, SearchActivity::class.java);
+        btnHome.setOnClickListener {
+            val intent = Intent(this, MainScreenActivity::class.java);
+            startActivity(intent)
+            finish()
+        }
+        btnPostUp.setOnClickListener {
+            val intent = Intent(this, MainScreenActivity::class.java);
+            intent.putExtra("showPostFragment", true)
             startActivity(intent)
             finish()
         }
@@ -112,9 +118,9 @@ class SearchActivity : AppCompatActivity() {
                 debounceRunnable = Runnable {
                     if (s.toString().isEmpty()) {
                         setQuery()
-                    } else {
-                        search();
                     }
+
+                    search();
                 }
                 debounceHandler.postDelayed(debounceRunnable!!, 500)
             }

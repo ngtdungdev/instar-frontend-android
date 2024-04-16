@@ -258,6 +258,25 @@ class ProfileOtherActivity : AppCompatActivity() {
         setMargin(btnReel)
         setMargin(btnPostUp)
 
+
+        btnHome.setOnClickListener {
+            val intent = Intent(this, MainScreenActivity::class.java);
+            startActivity(intent)
+            finish()
+        }
+
+        btnSearch.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java);
+            startActivity(intent)
+            finish()
+        }
+
+        btnPostUp.setOnClickListener {
+            val intent = Intent(this, MainScreenActivity::class.java);
+            intent.putExtra("showPostFragment", true)
+            startActivity(intent)
+            finish()
+        }
     }
 
     private var widthLayout: Int? = null

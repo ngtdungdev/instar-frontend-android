@@ -28,10 +28,6 @@ class MessageService {
                             val message = messageSnapshot.getValue(Message::class.java) ?: continue
                             messages.add(message)
                         }
-                    } else {
-                        val message = Message("", "", chatId)
-                        message.type = Message.TYPE_AVATAR
-                        messages.add(message)
                     }
                     listener(messages)
                 }

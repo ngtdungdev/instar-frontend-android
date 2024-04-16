@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityDirectMessageBinding
 import com.instar.frontend_android.types.requests.MessageRequest
@@ -57,6 +58,7 @@ class DirectMessageActivity : AppCompatActivity() {
     private lateinit var messageAdapter: DirectMessageAdapter
     private lateinit var messageRecyclerView: RecyclerView
     private lateinit var authService: AuthService
+    private lateinit var chatService: ChatService
     private lateinit var messageService: MessageService
     private lateinit var userService: UserService
     private lateinit var fcmNotificationService: FCMNotificationService
@@ -96,6 +98,7 @@ class DirectMessageActivity : AppCompatActivity() {
 
     private fun initServices() {
         authService = ServiceBuilder.buildService(AuthService::class.java, applicationContext)
+        chatService = ChatService(applicationContext)
         messageService = MessageService()
         userID = Helpers.getUserId(this).toString()
         chatID = intent.extras?.getString("chatID").toString()
@@ -103,22 +106,23 @@ class DirectMessageActivity : AppCompatActivity() {
 
         userService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
         fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, applicationContext)
-        ChatService(applicationContext)
-            .getChatByMembers(chatID.split("-")) { chat: Chat? ->
-                if (chat != null) {
-                    currentChat.copy(chat)
-                    initView()
-                }
+        chatService.getChatByMembers(chatID.split("-")) { chat: Chat? ->
+            if (chat != null) {
+                currentChat.copy(chat)
+            } else {
+                currentChat.copy(Chat(chatID.split("-")))
             }
+            initView()
+        }
     }
 
     private fun initView() {
         // load the direct message details
-        var chatName = currentChat.name
-        var chatUsername = "${currentChat.members.size} thành viên"
-        var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
-        if (currentChat.members.size == 2) {
-            lifecycleScope.launch {
+        lifecycleScope.launch {
+            var chatName = currentChat.name
+            var chatUsername = "${currentChat.members.size} thành viên"
+            var chatAvatarUrl = currentChat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+            if (currentChat.members.size == 2) {
                 val response = if (currentChat.members[0] == userID)
                     getUserData(currentChat.members[1])
                 else
@@ -129,16 +133,14 @@ class DirectMessageActivity : AppCompatActivity() {
                 chatName = "${user?.fullname}"
                 chatUsername = "${user?.username}"
                 chatAvatarUrl = user?.profilePicture?.url ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
-
-                directMessageName.text = chatName
-                directMessageUsername.text = chatUsername
-
-                Glide.with(applicationContext)
-                    .load(chatAvatarUrl)
-                    .placeholder(R.drawable.default_image) // Placeholder image
-                    .error(R.drawable.default_image) // Image to display if load fails
-                    .into(directMessageAvatar as ImageView)
             }
+            Glide.with(applicationContext)
+                .load(chatAvatarUrl)
+                .placeholder(R.drawable.default_image) // Placeholder image
+                .error(R.drawable.default_image) // Image to display if load fails
+                .into(directMessageAvatar as ImageView)
+            directMessageName.text = chatName
+            directMessageUsername.text = chatUsername
         }
 
         // load all messages of the chat
@@ -205,6 +207,9 @@ class DirectMessageActivity : AppCompatActivity() {
     }
 
     private fun sendMessage(messageText: String) {
+        if (messageList.size <= 1) {
+            chatService.createNewChat(currentChat)
+        }
         val message = Message(messageText, userID, chatID)
         messageService.createNewMessage(message) // push to Firebase
         val messageRequest = MessageRequest().apply {

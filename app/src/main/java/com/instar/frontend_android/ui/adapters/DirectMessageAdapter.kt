@@ -35,7 +35,7 @@ class DirectMessageAdapter(
     private lateinit var messageService: MessageService
     private val userService: UserService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
     private val userId: String = Helpers.getUserId(applicationContext).toString()
-    private var chatAvatarUrl: String = chat.imageUrl ?: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+    private var chatImageUrl: String? = chat.imageUrl
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = when (viewType) {
@@ -128,6 +128,7 @@ class DirectMessageAdapter(
             } else if (chatAvatarUrl == null) { // many people && no custom avatar
                 chatAvatarUrl = "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg" // TODO: change to default group avatar
             }
+            chatImageUrl = chatAvatarUrl
             Glide.with(applicationContext)
                 .load(chatAvatarUrl)
                 .placeholder(R.drawable.default_image)
@@ -161,14 +162,14 @@ class DirectMessageAdapter(
 
     private fun bindReceivedMessage(holder: ReceivedMessageViewHolder, item: Message) {
         lifeCycle.launch {
-            val avatarUrl: String? = if (chat.members.size == 2) {
-                chatAvatarUrl
+            val senderAvatarUrl: String? = if (chat.members.size == 2 && chatImageUrl != null) {
+                chatImageUrl
             } else {
                 val user = getUserData(item.senderId.toString())
                 user?.profilePicture?.url
             }
             Glide.with(applicationContext)
-                .load(avatarUrl)
+                .load(senderAvatarUrl)
                 .placeholder(R.drawable.default_image)
                 .error(R.drawable.default_image)
                 .into(holder.senderAvatar as ImageView)

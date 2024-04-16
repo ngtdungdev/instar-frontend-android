@@ -101,7 +101,7 @@ dependencies {
     implementation("com.google.cloud:google-cloud-vision:3.37.0")
 
     // ZEGOCLOUD & Video Call
-    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:2.12.3")
 
     // Facebook login
     implementation("com.facebook.android:facebook-login:latest.release")

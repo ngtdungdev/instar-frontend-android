@@ -15,62 +15,88 @@
         android:gravity="center"
         android:text="Hôm qua 12:30" />
 
-    <RelativeLayout
-        android:layout_width="200dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewSharedPost"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:background="@drawable/rounded_corner2">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+        app:cardBackgroundColor="#efefef"
+        app:cardCornerRadius="15dp">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            app:cardCornerRadius="40dp">
-            <ImageView
-                android:id="@+id/avatar"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@mipmap/no1" />
-        </androidx.cardview.widget.CardView>
-        <TextView
-            android:id="@+id/sentID"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/cardView"
-            android:paddingStart="10dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="8dp"
-            android:text="quangduy"
-            android:textStyle="bold"
-            android:textColor="#272727"
-            android:textSize="16sp" />
-    </RelativeLayout>
+            android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/img"
-        android:layout_gravity="right"
-        android:layout_width="200dp"
-        android:layout_height="300dp"
-        android:background="@mipmap/no1"
-        android:elevation="2dp"/>
+            <RelativeLayout
+                android:id="@+id/cardViewSharedPostOwnerDetails"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/sentcontent"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_toEndOf="@+id/IDsent"
-        android:background="@drawable/rounded_corner"
-        android:paddingStart="10dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="8dp"
-        android:maxLines="2"
-        android:text="quangduy quá mợi mỏi !!!"
-        android:textColor="#272727"
-        android:textSize="16sp" />
+                <ImageView
+                    android:id="@+id/sharedPostOwnerAvatar"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@mipmap/no1" />
+
+                <TextView
+                    android:id="@+id/sharedPostOwnerUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/sharedPostOwnerAvatar"
+                    android:background="@android:color/transparent"
+                    android:paddingStart="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="quangduy"
+                    android:textColor="#272727"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewSharedPostThumbnail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/sharedPostThumbnail"
+                    android:layout_width="200dp"
+                    android:layout_height="300dp"
+                    android:background="@mipmap/ic_launcher_foreground"
+                    android:elevation="2dp" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewSharedPostMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/sharedPostMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@+id/IDsent"
+                    android:background="@android:color/transparent"
+                    android:maxLines="2"
+                    android:paddingStart="10dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="8dp"
+                    android:text="quangduy quá mợi mỏi !!!"
+                    android:textColor="#272727"
+                    android:textSize="16sp" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

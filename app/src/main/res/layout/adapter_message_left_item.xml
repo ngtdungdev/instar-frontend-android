@@ -15,17 +15,18 @@
         android:text="Hôm qua 12:30" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp">
+        android:layout_marginEnd="35dp"
+        android:paddingBottom="2dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/imageAvatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="3dp"
-            app:cardCornerRadius="50dp">
+            app:cardCornerRadius="50dp"
+            app:cardElevation="0dp">
 
             <ImageView
                 android:id="@+id/senderAvatar"
@@ -35,13 +36,14 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardViewReceivedMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="false"
             android:layout_marginStart="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_toEndOf="@id/imageAvatar"
-            app:cardCornerRadius="15dp">
+            app:cardCornerRadius="15dp"
+            app:cardElevation="0dp">
 
             <TextView
                 android:id="@+id/receivedMessage"

@@ -8,15 +8,16 @@ class Message: Serializable {
     var content: Any? = null
     var senderId: String? = null
     var chatId: String? = null
-    var type: Int? = null
+    var type: String? = null
     var createdAt: String = LocalDateTime.now().toString()
 
     constructor()
 
-    constructor(content: Any, senderId: String, chatId: String, createdAt: LocalDateTime = LocalDateTime.now()) {
+    constructor(content: Any, senderId: String, chatId: String, type: String? = null, createdAt: LocalDateTime = LocalDateTime.now()) {
         this.content = content
         this.senderId = senderId
         this.chatId = chatId
+        this.type = type
         this.createdAt = createdAt.toString()
     }
 

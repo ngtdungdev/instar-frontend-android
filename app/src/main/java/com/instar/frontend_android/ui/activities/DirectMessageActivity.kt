@@ -149,7 +149,6 @@ class DirectMessageActivity : AppCompatActivity() {
             run {
                 messageList.clear()
                 val message = Message()
-                message.type = Message.TYPE_AVATAR
                 messageList.add(message)
                 messageList.addAll(messages.toMutableList())
                 messageAdapter.notifyItemInserted(max(0, messageList.size - 1))

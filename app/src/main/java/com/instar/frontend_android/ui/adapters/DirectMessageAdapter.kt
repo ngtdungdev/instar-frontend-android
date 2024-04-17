@@ -16,6 +16,7 @@ import com.instar.frontend_android.ui.DTO.Message
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.MessageService
+import com.instar.frontend_android.ui.services.PostService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UserService
@@ -36,40 +37,48 @@ class DirectMessageAdapter(
     private lateinit var itemAvatar: View
     private lateinit var messageService: MessageService
     private val userService: UserService = ServiceBuilder.buildService(UserService::class.java, applicationContext)
+    private val postService: PostService = ServiceBuilder.buildService(PostService::class.java, applicationContext)
     private val userId: String = Helpers.getUserId(applicationContext).toString()
     private var chatImageUrl: String? = chat.imageUrl
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = when (viewType) {
             Message.TYPE_AVATAR -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_avatar_item, parent, false)
-            Message.TYPE_SENT_MESSAGE -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_right_item, parent, false)
             Message.TYPE_RECEIVED_MESSAGE -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_left_item, parent, false)
+            Message.TYPE_SENT_MESSAGE -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_right_item, parent, false)
+            Message.TYPE_RECEIVED_POST_MESSAGE -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_share_left_item, parent, false)
+            Message.TYPE_SENT_POST_MESSAGE -> LayoutInflater.from(parent.context).inflate(R.layout.adapter_message_share_right_item, parent, false)
             else -> null
         }
         return when (viewType) {
             Message.TYPE_AVATAR -> AvatarViewHolder(view!!)
-            Message.TYPE_SENT_MESSAGE -> SentMessageViewHolder(view!!)
             Message.TYPE_RECEIVED_MESSAGE -> ReceivedMessageViewHolder(view!!)
+            Message.TYPE_SENT_MESSAGE -> SentMessageViewHolder(view!!)
+            Message.TYPE_RECEIVED_POST_MESSAGE -> ReceivedPostMessageViewHolder(view!!)
+            Message.TYPE_SENT_POST_MESSAGE -> SentPostMessageViewHolder(view!!)
             else -> throw IllegalArgumentException("Error")
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         val message = data[position]
-        if (position == 0) {
-            message.type = Message.TYPE_AVATAR
+        return if (position == 0) {
+            Message.TYPE_AVATAR
         } else if (message.senderId == userId) {
-            if (message.content.toString().matches(Regex("^POST_ID=[a-z0-9]{24}$")))
-                message.type = Message.TYPE_SENT_POST_MESSAGE
+            if (message.type.isNullOrBlank())
+                Message.TYPE_SENT_MESSAGE
+            else if (message.type.equals("post"))
+                Message.TYPE_SENT_POST_MESSAGE
             else
-                message.type = Message.TYPE_SENT_MESSAGE
+                Message.TYPE_SENT_MESSAGE
         } else {
-            if (message.content.toString().matches(Regex("^POST_ID=[a-z0-9]{24}$")))
-                message.type = Message.TYPE_RECEIVED_POST_MESSAGE
+            if (message.type.isNullOrBlank())
+                Message.TYPE_RECEIVED_MESSAGE
+            else if (message.type.equals("post"))
+                Message.TYPE_RECEIVED_POST_MESSAGE
             else
-                message.type = Message.TYPE_RECEIVED_MESSAGE
+                Message.TYPE_RECEIVED_MESSAGE
         }
-        return message.type!!
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -123,7 +132,7 @@ class DirectMessageAdapter(
         val currentMessageTime = LocalDateTime.parse(data[position].createdAt)
         val previousMessageTime = LocalDateTime.parse(data[position - 1].createdAt)
         // should show the time if the time between them is more than 5 minutes
-        return currentMessageTime.minusMinutes(5).isBefore(previousMessageTime)
+        return currentMessageTime.minusMinutes(5).isAfter(previousMessageTime)
     }
 
     private suspend fun getUserData(userId: String): User? {
@@ -134,7 +143,10 @@ class DirectMessageAdapter(
     }
 
     private suspend fun getPostData(postId: String): Post? {
-        TODO("Get the post by the ID.")
+        val response = withContext(Dispatchers.IO) {
+            return@withContext postService.getPost(postId).awaitResponse()
+        }
+        return response.data?.post
     }
 
     private fun bindAvatar(holder: AvatarViewHolder, item: Message) {
@@ -229,7 +241,29 @@ class DirectMessageAdapter(
                 .error(R.drawable.default_image)
                 .into(holder.senderAvatar as ImageView)
 
-            // TODO: get the post by the ID and render
+            val post = getPostData(item.content.toString())
+
+            // post owner
+            val postOwner: User? = getUserData(post?.userId.toString())
+            Glide.with(applicationContext)
+                .load(postOwner?.profilePicture?.url)
+                .circleCrop()
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(holder.sharedPostOwnerAvatar)
+            holder.sharedPostOwnerUsername.text = postOwner?.username
+
+            // post thumbnail
+            val postThumbnail: String? = post?.fileUploads?.get(0)?.url
+            Glide.with(applicationContext)
+                .load(postThumbnail)
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(holder.sharedPostThumbnail)
+
+            // post description
+            val postDescription: String? = post?.desc
+            holder.sharedPostDescription.text = postDescription
         }
 
         val time = LocalDateTime.parse(item.createdAt)
@@ -239,7 +273,29 @@ class DirectMessageAdapter(
 
     private fun bindSentPostMessage(holder: SentPostMessageViewHolder, item: Message) {
         lifeCycle.launch {
-            // TODO: get the post by the ID and render
+            val post = getPostData(item.content.toString())
+
+            // post owner
+            val postOwner: User? = getUserData(post?.userId.toString())
+            Glide.with(applicationContext)
+                .load(postOwner?.profilePicture?.url)
+                .circleCrop()
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(holder.sharedPostOwnerAvatar)
+            holder.sharedPostOwnerUsername.text = postOwner?.username
+
+            // post thumbnail
+            val postThumbnail: String? = post?.fileUploads?.get(0)?.url
+            Glide.with(applicationContext)
+                .load(postThumbnail)
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(holder.sharedPostThumbnail)
+
+            // post description
+            val postDescription: String? = post?.desc
+            holder.sharedPostDescription.text = postDescription
         }
 
         val time = LocalDateTime.parse(item.createdAt)
@@ -273,7 +329,7 @@ class DirectMessageAdapter(
         val sharedPostOwnerAvatar: ImageView = itemView.findViewById(R.id.sharedPostOwnerAvatar)
         val sharedPostOwnerUsername: TextView = itemView.findViewById(R.id.sharedPostOwnerUsername)
         val sharedPostThumbnail: ImageView = itemView.findViewById(R.id.sharedPostThumbnail)
-        val sharedPostMessage: TextView = itemView.findViewById(R.id.sharedPostMessage)
+        val sharedPostDescription: TextView = itemView.findViewById(R.id.sharedPostDescription)
     }
 
     class SentPostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -282,6 +338,6 @@ class DirectMessageAdapter(
         val sharedPostOwnerAvatar: ImageView = itemView.findViewById(R.id.sharedPostOwnerAvatar)
         val sharedPostOwnerUsername: TextView = itemView.findViewById(R.id.sharedPostOwnerUsername)
         val sharedPostThumbnail: ImageView = itemView.findViewById(R.id.sharedPostThumbnail)
-        val sharedPostMessage: TextView = itemView.findViewById(R.id.sharedPostMessage)
+        val sharedPostDescription: TextView = itemView.findViewById(R.id.sharedPostDescription)
     }
 }

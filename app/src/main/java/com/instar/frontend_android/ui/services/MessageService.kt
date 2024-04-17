@@ -38,5 +38,25 @@ class MessageService {
                 }
             })
     }
+
+    fun getLastMessageOfChat(chatId: String, listener: (Message?) -> Unit) {
+        messagesRef.orderByChild("chatId").equalTo(chatId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        var message: Message? = null
+                        for (messageSnapshot in snapshot.children) {
+                            message = messageSnapshot.getValue(Message::class.java) ?: continue
+                        }
+                        listener(message)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    println("Error getting message: $error")
+                    listener(null) // Handle errors by passing null
+                }
+            })
+    }
 }
 

@@ -319,7 +319,7 @@ class PostAdapter(private val data: List<PostAdapterType>, private val lifecycle
             }
 
             postBinding.share.setOnClickListener {
-                SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
+                SharePostBottomSheetDialogFragment(post).show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
             }
 
             postBinding.viewMore.setOnClickListener {

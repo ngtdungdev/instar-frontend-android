@@ -93,22 +93,32 @@ class MessageFriendAdapter(
     }
 
     private fun bindChatLastMessage(chat: Chat, user: User?, holder: MessageFriendViewHolder) {
-        var chatLastMessage: String
 
         var lastMessage: Message
         messageService.getMessagesByChatId(chat.members.joinToString("-")) { messages ->
             lifeCycle.launch {
                 lastMessage = messages[messages.size - 1]
-                chatLastMessage = if (lastMessage.senderId == userId) {
-                    "Bạn: ${lastMessage.content}"
+                val lastMessageSender = if (lastMessage.senderId == userId) {
+                    "Bạn: "
                 } else {
                     if (user != null) {
-                        "${lastMessage.content}"
+                        ""
                     } else {
                         val sender: User? = this@MessageFriendAdapter.getUserData(lastMessage.senderId.toString())
-                        "${sender?.fullname}: ${lastMessage.content}"
+                        "${sender?.fullname}: "
                     }
                 }
+                val lastMessageContent = if (lastMessage.type.isNullOrEmpty()) {
+                    lastMessage.content.toString()
+                } else if (lastMessage.type.equals("post")) {
+                    if (lastMessageSender.endsWith(": "))
+                        "đã gửi một bài viết."
+                    else
+                        "Đã gửi một bài viết."
+                } else {
+                    lastMessage.content.toString()
+                }
+                val chatLastMessage = lastMessageSender + lastMessageContent
                 holder.text.text = chatLastMessage
             }
         }

@@ -24,5 +24,7 @@ class Message: Serializable {
         const val TYPE_AVATAR = 0
         const val TYPE_RECEIVED_MESSAGE = 1
         const val TYPE_SENT_MESSAGE = 2
+        const val TYPE_RECEIVED_POST_MESSAGE = 3
+        const val TYPE_SENT_POST_MESSAGE = 4
     }
 }

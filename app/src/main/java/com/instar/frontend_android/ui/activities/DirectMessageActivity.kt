@@ -194,7 +194,7 @@ class DirectMessageActivity : AppCompatActivity() {
         })
 
         btnSend.setOnClickListener {
-            val messageText = message.text.toString()
+            val messageText = message.text.toString().trim()
             sendMessage(messageText)
             message.text.clear();
         }

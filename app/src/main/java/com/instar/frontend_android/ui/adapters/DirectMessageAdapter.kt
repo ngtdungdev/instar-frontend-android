@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.instar.frontend_android.R
 import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.DTO.Message
+import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.MessageService
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -57,9 +59,15 @@ class DirectMessageAdapter(
         if (position == 0) {
             message.type = Message.TYPE_AVATAR
         } else if (message.senderId == userId) {
-            message.type = Message.TYPE_SENT_MESSAGE
+            if (message.content.toString().matches(Regex("^POST_ID=[a-z0-9]{24}$")))
+                message.type = Message.TYPE_SENT_POST_MESSAGE
+            else
+                message.type = Message.TYPE_SENT_MESSAGE
         } else {
-            message.type = Message.TYPE_RECEIVED_MESSAGE
+            if (message.content.toString().matches(Regex("^POST_ID=[a-z0-9]{24}$")))
+                message.type = Message.TYPE_RECEIVED_POST_MESSAGE
+            else
+                message.type = Message.TYPE_RECEIVED_MESSAGE
         }
         return message.type!!
     }
@@ -81,6 +89,20 @@ class DirectMessageAdapter(
             is SentMessageViewHolder -> {
                 holder.timeOfMessage.visibility = if (shouldShowTime(position)) View.VISIBLE else View.GONE
                 bindSentMessage(holder, item)
+            }
+
+            is ReceivedPostMessageViewHolder -> {
+                holder.imageAvatar.visibility = if (shouldShowAvatar(position)) View.VISIBLE else View.INVISIBLE
+                holder.timeOfMessage.visibility = if (shouldShowTime(position)) View.VISIBLE else View.GONE
+                // TODO: open profile when click on senderAvatar
+                // TODO: open the post when click on cardViewSharedPost
+                bindReceivedPostMessage(holder, item)
+            }
+
+            is SentPostMessageViewHolder -> {
+                holder.timeOfMessage.visibility = if (shouldShowTime(position)) View.VISIBLE else View.GONE
+                // TODO: open the post when click on cardViewSharedPost
+                bindSentPostMessage(holder, item)
             }
         }
     }
@@ -109,6 +131,10 @@ class DirectMessageAdapter(
             return@withContext userService.getUser(userId).awaitResponse()
         }
         return response.data?.user
+    }
+
+    private suspend fun getPostData(postId: String): Post? {
+        TODO("Get the post by the ID.")
     }
 
     private fun bindAvatar(holder: AvatarViewHolder, item: Message) {
@@ -174,18 +200,51 @@ class DirectMessageAdapter(
                 .error(R.drawable.default_image)
                 .into(holder.senderAvatar as ImageView)
             holder.receivedMessage.text = item.content.toString()
-
-            val time = LocalDateTime.parse(item.createdAt)
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
-            holder.timeOfMessage.text = time
         }
-    }
 
-    private fun bindSentMessage(holder: SentMessageViewHolder, item: Message) {
         val time = LocalDateTime.parse(item.createdAt)
             .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
         holder.timeOfMessage.text = time
+    }
+
+    private fun bindSentMessage(holder: SentMessageViewHolder, item: Message) {
         holder.sentMessage.text = item.content.toString()
+
+        val time = LocalDateTime.parse(item.createdAt)
+            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
+        holder.timeOfMessage.text = time
+    }
+
+    private fun bindReceivedPostMessage(holder: ReceivedPostMessageViewHolder, item: Message) {
+        lifeCycle.launch {
+            val senderAvatarUrl: String? = if (chat.members.size == 2 && chatImageUrl != null) {
+                chatImageUrl
+            } else {
+                val user = getUserData(item.senderId.toString())
+                user?.profilePicture?.url
+            }
+            Glide.with(applicationContext)
+                .load(senderAvatarUrl)
+                .placeholder(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(holder.senderAvatar as ImageView)
+
+            // TODO: get the post by the ID and render
+        }
+
+        val time = LocalDateTime.parse(item.createdAt)
+            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
+        holder.timeOfMessage.text = time
+    }
+
+    private fun bindSentPostMessage(holder: SentPostMessageViewHolder, item: Message) {
+        lifeCycle.launch {
+            // TODO: get the post by the ID and render
+        }
+
+        val time = LocalDateTime.parse(item.createdAt)
+            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss"))
+        holder.timeOfMessage.text = time
     }
 
     class AvatarViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -204,5 +263,25 @@ class DirectMessageAdapter(
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val timeOfMessage: TextView = itemView.findViewById(R.id.timeOfSentMessage)
         val sentMessage: TextView = itemView.findViewById(R.id.sentMessage)
+    }
+
+    class ReceivedPostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val timeOfMessage: TextView = itemView.findViewById(R.id.timeOfReceivedMessage)
+        val imageAvatar: View = itemView.findViewById(R.id.imageAvatar)
+        val senderAvatar: View = itemView.findViewById(R.id.senderAvatar)
+        val cardViewSharedPost: CardView = itemView.findViewById(R.id.cardViewSharedPost)
+        val sharedPostOwnerAvatar: ImageView = itemView.findViewById(R.id.sharedPostOwnerAvatar)
+        val sharedPostOwnerUsername: TextView = itemView.findViewById(R.id.sharedPostOwnerUsername)
+        val sharedPostThumbnail: ImageView = itemView.findViewById(R.id.sharedPostThumbnail)
+        val sharedPostMessage: TextView = itemView.findViewById(R.id.sharedPostMessage)
+    }
+
+    class SentPostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val timeOfMessage: TextView = itemView.findViewById(R.id.timeOfSentMessage)
+        val cardViewSharedPost: CardView = itemView.findViewById(R.id.cardViewSharedPost)
+        val sharedPostOwnerAvatar: ImageView = itemView.findViewById(R.id.sharedPostOwnerAvatar)
+        val sharedPostOwnerUsername: TextView = itemView.findViewById(R.id.sharedPostOwnerUsername)
+        val sharedPostThumbnail: ImageView = itemView.findViewById(R.id.sharedPostThumbnail)
+        val sharedPostMessage: TextView = itemView.findViewById(R.id.sharedPostMessage)
     }
 }

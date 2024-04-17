@@ -33,22 +33,31 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.instar.frontend_android.databinding.FragmentCommentBottomSheetDialogBinding
 import com.instar.frontend_android.databinding.FragmentSharePostBottomSheetDialogBinding
+import com.instar.frontend_android.types.requests.MessageRequest
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
+import com.instar.frontend_android.ui.DTO.Chat
 import com.instar.frontend_android.ui.DTO.CommentWithReply
+import com.instar.frontend_android.ui.DTO.Message
+import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.DTO.SelectedUser
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.PostCommentAdapter
 import com.instar.frontend_android.ui.adapters.SharePostBottomSheetDialogAdapter
 import com.instar.frontend_android.ui.adapters.VerticalSpaceItemDecoration
+import com.instar.frontend_android.ui.services.ChatService
+import com.instar.frontend_android.ui.services.FCMNotificationService
+import com.instar.frontend_android.ui.services.MessageService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
+import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
+class SharePostBottomSheetDialogFragment(private val post: Post) : BottomSheetDialogFragment() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private var instance: CommentBottomSheetDialogFragment = CommentBottomSheetDialogFragment()
@@ -60,6 +69,9 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private lateinit var userService: UserService
+    private lateinit var chatService: ChatService
+    private lateinit var messageService: MessageService
+    private lateinit var fcmNotificationService: FCMNotificationService
     private lateinit var binding: FragmentSharePostBottomSheetDialogBinding
     private lateinit var userList: MutableList<SelectedUser>
     private lateinit var shareAdapter: SharePostBottomSheetDialogAdapter
@@ -85,6 +97,9 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         layoutBtn = binding.layoutBtn
         button = binding.button
         userService = ServiceBuilder.buildService(UserService::class.java, requireContext())
+        chatService = ChatService(requireContext())
+        messageService = MessageService()
+        fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, requireContext())
         avatarRecyclerView.layoutManager = LinearLayoutManager(context)
 
         initView()
@@ -112,7 +127,6 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         return binding.root
     }
-
 
     fun initView() {
         textInputLayout.isHintEnabled = false
@@ -183,7 +197,47 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
         avatarRecyclerView.layoutParams = recyclerLayoutParams
 
         button.setOnClickListener {
-            // TODO: Share bài viết ở đây nà
+            for (user in userList) {
+                if (user.selected) {
+                    var content: String = post.id
+                    val senderID: String = Helpers.getUserId(requireContext()).toString()
+                    val userID: String = user.user?.id.toString()
+                    val chat = Chat(arrayOf(senderID, userID).sorted())
+                    val chatID: String = chat.members.joinToString("-")
+                    // send the post message
+                    val postMessage = Message(content, senderID, chatID, "post")
+                    if (!chatService.chatExists(chat.members))
+                        chatService.createNewChat(chat)
+                    messageService.createNewMessage(postMessage) // push to Firebase
+                    var messageRequest = MessageRequest().apply {
+                        text = content
+                        senderId = senderID
+                        chatId = chatID
+                    }
+                    fcmNotificationService.sendChatNotification(messageRequest).handleResponse(
+                        onSuccess = { println("Successfully sent the chat notification.") },
+                        onError = { println("Error while sending chat notification.") }
+                    )
+
+                    // send the text message
+                    if (!message.text.isNullOrBlank()) {
+                        content = message.text.toString()
+                        val textMessage = Message(content, senderID, chatID)
+                        messageService.createNewMessage(textMessage) // push to Firebase
+                        messageRequest = MessageRequest().apply {
+                            text = content
+                            senderId = senderID
+                            chatId = chatID
+                        }
+                        fcmNotificationService.sendChatNotification(messageRequest).handleResponse(
+                            onSuccess = { println("Successfully sent the chat notification.") },
+                            onError = { println("Error while sending chat notification.") }
+                        )
+                    }
+                }
+            }
+            // turn off this bottom sheet fragment
+            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         }
 
         message.setOnClickListener {
@@ -230,7 +284,6 @@ class SharePostBottomSheetDialogFragment : BottomSheetDialogFragment() {
             }
         }
     }
-
 
     private fun setBottomSheetPeekHeight(bottomSheet: FrameLayout, height: Int) {
         val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)

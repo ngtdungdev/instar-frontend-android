@@ -229,7 +229,11 @@ class ProfileOtherActivity : AppCompatActivity() {
             }
         }
         btnChat.setOnClickListener {
-            finish()
+            val intent = Intent(this@ProfileOtherActivity, DirectMessageActivity::class.java)
+            val members = arrayOf(user?.id, userOther?.id)
+            members.sort()
+            intent.putExtra("chatID", members.joinToString("-"))
+            startActivity(intent)
         }
         viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {

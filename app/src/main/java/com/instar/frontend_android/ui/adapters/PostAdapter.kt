@@ -297,9 +297,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
             }
 
             postBinding.share.setOnClickListener {
-                val fragment = ShareFragment()
-                fragment.show(fragmentManager, "ShareFragment - ${post.id}")
-                SharePostBottomSheetDialogFragment().show(fragmentManager , SharePostBottomSheetDialogFragment.TAG)
+                SharePostBottomSheetDialogFragment(post).show(fragmentManager, SharePostBottomSheetDialogFragment.TAG)
             }
 
             postBinding.saved.setOnClickListener {

@@ -28,10 +28,6 @@ class MessageService {
                             val message = messageSnapshot.getValue(Message::class.java) ?: continue
                             messages.add(message)
                         }
-                    } else {
-                        val message = Message("", "", chatId)
-                        message.type = Message.TYPE_AVATAR
-                        messages.add(message)
                     }
                     listener(messages)
                 }
@@ -39,6 +35,26 @@ class MessageService {
                 override fun onCancelled(error: DatabaseError) {
                     println("Error getting message: $error")
                     listener(emptyList()) // Handle errors by passing null
+                }
+            })
+    }
+
+    fun getLastMessageOfChat(chatId: String, listener: (Message?) -> Unit) {
+        messagesRef.orderByChild("chatId").equalTo(chatId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        var message: Message? = null
+                        for (messageSnapshot in snapshot.children) {
+                            message = messageSnapshot.getValue(Message::class.java) ?: continue
+                        }
+                        listener(message)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    println("Error getting message: $error")
+                    listener(null) // Handle errors by passing null
                 }
             })
     }

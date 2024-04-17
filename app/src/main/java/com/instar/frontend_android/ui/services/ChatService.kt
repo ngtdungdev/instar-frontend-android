@@ -12,10 +12,6 @@ class ChatService(val applicationContext: Context) {
     private val chatsRef = database.getReference("chats")
 
     fun createNewChat(chat: Chat) {
-        if (chatExists(chat.members)) {
-            println("Chat exists.")
-            return
-        }
         val chatId = chat.members.joinToString("-")
         chatsRef.child(chatId).setValue(chat)
             .addOnSuccessListener { println("Chat created successfully!") }

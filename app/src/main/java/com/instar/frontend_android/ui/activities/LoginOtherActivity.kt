@@ -88,6 +88,8 @@ class LoginOtherActivity : AppCompatActivity() {
 
         loadActivity()
         initView()
+
+
     }
 
     private fun loadActivity() {
@@ -97,6 +99,12 @@ class LoginOtherActivity : AppCompatActivity() {
         passwordText.hint = "Mật khẩu"
         btnLogin.text = "Đăng nhập"
         btnNewPassWord.text = "Bạn quên mật khẩu ư?"
+
+        btnNewPassWord.setOnClickListener {
+            val intent = Intent(this@LoginOtherActivity, LoginEmailActivity::class.java)
+            startActivity(intent)
+        }
+
         textNewAccount.text = "Tạo tài khoản mới"
         textLoginWithFacebook.text = "Đăng nhập bằng Facebook"
         btnNewAccount.setBackgroundResource(R.drawable.selector_btn_color_login)
@@ -222,17 +230,11 @@ class LoginOtherActivity : AppCompatActivity() {
 
         }
 
-        btnNewPassWord.setOnClickListener {
-            val intent = Intent(this@LoginOtherActivity, LoginEmailActivity::class.java)
-            startActivity(intent)
-        }
-
         effectClick()
     }
 
 
     private fun effectClick() {
-        ViewEffect.ViewText(btnNewPassWord)
         ViewEffect.ViewButton(btnNewAccount, textNewAccount)
     }
 

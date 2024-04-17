@@ -61,11 +61,16 @@ class DetailMyPostActivity : AppCompatActivity() {
 
         val userId: String? = intent.getStringExtra("userId")
         var user: User? = null;
+        val fragmentManager = supportFragmentManager
 
         lifecycleScope.launch {
             val response = userId?.let { getUserData(userId) }
             if (response != null) {
                 user = response.data?.user
+
+                postAdapter = user?.let { PostAdapter(postList, lifecycleScope, it, fragmentManager) }!!;
+                recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+                recyclerView.adapter = postAdapter
             };
         }
 
@@ -86,13 +91,6 @@ class DetailMyPostActivity : AppCompatActivity() {
                 }
             }
         }
-
-
-        val fragmentManager = supportFragmentManager
-
-        postAdapter = user?.let { PostAdapter(postList, lifecycleScope, it, fragmentManager) }!!;
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = postAdapter
     }
 
     private suspend fun getPosts(id: String): ArrayList<Post> {

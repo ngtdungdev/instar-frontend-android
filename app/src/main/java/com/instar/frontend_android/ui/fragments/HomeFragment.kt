@@ -121,6 +121,8 @@ class HomeFragment : Fragment() {
                         avatarUrl
                     )
 
+                    println(imageList.size)
+
                     imageList.add(0, image0)
                     newsFollowAdapter = NewsFollowAdapter(context,imageList)
                     avatarRecyclerView.adapter = newsFollowAdapter
@@ -252,19 +254,21 @@ class HomeFragment : Fragment() {
                 val userIdSet = HashSet<String>()
 
                 for (story in storyResponse) {
-                    if (!userIdSet.contains(story.userId)) {
-                        val userInfoResponse = getUserData(story.userId.toString())
-                        val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
-                        val userName = userInfoResponse.data?.user?.username
-                        imageList.add(
-                            Images(
-                                Images.TYPE_FRIEND_AVATAR,
-                                story.userId.toString(),
-                                userName.toString(),
-                                avatarUrl
+                    for (str in story.stories!!) {
+                        if (!userIdSet.contains(story.userId)) {
+                            val userInfoResponse = getUserData(story.userId.toString())
+                            val avatarUrl = userInfoResponse.data?.user?.profilePicture?.url
+                            val userName = userInfoResponse.data?.user?.username
+                            imageList.add(
+                                Images(
+                                    Images.TYPE_FRIEND_AVATAR,
+                                    story.userId.toString(),
+                                    userName.toString(),
+                                    avatarUrl
+                                )
                             )
-                        )
-                        userIdSet.add(story.userId.toString())
+                            userIdSet.add(story.userId.toString())
+                        }
                     }
                 }
             } else {

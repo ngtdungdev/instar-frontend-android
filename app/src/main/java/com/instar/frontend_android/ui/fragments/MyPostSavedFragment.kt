@@ -70,8 +70,6 @@ class MyPostSavedFragment(private val userId: String) : Fragment() {
         val accessToken = sharedPreferences.getString("accessToken", null)
 
         if (accessToken != null) {
-//            val decodedTokenJson = Helpers.decodeJwt(accessToken)
-//            val id = decodedTokenJson.getString("id")
 
             // gọi để lấy bài viết và saved bài viết
             lifecycleScope.launch {
@@ -81,17 +79,16 @@ class MyPostSavedFragment(private val userId: String) : Fragment() {
 
                     val adapter = CustomAdapter(requireContext(), mySavedPostList) { post ->
                         val intent = Intent(requireContext(), DetailMySavedPostActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         intent.putExtra("userId", userId)
                         startActivity(intent)
                     }
                     recyclerView.adapter = adapter
                     if (recyclerView.getAdapter() != null && recyclerView.getAdapter()?.getItemCount() == 0) {
-                        linearViewNoItems.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE)
+                        linearViewNoItems.visibility = View.VISIBLE
+                        recyclerView.visibility = View.GONE
                     } else {
-                        linearViewNoItems.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE)
+                        linearViewNoItems.visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
                     }
                 } catch (e: Exception) {
                     // Handle exceptions, e.g., log or show error to user

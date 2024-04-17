@@ -104,7 +104,7 @@ class RegisterActivity : AppCompatActivity() {
 
 
     private fun loadActivity() {
-        title.text = "Tìm tài khoản"
+        title.text = "Tạo tài khoản"
         textNote.text = "Nhập tên người dùng, email"
 
         labelEmail.text = "Tên người dùng, email"
@@ -212,9 +212,9 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        imageBack.setOnClickListener { finish() }
-
-        effectClick()
+        imageBack.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun checkFocus(index: Int) {
@@ -258,9 +258,5 @@ class RegisterActivity : AppCompatActivity() {
         labelUsername.visibility = View.GONE
         usernameLayout.Layout.setBackgroundResource(R.drawable.border_component_login_dow)
         usernameText.hint = "Tên người dùng"
-    }
-
-    private fun effectClick() {
-        ViewEffect.ImageBack(imageBack)
     }
 }

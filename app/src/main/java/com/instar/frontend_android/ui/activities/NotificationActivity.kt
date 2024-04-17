@@ -26,7 +26,7 @@ class NotificationActivity: AppCompatActivity() {
     private lateinit var notificationService: NotificationService;
     private lateinit var notificationAdapter: NotificationAdapter;
 
-    private lateinit var notificationList: MutableList<Notification>
+    private var notificationList: MutableList<Notification> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +36,11 @@ class NotificationActivity: AppCompatActivity() {
         setContentView(binding.root)
 
         btnBack = binding.btnBack
+
+        btnBack.setOnClickListener {
+            onBackPressed();
+        }
+
         recyclerView = binding.recyclerViewNotification
 
         val layoutManager = LinearLayoutManager(this)

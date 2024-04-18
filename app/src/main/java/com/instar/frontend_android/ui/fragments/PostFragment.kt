@@ -37,7 +37,9 @@ import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
 import com.instar.frontend_android.ui.services.UploadFileService
 import com.instar.frontend_android.ui.utils.Helpers
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.Serializable
 
@@ -164,7 +166,9 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
 
 
     private suspend fun checkImages(filterEditing: MutableList<ImageAndVideo>): ApiResponse<Any> {
-        return uploadFileService.checkVision(Helpers.convertToMultipartParts(requireContext(), filterEditing)).awaitResponse()
+        return withContext(Dispatchers.IO) {
+            uploadFileService.checkVision(Helpers.convertToMultipartParts(requireContext(), filterEditing)).awaitResponse()
+        }
     }
 
     private fun addFilterEditing(filterEditing: MutableList<ImageAndVideo>, fragmentManager: FragmentManager, isList: Boolean, position: Int, positionList: Int) {

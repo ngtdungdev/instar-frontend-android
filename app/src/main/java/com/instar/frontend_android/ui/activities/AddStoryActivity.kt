@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -20,10 +21,19 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityAddStoryBinding
+import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
 import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.fragments.PostFragment
+import com.instar.frontend_android.ui.services.ServiceBuilder
+import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UploadFileService
+import com.instar.frontend_android.ui.utils.Helpers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: ActivityAddStoryBinding
@@ -32,6 +42,7 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
     private var dataList: MutableList<ImageAndVideoInternalMemory> = mutableListOf()
     private lateinit var btnSelect: TextView // Di chuyển khai báo vào đây
     private var isIntentCalled = false
+    private lateinit var uploadFileService: UploadFileService
     private var pos = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +56,8 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
         LoaderManager.getInstance(this).initLoader(PostFragment.VIDEO_LOADER_ID, null, this)
         recyclerView = binding.imageRecyclerView
         initView()
+        uploadFileService = ServiceBuilder.buildService(UploadFileService::class.java, this);
+
     }
     companion object {
         const val LOADER_ID = 101
@@ -64,11 +77,21 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
             }
         }
         btnSelect.setOnClickListener(View.OnClickListener {
-            val selectedItem = dataList[pos].uri
-            val intent = Intent(this@AddStoryActivity, EditAddStoryActivity::class.java)
-            intent.putExtra("imageUri", selectedItem)
-            startActivity(intent)
-            isIntentCalled = true
+            lifecycleScope.launch {
+                try {
+                    val selectedItem = dataList[pos].uri
+
+                    val intent = Intent(this@AddStoryActivity, EditAddStoryActivity::class.java)
+
+                    checkImages(selectedItem)
+
+                    intent.putExtra("imageUri", selectedItem)
+                    startActivity(intent)
+                    isIntentCalled = true
+                } catch (e: Exception) {
+                    Toast.makeText(applicationContext, "${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         })
     }
 
@@ -121,6 +144,11 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
         }
     }
 
+    private suspend fun checkImages(uri: String): ApiResponse<Any> {
+        return withContext(Dispatchers.IO) {
+            uploadFileService.checkVision(listOf(Helpers.convertToMultipartPartURI(this@AddStoryActivity, uri))).awaitResponse()
+        }
+    }
 
     private fun loadRecyclerView() {
         adapter = ImageAndVideoAdapter(this, dataList, isListPost = false, savePosition = 0)

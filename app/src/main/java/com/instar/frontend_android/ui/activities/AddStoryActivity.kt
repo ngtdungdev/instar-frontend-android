@@ -40,7 +40,7 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ImageAndVideoAdapter
     private var dataList: MutableList<ImageAndVideoInternalMemory> = mutableListOf()
-    private lateinit var btnSelect: TextView // Di chuyển khai báo vào đây
+    private lateinit var btnSelect: TextView
     private var isIntentCalled = false
     private lateinit var uploadFileService: UploadFileService
     private var pos = 0

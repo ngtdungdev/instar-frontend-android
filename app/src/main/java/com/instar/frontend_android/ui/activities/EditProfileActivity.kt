@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -145,6 +146,10 @@ class EditProfileActivity : AppCompatActivity() {
         edtFullname.setText(user.fullname)
         edtIntroduction.setText(user.desc)
         edtPassword.setText("")
+
+        if (user.email.startsWith("fb_", ignoreCase = true)) {
+            edtPassword.visibility = View.GONE;
+        }
 
         val imageAvatarUrl = intent.getSerializableExtra("image") as? ImageAndVideo
 

@@ -33,9 +33,7 @@ import com.bumptech.glide.Glide
 import com.instar.frontend_android.databinding.RecycleViewItemSuggestedPostBinding
 import com.instar.frontend_android.databinding.RecyclerViewItemNewsfeedBinding
 import com.instar.frontend_android.types.requests.NotificationRequest
-import com.instar.frontend_android.ui.DTO.Story
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
-import com.instar.frontend_android.ui.fragments.ShareFragment
 import com.instar.frontend_android.ui.fragments.SharePostBottomSheetDialogFragment
 import com.instar.frontend_android.ui.services.FCMNotificationService
 import com.instar.frontend_android.ui.services.NotificationService

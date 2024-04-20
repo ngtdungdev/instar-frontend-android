@@ -14,6 +14,7 @@ import com.instar.frontend_android.ui.adapters.NotificationAdapter
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.UserService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.launch
 
@@ -24,6 +25,7 @@ class NotificationActivity: AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
 
     private lateinit var notificationService: NotificationService;
+    private lateinit var userService: UserService;
     private lateinit var notificationAdapter: NotificationAdapter;
 
     private var notificationList: MutableList<Notification> = mutableListOf()
@@ -54,14 +56,15 @@ class NotificationActivity: AppCompatActivity() {
                 val decodedTokenJson = Helpers.decodeJwt(accessToken)
                 val id = decodedTokenJson.getString("id")
                 val response = notificationService.getNotifications(id).awaitResponse()
-                notificationList = response.data?.notificationList!!;
+                val userResponse = userService.getUser(id).awaitResponse()
+                notificationList = response.data?.notificationList!!
+                val user = userResponse.data?.user!!
+
+                notificationAdapter = NotificationAdapter(applicationContext, notificationList, user, lifecycleScope)
+                recyclerView.adapter = notificationAdapter
             }
         }
 
-        val user:User? = intent.getSerializableExtra("user") as? User
 
-        notificationAdapter =
-            user?.let { NotificationAdapter(this, notificationList, it, lifecycleScope) }!!
-        recyclerView.adapter = notificationAdapter
     }
 }

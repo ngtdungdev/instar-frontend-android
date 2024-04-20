@@ -77,6 +77,7 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
             }
         }
         btnSelect.setOnClickListener(View.OnClickListener {
+            Log.i("com", "initView: $pos")
             lifecycleScope.launch {
                 try {
                     val selectedItem = dataList[pos].uri
@@ -156,9 +157,8 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         adapter.setOnItemClickListener(object : ImageAndVideoAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                if (!isIntentCalled) {
-                    this@AddStoryActivity.pos = position
-                }
+                pos = position
+                Log.i("com", "initView: $pos")
             }
             override fun onDeleteClick(position: Int, savePosition: Int) {}
         })

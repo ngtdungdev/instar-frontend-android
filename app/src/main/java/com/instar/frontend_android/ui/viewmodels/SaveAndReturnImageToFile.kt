@@ -21,17 +21,26 @@ class SaveAndReturnImageToFile {
                 null
             }
         }
+
+        fun stringToFile(filePath: String, context: Context): File? {
+            return try {
+                return File(context.filesDir, filePath)
+            } catch (e: Exception) {
+                e.message
+                null
+            }
+        }
         fun bitmapToBase64(bitmap: Bitmap, text: String, context: Context): String {
             val outputStream = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
             val byteArray = outputStream.toByteArray()
-            val file = File(context.filesDir, "image$text.txt")
+            val file = File(context.filesDir, "image$text.png")
             if (!file.exists()) {
                 file.createNewFile()
             }
             file.writeText(Base64.encodeToString(byteArray, Base64.DEFAULT))
             file.exists()
-            return "image$text.txt"
+            return "image$text.png"
         }
     }
 }

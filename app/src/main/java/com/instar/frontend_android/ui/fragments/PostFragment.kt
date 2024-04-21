@@ -185,7 +185,7 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 }
                 val rect = fragment.getCropRect(requireContext().contentResolver)!!
                 val rectString = "${rect.left},${rect.top},${rect.right},${rect.bottom}"
-                filterEditing.add(ImageAndVideo(bitmap.toString(), item.uri, rectString,"", 0))
+                filterEditing.add(ImageAndVideo(bitmap, item.uri, rectString,"", 0))
             }
             is VideoPostFragment -> {
                 filterEditing.add(ImageAndVideo("", item.uri, "", item.duration, 1))

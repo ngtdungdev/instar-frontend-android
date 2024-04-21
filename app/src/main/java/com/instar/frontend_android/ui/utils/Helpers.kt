@@ -15,6 +15,7 @@ import java.util.Base64
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import com.google.protobuf.ByteString
+import com.instar.frontend_android.ui.viewmodels.SaveAndReturnImageToFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
@@ -127,38 +128,48 @@ object Helpers {
         val parts = mutableListOf<MultipartBody.Part>()
 
         withContext(Dispatchers.IO) {
-            val contentResolver: ContentResolver = context.contentResolver
-
             for (imageAndVideo in imageAndVideoList) {
-                val uri = Uri.parse(imageAndVideo.uri)
-                val inputStream = contentResolver.openInputStream(uri)
-                inputStream.use { input ->
-                    input?.let {
-                        val fileName = getFileName(context, uri)
-                        // Mở một bản sao mới của inputStream để sử dụng trong writeTo
-                        val inputStreamCopy = contentResolver.openInputStream(uri)
-                        val requestBody = object : RequestBody() {
-                            override fun contentType(): MediaType? {
-                                return contentResolver.getType(uri)?.toMediaTypeOrNull()
-                            }
-
-                            override fun writeTo(sink: BufferedSink) {
-                                inputStreamCopy?.use { inputStream ->
-                                    try {
-                                        sink.writeAll(inputStream.source())
-                                    } catch (e: IOException) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                            }
-                        }
-                        val part = MultipartBody.Part.createFormData(name, fileName, requestBody)
-                        parts.add(part)
-                    }
+                val file = SaveAndReturnImageToFile.stringToFile(imageAndVideo.filePath, context)
+                file?.let {
+                    val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), it)
+                    val part = MultipartBody.Part.createFormData(name, it.name, requestBody)
+                    parts.add(part)
                 }
             }
         }
 
+//        withContext(Dispatchers.IO) {
+//            val contentResolver: ContentResolver = context.contentResolver
+//
+//            for (imageAndVideo in imageAndVideoList) {
+//                val uri = SaveAndReturnImageToFile.stringToUri(imageAndVideo.filePath, context)
+//                val inputStream = contentResolver.openInputStream(uri!!)
+//                inputStream.use { input ->
+//                    input?.let {
+//                        val fileName = getFileName(context, uri)
+//                        // Mở một bản sao mới của inputStream để sử dụng trong writeTo
+//                        val inputStreamCopy = contentResolver.openInputStream(uri)
+//                        val requestBody = object : RequestBody() {
+//                            override fun contentType(): MediaType? {
+//                                return contentResolver.getType(uri)?.toMediaTypeOrNull()
+//                            }
+//
+//                            override fun writeTo(sink: BufferedSink) {
+//                                inputStreamCopy?.use { inputStream ->
+//                                    try {
+//                                        sink.writeAll(inputStream.source())
+//                                    } catch (e: IOException) {
+//                                        e.printStackTrace()
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        val part = MultipartBody.Part.createFormData(name, fileName, requestBody)
+//                        parts.add(part)
+//                    }
+//                }
+//            }
+//        }
         return parts
     }
 

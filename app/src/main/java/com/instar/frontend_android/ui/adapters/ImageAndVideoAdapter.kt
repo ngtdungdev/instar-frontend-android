@@ -49,7 +49,6 @@ class ImageAndVideoAdapter(
         return data[position].type
     }
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        listener?.onItemClick(position)
         val item = data[position]
         if(item.type != MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
             holder.time.visibility = View.VISIBLE
@@ -62,6 +61,7 @@ class ImageAndVideoAdapter(
             .into(holder.image)
         loadChecked(holder, position)
         holder.itemView.setOnClickListener {
+            listener?.onItemClick(position)
             loadBtnChecked(holder,position)
         }
     }

@@ -2,6 +2,9 @@ package com.instar.frontend_android.ui.utils
 
 import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.net.Uri
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.adapters.CarouselAdapter
@@ -22,6 +25,7 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
+import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Instant
 import java.time.ZoneId
@@ -128,49 +132,71 @@ object Helpers {
         val parts = mutableListOf<MultipartBody.Part>()
 
         withContext(Dispatchers.IO) {
+            val contentResolver: ContentResolver = context.contentResolver
+
             for (imageAndVideo in imageAndVideoList) {
-                val file = SaveAndReturnImageToFile.stringToFile(imageAndVideo.filePath, context)
-                file?.let {
-                    val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), it)
-                    val part = MultipartBody.Part.createFormData(name, it.name, requestBody)
-                    parts.add(part)
+                if (imageAndVideo.type != ImageAndVideo.TYPE_IMAGE) {
+                    val uri = Uri.parse(imageAndVideo.uri)
+                    val inputStream = contentResolver.openInputStream(uri!!)
+                    inputStream.use { input ->
+                        input?.let {
+                            val fileName = getFileName(context, uri)
+                            // Mở một bản sao mới của inputStream để sử dụng trong writeTo
+                            val inputStreamCopy = contentResolver.openInputStream(uri)
+                            val requestBody = object : RequestBody() {
+                                override fun contentType(): MediaType? {
+                                    return contentResolver.getType(uri)?.toMediaTypeOrNull()
+                                }
+
+                                override fun writeTo(sink: BufferedSink) {
+                                    inputStreamCopy?.use { inputStream ->
+                                        try {
+                                            sink.writeAll(inputStream.source())
+                                        } catch (e: IOException) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                }
+                            }
+                            val part = MultipartBody.Part.createFormData(name, fileName, requestBody)
+                            parts.add(part)
+                        }
+                    }
+                } else {
+                    val uri = Uri.parse(imageAndVideo.uri)
+                    val inputStream = contentResolver.openInputStream(uri)
+                    inputStream.use { input ->
+                        input?.let {
+                            val croppedBitmap = SaveAndReturnImageToFile.stringToBitmap(imageAndVideo.filePath, context)
+                            val file = bitmapToFile(context, croppedBitmap!!)
+                            file?.let {
+                                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), it)
+                                val part = MultipartBody.Part.createFormData(name, it.name, requestBody)
+                                parts.add(part)
+                            }
+                        }
+                    }
                 }
             }
         }
 
-//        withContext(Dispatchers.IO) {
-//            val contentResolver: ContentResolver = context.contentResolver
-//
-//            for (imageAndVideo in imageAndVideoList) {
-//                val uri = SaveAndReturnImageToFile.stringToUri(imageAndVideo.filePath, context)
-//                val inputStream = contentResolver.openInputStream(uri!!)
-//                inputStream.use { input ->
-//                    input?.let {
-//                        val fileName = getFileName(context, uri)
-//                        // Mở một bản sao mới của inputStream để sử dụng trong writeTo
-//                        val inputStreamCopy = contentResolver.openInputStream(uri)
-//                        val requestBody = object : RequestBody() {
-//                            override fun contentType(): MediaType? {
-//                                return contentResolver.getType(uri)?.toMediaTypeOrNull()
-//                            }
-//
-//                            override fun writeTo(sink: BufferedSink) {
-//                                inputStreamCopy?.use { inputStream ->
-//                                    try {
-//                                        sink.writeAll(inputStream.source())
-//                                    } catch (e: IOException) {
-//                                        e.printStackTrace()
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        val part = MultipartBody.Part.createFormData(name, fileName, requestBody)
-//                        parts.add(part)
-//                    }
-//                }
-//            }
-//        }
         return parts
+    }
+
+    private fun bitmapToFile(context: Context, bitmap: Bitmap): File? {
+        val timestamp = System.currentTimeMillis() // Get current timestamp
+        val fileName = "temp_image_$timestamp.png" // Append timestamp to filename
+        val file = File(context.cacheDir, fileName)
+        try {
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            return file
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     @JvmStatic

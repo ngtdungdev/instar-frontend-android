@@ -32,7 +32,7 @@ class ImageAndVideoAdapter(
     private var saveImage: ImageView? = null
     interface OnItemClickListener {
         fun onItemClick(position: Int)
-        fun onDeleteClick(position: Int, savePosition: Int)
+        fun onDeleteClick(position: Int, save: Int)
     }
 
     fun getListSelectorItem(): MutableList<Int> {
@@ -61,7 +61,6 @@ class ImageAndVideoAdapter(
             .into(holder.image)
         loadChecked(holder, position)
         holder.itemView.setOnClickListener {
-            listener?.onItemClick(position)
             loadBtnChecked(holder,position)
         }
     }
@@ -117,7 +116,6 @@ class ImageAndVideoAdapter(
             holder.image.alpha = 0.7F
             saveImage = holder.image
         }
-        listener?.onDeleteClick(position, savePosition)
     }
     private fun formatDuration(durationMillis: Long): String {
         if (durationMillis < 0) return ""

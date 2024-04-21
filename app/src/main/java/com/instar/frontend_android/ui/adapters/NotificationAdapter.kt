@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 class NotificationAdapter(
     private val context: Context,
     private val notificationList: MutableList<Notification>,
-    private val user: User,
+    private val user: User?,
     private val lifecycleScope: LifecycleCoroutineScope,
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
     private lateinit var userService: UserService
@@ -61,8 +61,22 @@ class NotificationAdapter(
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val notification = notificationList[position]
+                    lifecycleScope.launch {
+                        val response = notification.senderId?.let { it1 -> userService.follow(it1).awaitResponse() }
+                        val user = response?.data?.user
 
+                        followButton.visibility = if (user?.followings?.contains(notification.senderId) == true) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
 
+                        btnUnfollow.visibility = if (user?.followings?.contains(notification.senderId) == true) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                    }
                 }
             }
 
@@ -71,20 +85,35 @@ class NotificationAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val notification: Notification = notificationList[position]
 
+                    lifecycleScope.launch {
+                        val response = notification.senderId?.let { it1 -> userService.follow(it1).awaitResponse() }
+                        val user = response?.data?.user
 
+                        followButton.visibility = if (user?.followings?.contains(notification.senderId) == true) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+
+                        btnUnfollow.visibility = if (user?.followings?.contains(notification.senderId) == true) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                    }
 
                 }
             }
         }
 
         fun bind(notification: Notification) {
-            followButton.visibility = if (user.followings.contains(notification.senderId)) {
+            followButton.visibility = if (user?.followings?.contains(notification.senderId) == true) {
                 View.GONE
             } else {
                 View.VISIBLE
             }
 
-            btnUnfollow.visibility = if (user.followings.contains(notification.senderId)) {
+            btnUnfollow.visibility = if (user?.followings?.contains(notification.senderId) == true) {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -135,7 +164,7 @@ class NotificationAdapter(
             timeTextView.text = Helpers.convertToTimeAgo(notification.createdAt.toString())
 
             Glide.with(context)
-                .load(user.profilePicture?.url)
+                .load(user?.profilePicture?.url)
                 .placeholder(R.drawable.default_image) // Placeholder image
                 .error(R.drawable.default_image) // Image to display if load fails
                 .into(avatar)

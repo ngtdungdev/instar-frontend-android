@@ -187,7 +187,11 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         })
 
         binding.message.setOnKeyListener { v, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+            println(event.keyCode)
+            if (event.action == KeyEvent.ACTION_DOWN && (keyCode == KeyEvent.KEYCODE_ENTER || event.keyCode == KeyEvent.KEYCODE_ENTER)) {
+                notificationService = ServiceBuilder.buildService(NotificationService::class.java, requireContext());
+                fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, requireContext());
+
                 val newComment = Comment("", user.username,
                     binding.message.text.toString(),
                     comment?.parentId ?: comment?.id,
@@ -200,7 +204,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     onSuccess = { response ->
                         val comment = response.data?.comment
 
-                        Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
                         instance.comment = null
                         instance.message.clearFocus()
                         instance.message.clearComposingText()
@@ -245,13 +248,13 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                                 onError = { println("Error while sending comment notification.") }
                             )
 
-                            fcmNotificationService.sendReplyCommentNotification(notificationRequest).handleResponse(
+                            fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
                                 onSuccess = { println("Successfully sent the add comment notification.") },
                                 onError = { println("Error while sending add comment notification.") }
                             )
                         }
 
-
+                        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit();
                     },
                     onError = { error ->
                         Toast.makeText(context, "Failure", Toast.LENGTH_LONG).show()
@@ -262,11 +265,12 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     }
                 )
 
-
                 return@setOnKeyListener true
             }
             return@setOnKeyListener false // Trả về false để tiếp tục xử lý sự kiện
         }
+
+
 
         initView()
         return binding.root
@@ -430,9 +434,95 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
                     setBottomSheetHeight(bottomSheet, expandedHeight)
+
+                    notificationService = ServiceBuilder.buildService(NotificationService::class.java, requireContext())
+                    fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, requireContext())
+
+                    if (binding.message.text?.isBlank() == true || binding.message.text?.isEmpty() == true) {
+                        dismiss()
+                    } else {
+                        val newComment = Comment("", user.username,
+                            binding.message.text.toString(),
+                            comment?.parentId ?: comment?.id,
+                            user.id,
+                            mutableListOf(),
+                            Date().time.toString(),
+                            Date().time.toString())
+
+                        postService.commentPost(post.id, newComment).handleResponse(
+                            onSuccess = { response ->
+                                val comment = response.data?.comment
+
+                                instance.comment = null
+                                instance.message.clearFocus()
+                                instance.message.clearComposingText()
+                                instance.message.text?.clear()
+
+                                if (comment?.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
+                                    val notificationRequest = NotificationRequest(post.id,
+                                        comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
+
+                                    notificationService.createNotification(post.userId, notificationRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the comment notification.") },
+                                        onError = { println("Error while sending comment notification.") }
+                                    )
+
+                                    fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the add comment notification.") },
+                                        onError = { println("Error while sending add comment notification.") }
+                                    )
+                                } else {
+                                    val commentParent = post.comments.find { it.id.equals(comment?.parentId) }
+
+                                    val notificationReplyRequest = NotificationRequest(post.id,
+                                        commentParent?.id, user.id, commentParent?.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+
+                                    commentParent?.userId?.let {
+                                        notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                            onSuccess = { println("Successfully sent the reply comment notification.") },
+                                            onError = { println("Error while sending reply comment notification.") }
+                                        )
+                                    }
+
+                                    fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the reply comment notification.") },
+                                        onError = { println("Error while sending reply comment notification.") }
+                                    )
+
+                                    val notificationRequest = NotificationRequest(post.id,
+                                        comment?.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
+
+                                    notificationService.createNotification(post.userId, notificationRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the comment notification.") },
+                                        onError = { println("Error while sending comment notification.") }
+                                    )
+
+                                    fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the add comment notification.") },
+                                        onError = { println("Error while sending add comment notification.") }
+                                    )
+                                }
+
+                                activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+
+                                dismiss() // Đảm bảo rằng dismiss() được gọi trên fragment hiện tại
+                            },
+                            onError = { error ->
+                                Toast.makeText(context, "Failure", Toast.LENGTH_LONG).show()
+                                instance.comment = null
+                                instance.message.clearFocus()
+                                instance.message.clearComposingText()
+                                instance.message.text?.clear()
+
+                                dismiss() // Đảm bảo rằng dismiss() được gọi trên fragment hiện tại
+                            }
+                        )
+                    }
+
+
                     true
                 }
-                false -> {false}
+                false -> false
             }
         }
 

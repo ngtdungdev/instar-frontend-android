@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.databinding.ActivityNotificationBinding
 import com.instar.frontend_android.ui.DTO.Notification
-import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.adapters.NotificationAdapter
 import com.instar.frontend_android.ui.services.NotificationService
 import com.instar.frontend_android.ui.services.ServiceBuilder
@@ -34,6 +33,7 @@ class NotificationActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         notificationService = ServiceBuilder.buildService(NotificationService::class.java, this)
+        userService = ServiceBuilder.buildService(UserService::class.java, this)
         binding = ActivityNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -47,6 +47,9 @@ class NotificationActivity: AppCompatActivity() {
 
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
+
+        notificationAdapter = NotificationAdapter(applicationContext, mutableListOf(), null, lifecycleScope)
+        recyclerView.adapter = notificationAdapter
 
         lifecycleScope.launch {
             val sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
@@ -64,7 +67,5 @@ class NotificationActivity: AppCompatActivity() {
                 recyclerView.adapter = notificationAdapter
             }
         }
-
-
     }
 }

@@ -4,11 +4,9 @@ import android.content.Context
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.instar.frontend_android.types.event.PostAdapterEvent
 import com.instar.frontend_android.ui.DTO.User
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.utils.Helpers
-import org.greenrobot.eventbus.EventBus
 
 class FCMService : FirebaseMessagingService {
     private var applicationContext: Context

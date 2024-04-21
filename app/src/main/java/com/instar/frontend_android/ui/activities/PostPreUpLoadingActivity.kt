@@ -96,6 +96,8 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
 
                     if (response != null) {
                         Toast.makeText(applicationContext, "Post created", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this@PostPreUpLoadingActivity, MainScreenActivity::class.java)
+                        startActivity(intent)
                     } else {
                         // Handle the case where the response is null
                         Log.e("Error", "Failed to create post")

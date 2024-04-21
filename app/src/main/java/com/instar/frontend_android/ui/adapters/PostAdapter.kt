@@ -213,6 +213,21 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
                                                 postBinding.heart.setBackgroundResource(R.drawable.ic_instagram_icon_heart_full)
                                                 postBinding.likeTotal.text = "${likes.size} lượt thích"
 
+
+                                                val notificationRequest = NotificationRequest(post.id, null, id, post.userId, "${user.username} đã thích bài viết của bạn", "like-post")
+
+                                                notificationService.createNotification(post.userId, notificationRequest).handleResponse(
+                                                    onSuccess = { println("Successfully sent the user notification.") },
+                                                    onError = { println("Error while sending user notification.") }
+                                                )
+
+                                                fcmNotificationService.sendLikePostNotification(notificationRequest).handleResponse(
+                                                    onSuccess = { println("Successfully sent the user notification.") },
+                                                    onError = {
+                                                        println(it)
+                                                        println("Error while sending user notification.")
+                                                    }
+                                                )
                                             },
                                             onError = { error ->
                                                 val message = error.message

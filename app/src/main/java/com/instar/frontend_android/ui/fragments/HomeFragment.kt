@@ -1,5 +1,6 @@
 package com.instar.frontend_android.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -232,6 +233,7 @@ class HomeFragment : Fragment() {
 
         postAdapter = userResponse.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
         postAdapter.setOnRemoveChangedListener(object : PostAdapter.OnRemoveChangedListener {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onRemoveChanged(position: Int) {
                 // Gọi lại phương thức loadComments() trong PostAdapter khi danh sách comment thay đổi
                 feedList.removeAt(position)

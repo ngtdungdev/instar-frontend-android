@@ -134,6 +134,8 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
 
             lifecycleScope.launch {
                 try {
+                    Toast.makeText(requireContext(), "Chờ tí nhé", Toast.LENGTH_LONG).show()
+
                     checkImages(filterEditing)
                     val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
                         putExtra("Data", filterEditing as Serializable)
@@ -150,15 +152,6 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                     if (imageAndVideo.filePath.isBlank() || imageAndVideo.filePath.isEmpty()) {
                         continue
                     }
-//                    val isSensitive = Helpers.detectSensitiveContent(imageAndVideo)
-//                    if (!isSensitive) { // Kiểm tra nội dung nhạy cảm
-//                        // Nếu phát hiện có nội dung nhạy cảm, thông báo cho người dùng và không chuyển sang activity mới
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "Vui lòng không đăng ảnh nhạy cảm!",
-//                            Toast.LENGTH_LONG
-//                        ).show()
-//                    }
                 }
             }
         }

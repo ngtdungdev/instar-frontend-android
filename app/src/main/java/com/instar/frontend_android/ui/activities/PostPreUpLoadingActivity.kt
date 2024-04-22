@@ -74,6 +74,8 @@ class PostPreUpLoadingActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     val response = try {
+                        Toast.makeText(applicationContext, "Chờ tí nhé", Toast.LENGTH_LONG).show()
+
                         // Tạo một JsonObject để chỉ lấy các trường cần thiết từ đối tượng post
                         val jsonObject = JsonObject().apply {
                             addProperty("userId", post.userId)

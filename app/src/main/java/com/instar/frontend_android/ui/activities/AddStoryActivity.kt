@@ -80,6 +80,9 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
             Log.i("com", "initView: $pos")
             lifecycleScope.launch {
                 try {
+
+                    Toast.makeText(applicationContext, "Chờ tí nhé", Toast.LENGTH_LONG).show()
+
                     val selectedItem = dataList[pos].uri
 
                     val intent = Intent(this@AddStoryActivity, EditAddStoryActivity::class.java)

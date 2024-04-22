@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityRegisterBinding
@@ -148,7 +149,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        ViewEffect.ViewText(registerBtn)
         registerBtn.setOnClickListener {
             if (!Helpers.isValidEmail(emailText.text.toString())
                 || emailText.text.toString().isEmpty()
@@ -158,7 +158,7 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener;
             }
 
-            if (!passwordText.text.toString().equals(passwordConfirmText.text.toString())) {
+            if (passwordText.text.toString() != passwordConfirmText.text.toString()) {
                 return@setOnClickListener;
             }
 

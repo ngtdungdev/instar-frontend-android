@@ -51,6 +51,8 @@ import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UserService
 import java.util.Date
+import kotlin.math.max
+
 
 
 class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
@@ -68,7 +70,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var post: Post
     private lateinit var user: User
     private var comment: Comment? = null
-    private lateinit var userList: List<User>
     private lateinit var fcmNotificationService: FCMNotificationService
     private lateinit var notificationService: NotificationService
 
@@ -77,6 +78,21 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var layoutCommentHeight = 0
     private var expandedHeight = 0
     private var peekHeightFragment = 0
+
+    interface OnCommentChangedListener {
+        fun onCommentChanged(commentWithReply: MutableList<CommentWithReply>)
+    }
+
+    private var onCommentChangedListener: OnCommentChangedListener? = null
+
+    fun setOnCommentChangedListener(listener: OnCommentChangedListener) {
+        onCommentChangedListener = listener
+    }
+
+    private fun updateCommentList(commentWithReplies: MutableList<CommentWithReply>) {
+        // Cập nhật danh sách comment
+        onCommentChangedListener?.onCommentChanged(commentWithReplies)
+    }
 
     companion object {
         @SuppressLint("StaticFieldLeak")
@@ -120,7 +136,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
             // Make EditText clickable
             instance.binding.message.movementMethod = LinkMovementMethod.getInstance()
-            Log.d("123", "click")
         }
 
         @JvmStatic
@@ -138,6 +153,7 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         this.user = user
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentCommentBottomSheetDialogBinding.inflate(layoutInflater)
@@ -148,7 +164,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         avatarComment = binding.avatarComment
         userService = ServiceBuilder.buildService(UserService::class.java, requireContext())
         postService = ServiceBuilder.buildService(PostService::class.java, requireContext())
-        userList = getUsersForMention()
 
         // Load avatar image using Glide
         Glide.with(requireContext())
@@ -166,7 +181,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     // Check if "@" is typed
                     if (text.length > start && text[start] == '@') {
                         // Show list of users for mentioning
-                        showUserListForMention()
                     }
                 }
             }
@@ -202,14 +216,22 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
                 postService.commentPost(post.id, newComment).handleResponse(
                     onSuccess = { response ->
-                        val comment = response.data?.comment
+                        val comment = response.data?.comment ?: return@handleResponse
+
+                        commentList.add(0, CommentWithReply(comment, mutableListOf()))
+                        val clonedList = commentList.toMutableList()
+                        commentList.clear()
+                        commentList.addAll(clonedList)
+                        commentAdapter.notifyItemInserted(0)
+                        commentRecyclerView.scrollToPosition(0)
+                        commentAdapter.notifyDataSetChanged()
 
                         instance.comment = null
                         instance.message.clearFocus()
                         instance.message.clearComposingText()
                         instance.message.text?.clear()
 
-                        if (comment?.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
+                        if (comment.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
                             val notificationRequest = NotificationRequest(post.id,
                                 comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
 
@@ -223,37 +245,56 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                                 onError = { println("Error while sending add comment notification.") }
                             )
                         } else {
-                            val commentParent = post.comments.find { it.id.equals(comment?.parentId) }
+                            val commentParent = post.comments.find { it.id.equals(comment.parentId) }
 
-                            val notificationReplyRequest = NotificationRequest(post.id,
-                                commentParent?.id, user.id, commentParent?.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+                            if (commentParent != null) {
+                                val commentWithReplyIdx = commentList.indexOfFirst {
+                                    it.comment.id.equals(commentParent.id)
+                                }
 
-                            commentParent?.userId?.let {
-                                notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                commentList[commentWithReplyIdx].replies.add(0, comment)
+                                val clonedList = commentList.toMutableList()
+                                commentList.clear()
+                                commentList.addAll(clonedList)
+                                commentAdapter.notifyItemInserted(0)
+                                commentRecyclerView.scrollToPosition(0)
+                                commentAdapter.notifyDataSetChanged()
+
+                                val notificationReplyRequest = NotificationRequest(post.id,
+                                    commentParent.id, user.id,
+                                    commentParent.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+
+                                commentAdapter.notifyItemChanged(commentWithReplyIdx)
+
+                                commentParent.userId.let {
+                                    notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                        onSuccess = { println("Successfully sent the reply comment notification.") },
+                                        onError = { println("Error while sending reply comment notification.") }
+                                    )
+                                }
+
+                                fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
                                     onSuccess = { println("Successfully sent the reply comment notification.") },
                                     onError = { println("Error while sending reply comment notification.") }
                                 )
+
+                                val notificationRequest = NotificationRequest(post.id,
+                                    comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
+
+                                notificationService.createNotification(post.userId, notificationRequest).handleResponse(
+                                    onSuccess = { println("Successfully sent the comment notification.") },
+                                    onError = { println("Error while sending comment notification.") }
+                                )
+
+                                fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
+                                    onSuccess = { println("Successfully sent the add comment notification.") },
+                                    onError = { println("Error while sending add comment notification.") }
+                                )
                             }
-
-                            fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
-                                onSuccess = { println("Successfully sent the reply comment notification.") },
-                                onError = { println("Error while sending reply comment notification.") }
-                            )
-
-                            val notificationRequest = NotificationRequest(post.id,
-                                comment?.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
-
-                            notificationService.createNotification(post.userId, notificationRequest).handleResponse(
-                                onSuccess = { println("Successfully sent the comment notification.") },
-                                onError = { println("Error while sending comment notification.") }
-                            )
-
-                            fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
-                                onSuccess = { println("Successfully sent the add comment notification.") },
-                                onError = { println("Error while sending add comment notification.") }
-                            )
                         }
 
+
+                        updateCommentList(commentList);
                         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit();
                     },
                     onError = { error ->
@@ -275,41 +316,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
         initView()
         return binding.root
     }
-
-    private fun showUserListForMention() {
-//        // Show the list in a dropdown or popup
-//        // Example: You can use a RecyclerView inside a PopupWindow to display the list
-//        val popupWindow = PopupWindow(context)
-//        val userListView = LayoutInflater.from(context).inflate(R.layout.user_list_popup, null)
-//        val recyclerView: RecyclerView = userListView.findViewById(R.id.userRecyclerView)
-//        recyclerView.layoutManager = LinearLayoutManager(context)
-//        recyclerView.adapter = context?.let { MentionAdapter(it, userList) }
-//
-//        // Set the dimensions and show the popup window
-//        popupWindow.contentView = userListView
-//        popupWindow.isFocusable = true
-//        popupWindow.width = WindowManager.LayoutParams.WRAP_CONTENT
-//        popupWindow.height = WindowManager.LayoutParams.WRAP_CONTENT
-//        popupWindow.showAsDropDown(binding.message) // Show popup near the EditText
-    }
-
-    private fun getUsersForMention(): List<User> {
-        var users: List<User> = emptyList() // Initialize with an empty list
-
-        userService.getUsers().handleResponse(
-            onSuccess = { response ->
-                // Update the users list inside the onSuccess lambda
-                users = response.data?.users ?: emptyList()
-            },
-            onError = { error ->
-                // Handle error
-                Log.e("ServiceBuilder", "Error: ${error.message} - ${error.status}")
-            }
-        )
-        return users // Return the users list
-    }
-
-
 
     private fun initView() {
         textInputLayout.isHintEnabled = false
@@ -451,14 +457,22 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
                         postService.commentPost(post.id, newComment).handleResponse(
                             onSuccess = { response ->
-                                val comment = response.data?.comment
+                                val comment = response.data?.comment ?: return@handleResponse
+
+                                commentList.add(0, CommentWithReply(comment, mutableListOf()))
+                                val clonedList = commentList.toMutableList()
+                                commentList.clear()
+                                commentList.addAll(clonedList)
+                                commentAdapter.notifyItemInserted(0)
+                                commentRecyclerView.scrollToPosition(0)
+                                commentAdapter.notifyDataSetChanged()
 
                                 instance.comment = null
                                 instance.message.clearFocus()
                                 instance.message.clearComposingText()
                                 instance.message.text?.clear()
 
-                                if (comment?.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
+                                if (comment.parentId?.isBlank() == true || comment?.parentId?.isEmpty() == true) {
                                     val notificationRequest = NotificationRequest(post.id,
                                         comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
 
@@ -472,36 +486,55 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                                         onError = { println("Error while sending add comment notification.") }
                                     )
                                 } else {
-                                    val commentParent = post.comments.find { it.id.equals(comment?.parentId) }
+                                    val commentParent = post.comments.find { it.id.equals(comment.parentId) }
 
-                                    val notificationReplyRequest = NotificationRequest(post.id,
-                                        commentParent?.id, user.id, commentParent?.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+                                    if (commentParent != null) {
+                                        val commentWithReplyIdx = commentList.indexOfFirst {
+                                            it.comment.id.equals(commentParent.id)
+                                        }
 
-                                    commentParent?.userId?.let {
-                                        notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                        commentList[commentWithReplyIdx].replies.add(0, comment)
+                                        val clonedList = commentList.toMutableList()
+                                        commentList.clear()
+                                        commentList.addAll(clonedList)
+                                        commentAdapter.notifyItemInserted(0)
+                                        commentRecyclerView.scrollToPosition(0)
+                                        commentAdapter.notifyDataSetChanged()
+
+                                        val notificationReplyRequest = NotificationRequest(post.id,
+                                            commentParent.id, user.id,
+                                            commentParent.userId, "${user.username} đã phản hồi bình luận của bạn", "reply-comment")
+
+                                        commentAdapter.notifyItemChanged(commentWithReplyIdx)
+
+                                        commentParent.userId.let {
+                                            notificationService.createNotification(it, notificationReplyRequest).handleResponse(
+                                                onSuccess = { println("Successfully sent the reply comment notification.") },
+                                                onError = { println("Error while sending reply comment notification.") }
+                                            )
+                                        }
+
+                                        fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
                                             onSuccess = { println("Successfully sent the reply comment notification.") },
                                             onError = { println("Error while sending reply comment notification.") }
                                         )
+
+                                        val notificationRequest = NotificationRequest(post.id,
+                                            comment.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
+
+                                        notificationService.createNotification(post.userId, notificationRequest).handleResponse(
+                                            onSuccess = { println("Successfully sent the comment notification.") },
+                                            onError = { println("Error while sending comment notification.") }
+                                        )
+
+                                        fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
+                                            onSuccess = { println("Successfully sent the add comment notification.") },
+                                            onError = { println("Error while sending add comment notification.") }
+                                        )
                                     }
-
-                                    fcmNotificationService.sendReplyCommentNotification(notificationReplyRequest).handleResponse(
-                                        onSuccess = { println("Successfully sent the reply comment notification.") },
-                                        onError = { println("Error while sending reply comment notification.") }
-                                    )
-
-                                    val notificationRequest = NotificationRequest(post.id,
-                                        comment?.id, user.id, post.userId, "${user.username} đã bình luận về bài viết của bạn", "add-comment")
-
-                                    notificationService.createNotification(post.userId, notificationRequest).handleResponse(
-                                        onSuccess = { println("Successfully sent the comment notification.") },
-                                        onError = { println("Error while sending comment notification.") }
-                                    )
-
-                                    fcmNotificationService.sendAddCommentNotification(notificationRequest).handleResponse(
-                                        onSuccess = { println("Successfully sent the add comment notification.") },
-                                        onError = { println("Error while sending add comment notification.") }
-                                    )
                                 }
+
+                                updateCommentList(commentList);
 
                                 activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
 
@@ -525,38 +558,6 @@ class CommentBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 false -> false
             }
         }
-
-//        message.setOnClickListener {
-//            message.hint = "Bình luận về ..."
-//            val inputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            if (!inputMethodManager.isAcceptingText) {
-//                inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
-//                setBottomSheetPeekHeight(bottomSheet,(expandedHeight))
-//            }
-//        }
-//        message.setOnEditorActionListener { view, actionId, _ ->
-//            when(actionId == EditorInfo.IME_ACTION_DONE) {
-//                true -> {
-//                    val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-//                    setBottomSheetPeekHeight(bottomSheet, expandedHeight)
-//                    true
-//                }
-//                false -> {false}
-//            }
-//        }
-
-
-//        commentRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//                val inputMethodManager = requireView().context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                if (inputMethodManager.isAcceptingText) {
-//                    inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
-//                    setBottomSheetPeekHeight(bottomSheet,expandedHeight)
-//                }
-//            }
-//        })
     }
 
 

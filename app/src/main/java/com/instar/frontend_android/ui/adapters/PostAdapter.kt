@@ -33,6 +33,8 @@ import com.bumptech.glide.Glide
 import com.instar.frontend_android.databinding.RecycleViewItemSuggestedPostBinding
 import com.instar.frontend_android.databinding.RecyclerViewItemNewsfeedBinding
 import com.instar.frontend_android.types.requests.NotificationRequest
+import com.instar.frontend_android.ui.DTO.Comment
+import com.instar.frontend_android.ui.DTO.CommentWithReply
 import com.instar.frontend_android.ui.fragments.CommentBottomSheetDialogFragment
 import com.instar.frontend_android.ui.fragments.SharePostBottomSheetDialogFragment
 import com.instar.frontend_android.ui.services.FCMNotificationService
@@ -239,7 +241,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
                                 }
                             })
                             val carouselAdapter = CarouselAdapter(context, mediaList, gestureDetector)
-                            postBinding.carousel?.adapter = carouselAdapter
+                            postBinding.carousel.adapter = carouselAdapter
                         }
                     }
                 } catch (e: Exception) {
@@ -303,6 +305,25 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
                     val fragment = CommentBottomSheetDialogFragment.newInstance()
                     fragment.setPost(post)
                     fragment.setUserId(user)
+                    fragment.setOnCommentChangedListener(object : CommentBottomSheetDialogFragment.OnCommentChangedListener {
+                        override fun onCommentChanged(commentWithReply: MutableList<CommentWithReply>) {
+                            // Gọi lại phương thức loadComments() trong PostAdapter khi danh sách comment thay đổi
+                            val newComments = mutableListOf<Comment>();
+
+                            commentWithReply.forEach {
+                                newComments.add(it.comment)
+
+                                it.replies.forEach {it2 ->
+                                    newComments.add(it2)
+                                }
+                            }
+
+                            post.comments.clear()
+                            post.comments.addAll(newComments)
+
+                            postBinding.commentTotal.text = "Xem tất cả ${post.comments.size} bình luận"
+                        }
+                    })
                     fragment.show(fragmentManager, CommentBottomSheetDialogFragment.TAG)
                 } else {
                     Log.d("PostAdapter", "CommentBottomSheetDialogFragment already added")
@@ -406,5 +427,4 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
         clearPageChangeListeners()
         super.onDetachedFromRecyclerView(recyclerView)
     }
-
 }

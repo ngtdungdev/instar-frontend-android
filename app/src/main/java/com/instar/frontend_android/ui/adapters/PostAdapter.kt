@@ -48,6 +48,21 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
     private val viewHolders: MutableList<PostViewHolder> = mutableListOf()
     private lateinit var fcmNotificationService: FCMNotificationService
 
+    interface OnRemoveChangedListener {
+        fun onRemoveChanged(position: Int)
+    }
+
+    private var onRemoveChangedListener: OnRemoveChangedListener? = null
+
+    fun setOnRemoveChangedListener(listener: OnRemoveChangedListener) {
+        onRemoveChangedListener = listener
+    }
+
+    private fun updatePostList(position: Int) {
+        // Cập nhật danh sách comment
+        onRemoveChangedListener?.onRemoveChanged(position)
+    }
+
     init {
         setHasStableIds(true)
     }
@@ -65,7 +80,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
         notificationService = ServiceBuilder.buildService(NotificationService::class.java, parent.context)
         fcmNotificationService = ServiceBuilder.buildService(FCMNotificationService::class.java, parent.context)
 
-        return PostViewHolder(view, user, userService, postService, fcmNotificationService, notificationService, lifecycleScope, fragmentManager).also {
+        return PostViewHolder(view, user, userService, postService, fcmNotificationService, notificationService, lifecycleScope, fragmentManager, ::updatePostList).also {
             viewHolders.add(it)
         }
     }
@@ -86,7 +101,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
         }
     }
 
-    class PostViewHolder(view: View, private val user:User, private val userService: UserService, private val postService: PostService, private val fcmNotificationService: FCMNotificationService, private val notificationService: NotificationService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(view) {
+    class PostViewHolder(view: View, private val user:User, private val userService: UserService, private val postService: PostService, private val fcmNotificationService: FCMNotificationService, private val notificationService: NotificationService, private val lifecycleScope: LifecycleCoroutineScope, private val fragmentManager: FragmentManager, private val updatePostList: (Int) -> Unit) : RecyclerView.ViewHolder(view) {
         private lateinit var postBinding: RecyclerViewItemNewsfeedBinding
 
         private lateinit var pageChangeListener: ViewPager2.OnPageChangeCallback
@@ -109,7 +124,9 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
             }
         }
 
-        @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "LogNotTimber")
+        @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "LogNotTimber",
+            "NotifyDataSetChanged"
+        )
         fun bind(post: Post, position: Int) {
             if (!::postBinding.isInitialized) {
                 postBinding = RecyclerViewItemNewsfeedBinding.bind(itemView)
@@ -374,11 +391,7 @@ class PostAdapter(private val data: MutableList<PostAdapterType>, private val li
                                         postService.deletePost(userId, post.id).awaitResponse()
                                     }
 
-                                    (itemView.context as? RecyclerView)?.adapter?.let { adapter ->
-                                        if (adapter is PostAdapter) {
-                                                adapter.removeItem(position)
-                                        }
-                                    }
+                                    updatePostList(position)
                                 };
                             }
                             true

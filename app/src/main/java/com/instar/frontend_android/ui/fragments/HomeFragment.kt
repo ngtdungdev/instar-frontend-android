@@ -24,6 +24,8 @@ import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentHomeBinding
 import com.instar.frontend_android.types.responses.ApiResponse
 import com.instar.frontend_android.types.responses.UserResponse
+import com.instar.frontend_android.ui.DTO.Comment
+import com.instar.frontend_android.ui.DTO.CommentWithReply
 import com.instar.frontend_android.ui.DTO.Images
 import com.instar.frontend_android.ui.DTO.Post
 import com.instar.frontend_android.ui.activities.LoginOtherActivity
@@ -229,6 +231,17 @@ class HomeFragment : Fragment() {
         }
 
         postAdapter = userResponse.user?.let { PostAdapter(feedList, lifecycleScope, it, requireActivity().supportFragmentManager) }!!
+        postAdapter.setOnRemoveChangedListener(object : PostAdapter.OnRemoveChangedListener {
+            override fun onRemoveChanged(position: Int) {
+                // Gọi lại phương thức loadComments() trong PostAdapter khi danh sách comment thay đổi
+                feedList.removeAt(position)
+                val clonedList = feedList.toMutableList()
+                feedList.clear()
+                feedList.addAll(clonedList)
+                postAdapter.notifyItemRemoved(position)
+                postAdapter.notifyDataSetChanged()
+            }
+        })
         feedsRecyclerView.layoutManager = LinearLayoutManager(context)
         feedsRecyclerView.adapter = postAdapter
     }

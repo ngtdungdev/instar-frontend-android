@@ -1,6 +1,7 @@
 package com.instar.frontend_android.ui.services
 
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.VisionResponse
 import com.instar.frontend_android.ui.DTO.ProfilePicture
 import okhttp3.MultipartBody
 import retrofit2.Call
@@ -24,7 +25,7 @@ interface UploadFileService {
     @POST("$AUTH_PREFIX/vision")
     fun checkVision(
         @Part files: List<MultipartBody.Part>
-    ): Call<ApiResponse<Any>>
+    ): Call<ApiResponse<VisionResponse>>
 
     @POST("$AUTH_PREFIX/{filename}")
     fun delete(

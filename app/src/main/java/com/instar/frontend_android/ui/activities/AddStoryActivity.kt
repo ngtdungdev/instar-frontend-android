@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.ActivityAddStoryBinding
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.VisionResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideo
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
@@ -29,11 +30,13 @@ import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.fragments.PostFragment
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UploadFileService
 import com.instar.frontend_android.ui.utils.Helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Cursor>{
     private lateinit var binding: ActivityAddStoryBinding
@@ -77,24 +80,28 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
             }
         }
         btnSelect.setOnClickListener(View.OnClickListener {
-            Log.i("com", "initView: $pos")
+            Toast.makeText(applicationContext, "Chờ tí nhé", Toast.LENGTH_LONG).show()
+
+            val selectedItem = dataList[pos].uri
+
+            val intent = Intent(this@AddStoryActivity, EditAddStoryActivity::class.java)
+
             lifecycleScope.launch {
-                try {
+                uploadFileService.checkVision(listOf(Helpers.convertToMultipartPartURI(this@AddStoryActivity, selectedItem))).handleResponse(
+                    onSuccess = {
 
-                    Toast.makeText(applicationContext, "Chờ tí nhé", Toast.LENGTH_LONG).show()
-
-                    val selectedItem = dataList[pos].uri
-
-                    val intent = Intent(this@AddStoryActivity, EditAddStoryActivity::class.java)
-
-                    checkImages(selectedItem)
-
-                    intent.putExtra("imageUri", selectedItem)
-                    startActivity(intent)
-                    isIntentCalled = true
-                } catch (e: Exception) {
-                    Toast.makeText(applicationContext, "${e.message}", Toast.LENGTH_LONG).show()
-                }
+                        if (it.data?.message != null && it.data.message != "No violation detected.") {
+                            Toast.makeText(this@AddStoryActivity, "${it.data.message}", Toast.LENGTH_LONG).show()
+                        } else {
+                            intent.putExtra("imageUri", selectedItem)
+                            startActivity(intent)
+                            isIntentCalled = true
+                        }
+                    },
+                    onError = {
+                        Toast.makeText(this@AddStoryActivity, "${it.message}", Toast.LENGTH_LONG).show()
+                    }
+                )
             }
         })
     }
@@ -148,7 +155,7 @@ class AddStoryActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Curs
         }
     }
 
-    private suspend fun checkImages(uri: String): ApiResponse<Any> {
+    private suspend fun checkImages(uri: String): ApiResponse<VisionResponse> {
         return withContext(Dispatchers.IO) {
             uploadFileService.checkVision(listOf(Helpers.convertToMultipartPartURI(this@AddStoryActivity, uri))).awaitResponse()
         }

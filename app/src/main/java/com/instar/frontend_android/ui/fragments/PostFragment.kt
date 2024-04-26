@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.instar.frontend_android.R
 import com.instar.frontend_android.databinding.FragmentPostBinding
 import com.instar.frontend_android.types.responses.ApiResponse
+import com.instar.frontend_android.types.responses.VisionResponse
 import com.instar.frontend_android.ui.DTO.ImageAndVideoInternalMemory
 import com.instar.frontend_android.ui.activities.PostFilterEditingActivity
 import com.instar.frontend_android.ui.adapters.GridSpacingItemDecoration
@@ -34,6 +35,7 @@ import com.instar.frontend_android.ui.adapters.ImageAndVideoAdapter
 import com.instar.frontend_android.ui.services.OnFragmentClickListener
 import com.instar.frontend_android.ui.services.ServiceBuilder
 import com.instar.frontend_android.ui.services.ServiceBuilder.awaitResponse
+import com.instar.frontend_android.ui.services.ServiceBuilder.handleResponse
 import com.instar.frontend_android.ui.services.UploadFileService
 import com.instar.frontend_android.ui.utils.Helpers
 import com.instar.frontend_android.ui.viewmodels.FilterEditingViewModel
@@ -118,6 +120,8 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             loadRecyclerView()
         }
 
+        val context = requireContext();
+
         btnContinue.setOnClickListener {
             val fragmentManager = requireActivity().supportFragmentManager
             val filterEditing: MutableList<ImageAndVideo> = mutableListOf()
@@ -132,35 +136,30 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
                 )
             } else addFilterEditing(filterEditing, fragmentManager, false, savePosition, 0)
 
+            Toast.makeText(requireContext(), "Chờ tí nhé", Toast.LENGTH_LONG).show()
+
             lifecycleScope.launch {
-                try {
-                    Toast.makeText(requireContext(), "Chờ tí nhé", Toast.LENGTH_LONG).show()
+                uploadFileService.checkVision(Helpers.convertToMultipartParts(context, filterEditing)).handleResponse(
+                    onSuccess = {
 
-                    checkImages(filterEditing)
-                    val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                        putExtra("Data", filterEditing as Serializable)
+                        if (it.data?.message != null && it.data.message != "No violation detected.") {
+                            Toast.makeText(requireContext(), "${it.data.message}", Toast.LENGTH_LONG).show()
+                        } else {
+                            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                                putExtra("Data", filterEditing as Serializable)
+                            }
+                            startActivity(intent)
+                            requireActivity().overridePendingTransition(
+                                R.anim.slide_in_right,
+                                R.anim.slide_out_left
+                            )
+                        }
+                    },
+                    onError = {
+                        Toast.makeText(requireContext(), "${it.message}", Toast.LENGTH_LONG).show()
                     }
-                    startActivity(intent)
-                    requireActivity().overridePendingTransition(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left
-                    )
-                } catch (e: IOException) {
-                    Toast.makeText(requireContext(), "${e.message}", Toast.LENGTH_LONG).show()
-                }
-                for (imageAndVideo in filterEditing) {
-                    if (imageAndVideo.filePath.isBlank() || imageAndVideo.filePath.isEmpty()) {
-                        continue
-                    }
-                }
+                )
             }
-        }
-    }
-
-
-    private suspend fun checkImages(filterEditing: MutableList<ImageAndVideo>): ApiResponse<Any> {
-        return withContext(Dispatchers.IO) {
-            uploadFileService.checkVision(Helpers.convertToMultipartParts(requireContext(), filterEditing)).awaitResponse()
         }
     }
 

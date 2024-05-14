@@ -20,7 +20,7 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("StaticFieldLeak")
 object ServiceBuilder {
     private lateinit var context: Context
-    private const val BASE_URL = "http://192.168.113.1:8080/api/"
+    private const val BASE_URL = "http://192.168.1.5:8080/api/"
     private lateinit var authService: AuthService
 
     // OkHttpClient setup with custom settings

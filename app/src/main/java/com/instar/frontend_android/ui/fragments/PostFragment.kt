@@ -139,25 +139,13 @@ class PostFragment : Fragment(), LoaderManager.LoaderCallbacks<Cursor>{
             Toast.makeText(requireContext(), "Chờ tí nhé", Toast.LENGTH_LONG).show()
 
             lifecycleScope.launch {
-                uploadFileService.checkVision(Helpers.convertToMultipartParts(context, filterEditing)).handleResponse(
-                    onSuccess = {
-
-                        if (it.data?.message != null && it.data.message != "No violation detected.") {
-                            Toast.makeText(requireContext(), "${it.data.message}", Toast.LENGTH_LONG).show()
-                        } else {
-                            val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
-                                putExtra("Data", filterEditing as Serializable)
-                            }
-                            startActivity(intent)
-                            requireActivity().overridePendingTransition(
-                                R.anim.slide_in_right,
-                                R.anim.slide_out_left
-                            )
-                        }
-                    },
-                    onError = {
-                        Toast.makeText(requireContext(), "${it.message}", Toast.LENGTH_LONG).show()
-                    }
+                val intent = Intent(context, PostFilterEditingActivity::class.java).apply {
+                    putExtra("Data", filterEditing as Serializable)
+                }
+                startActivity(intent)
+                requireActivity().overridePendingTransition(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
                 )
             }
         }
